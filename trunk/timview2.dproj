@@ -34,6 +34,7 @@
         <Base>true</Base>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base)'!=''">
+        <DCC_OutputDRCFile>true</DCC_OutputDRCFile>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <DCC_SymbolReferenceInfo>1</DCC_SymbolReferenceInfo>
         <ImageDebugInfo>true</ImageDebugInfo>
@@ -120,7 +121,7 @@
                     <VersionInfo Name="MajorVer">1</VersionInfo>
                     <VersionInfo Name="MinorVer">0</VersionInfo>
                     <VersionInfo Name="Release">0</VersionInfo>
-                    <VersionInfo Name="Build">65</VersionInfo>
+                    <VersionInfo Name="Build">66</VersionInfo>
                     <VersionInfo Name="Debug">False</VersionInfo>
                     <VersionInfo Name="PreRelease">False</VersionInfo>
                     <VersionInfo Name="Special">False</VersionInfo>
@@ -132,7 +133,7 @@
                 <VersionInfoKeys>
                     <VersionInfoKeys Name="CompanyName"/>
                     <VersionInfoKeys Name="FileDescription"/>
-                    <VersionInfoKeys Name="FileVersion">1.0.0.65</VersionInfoKeys>
+                    <VersionInfoKeys Name="FileVersion">1.0.0.66</VersionInfoKeys>
                     <VersionInfoKeys Name="InternalName"/>
                     <VersionInfoKeys Name="LegalCopyright"/>
                     <VersionInfoKeys Name="LegalTrademarks"/>
@@ -140,6 +141,13 @@
                     <VersionInfoKeys Name="ProductName"/>
                     <VersionInfoKeys Name="ProductVersion">1.0.0.0</VersionInfoKeys>
                 </VersionInfoKeys>
+                <Language>
+                    <Language Name="ProjectLang">$00000419</Language>
+                </Language>
+                <RDP_Source_Files>
+                    <RDP_Source_Files Name="Item0">units\uMain.dfm</RDP_Source_Files>
+                    <RDP_Source_Files Name="Item1">timview2.drc</RDP_Source_Files>
+                </RDP_Source_Files>
             </Delphi.Personality>
             <Platforms>
                 <Platform value="Win32">True</Platform>
