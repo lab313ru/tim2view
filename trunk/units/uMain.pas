@@ -5,7 +5,7 @@ interface
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, Menus, ExtCtrls, ComCtrls, XPMan, Grids, ecc, edc, dglOpenGL,
-  uScanThread, uCommon, NativeXml;
+  uScanThread, uCommon, Vcl.StdCtrls, NativeXml;
 
 type
   TfrmMain = class(TForm)
@@ -33,15 +33,18 @@ type
     dlgOpenFile: TOpenDialog;
     stbMain: TStatusBar;
     pbProgress: TProgressBar;
+    btnStopScan: TButton;
     procedure FormResize(Sender: TObject);
     procedure mnScanFileClick(Sender: TObject);
     procedure stbMainDrawPanel(StatusBar: TStatusBar; Panel: TStatusPanel;
       const Rect: TRect);
     procedure FormCreate(Sender: TObject);
-    procedure FormDestroy(Sender: TObject);
+    procedure btnStopScanClick(Sender: TObject);
   private
     { Private declarations }
-    pResult: PNativeXML;
+    pResult: ^TNativeXml;
+    pScanThread: ^TScanThread;
+    procedure ScanTerminated(Sender: TObject);
   public
     { Public declarations }
   end;
@@ -69,7 +72,7 @@ end;
 
 procedure TfrmMain.mnScanFileClick(Sender: TObject);
 var
-  ScanThread: TScanThread;
+  //ScanThread: TScanThread;
   fScanName, fResName: string;
 begin
   if dlgOpenFile.InitialDir = '' then
@@ -89,16 +92,21 @@ begin
   fResName := ChangeFileExt(GetStartDir + cResultsDir +
     ExtractFileName(fScanName), '.tsr');
 
-  pResult^ := TNativeXML.Create(nil);
+  New(pResult);
+  New(pScanThread);
 
-  ScanThread := TScanThread.Create(fScanName, pResult);
-  ScanThread.FreeOnTerminate := True;
-  ScanThread.Priority := tpHighest;
-  ScanThread.Resume;
+  pResult^ := TNativeXML.Create(nil);
+  pScanThread^ := TScanThread.Create(fScanName, pResult);
+
+  //ScanThread := TScanThread.Create(fScanName, pResult);
+  pScanThread^.FreeOnTerminate := True;
+  pScanThread^.OnTerminate := ScanTerminated;
+  pScanThread^.Priority := tpHighest;
+  pScanThread^.Resume;
 
   repeat
     Application.ProcessMessages;
-  until ScanThread.Terminated;
+  until pScanThread^.Terminated;
 
   stbMain.Panels[0].Text := sStatusBarSavingResults;
   Application.ProcessMessages;
@@ -109,37 +117,51 @@ begin
   stbMain.Panels[0].Text := '';
   Application.ProcessMessages;
 
-  
+  Dispose(pResult);
+  Dispose(pScanThread);
+end;
+
+procedure TfrmMain.ScanTerminated(Sender: TObject);
+begin
+  Application.MessageBox(sScanResultGood, 'Information', MB_OK +
+    MB_ICONINFORMATION + MB_TOPMOST);
+  pbProgress.Position := 0;
 end;
 
 procedure TfrmMain.stbMainDrawPanel(StatusBar: TStatusBar;
   Panel: TStatusPanel; const Rect: TRect);
 begin
   if Panel = stbMain.Panels[1] then
-    with pbProgress do
-    begin
-      Top := Rect.Top;
-      Left := Rect.Left;
-      Width := Rect.Right - Rect.Left - 15;
-      Height := Rect.Bottom - Rect.Top;
-    end;
+  begin
+    pbProgress.Top := Rect.Top;
+    pbProgress.Left := Rect.Left;
+    pbProgress.Width := Rect.Right - Rect.Left - btnStopScan.Width - 15;
+    pbProgress.Height := Rect.Bottom - Rect.Top;
+
+    btnStopScan.Top := Rect.Top;
+    btnStopScan.Left := Rect.Left + pbProgress.Width;
+    btnStopScan.Height := Rect.Bottom - Rect.Top;
+  end;
+end;
+
+procedure TfrmMain.btnStopScanClick(Sender: TObject);
+begin
+  if pScanThread = nil then Exit;
+
+  pScanThread^.StopScan := True;
 end;
 
 procedure TfrmMain.FormCreate(Sender: TObject);
 var
-  pbProgressStyle: integer;
+  Style: integer;
 begin
   pbProgress.Parent := stbMain;
-  pbProgressStyle := GetWindowLong(pbProgress.Handle, GWL_EXSTYLE) -
-    WS_EX_STATICEDGE;
-  SetWindowLong(pbProgress.Handle, GWL_EXSTYLE, pbProgressStyle);
+  Style := GetWindowLong(pbProgress.Handle, GWL_EXSTYLE) - WS_EX_STATICEDGE;
+  SetWindowLong(pbProgress.Handle, GWL_EXSTYLE, Style);
 
-  New(pResult);
-end;
-
-procedure TfrmMain.FormDestroy(Sender: TObject);
-begin
-  Dispose(pResult);
+  btnStopScan.Parent := stbMain;
+  Style := GetWindowLong(btnStopScan.Handle, GWL_EXSTYLE) - WS_EX_STATICEDGE;
+  SetWindowLong(btnStopScan.Handle, GWL_EXSTYLE, Style);
 end;
 
 end.

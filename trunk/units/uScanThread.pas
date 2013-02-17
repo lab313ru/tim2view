@@ -3,7 +3,7 @@ unit uScanThread;
 interface
 
 uses
-  Classes, Windows, crc32, uCommon, uTIM, NativeXML;
+  Classes, Windows, crc32, uCommon, uTIM;
 
 type
   TScanThread = class(Classes.TThread)
@@ -18,6 +18,7 @@ type
     pClearBufferSize: DWORD;
     pSectorBufferSize: DWORD;
     pSrcFileStream: TFileStream;
+    pStopScan: Boolean;
     procedure SetStatusText;
     procedure UpdateProgressBar;
     procedure ClearAndNil(var HEAD: PTIMHeader); overload;
@@ -29,15 +30,16 @@ type
   protected
     procedure Execute; override;
   public
-    constructor Create(const FileToScan: string; fResult: PNativeXml);
+    constructor Create(const FileToScan: string; fResult: pointer);
     destructor Destroy; override;
     property Terminated;
+    property StopScan: boolean write pStopScan;
   end;
 
 implementation
 
 uses
-  uMain, uCDIMAGE, SysUtils;
+  uMain, uCDIMAGE, SysUtils, NativeXml;
 
 const  
   cClearBufferSize = ((cTIMMaxSize div cSectorDataSize) + 1) * cSectorDataSize * 2;
@@ -45,7 +47,7 @@ const
 
 { TScanThread }
 
-constructor TScanThread.Create(const FileToScan: string; fResult: PNativeXml);
+constructor TScanThread.Create(const FileToScan: string; fResult: pointer);
 var
   Node: TXmlNode;
 begin
@@ -54,6 +56,7 @@ begin
   pFileToScan := FileToScan;
   pFileSize := GetFileSZ(pFileToScan);
   pStatusText := '';
+  pStopScan := False;
 
   pResult := fResult;
   pResult^.XmlFormat := xfCompact;
@@ -137,7 +140,7 @@ begin
   pScanFinished := False;
   pTIMNumber := 0;
 
-  while True do
+  while not pStopScan do
   begin
     if TIMisHERE(ClearBuffer, TIM, pClearBufferPosition) then
     begin

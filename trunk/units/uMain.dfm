@@ -15,7 +15,6 @@ object frmMain: TfrmMain
   Position = poScreenCenter
   ScreenSnap = True
   OnCreate = FormCreate
-  OnDestroy = FormDestroy
   OnResize = FormResize
   PixelsPerInch = 96
   TextHeight = 13
@@ -23,28 +22,31 @@ object frmMain: TfrmMain
     Left = 0
     Top = 0
     Width = 734
-    Height = 491
+    Height = 477
     Align = alClient
     MultiLine = True
     TabOrder = 0
+    ExplicitHeight = 491
     object pnlMain: TPanel
       Left = 4
       Top = 6
       Width = 726
-      Height = 481
+      Height = 467
       Align = alClient
       BevelOuter = bvNone
       TabOrder = 0
+      ExplicitHeight = 481
       object splMain: TSplitter
         Left = 201
         Top = 0
-        Height = 481
+        Height = 467
+        ExplicitHeight = 481
       end
       object tvList: TTreeView
         Left = 0
         Top = 0
         Width = 201
-        Height = 481
+        Height = 467
         Align = alLeft
         Indent = 19
         RowSelect = True
@@ -54,26 +56,25 @@ object frmMain: TfrmMain
           0000000000010947006F006F0064002000540049004D0073002E000000000000
           0000000000FFFFFFFFFFFFFFFF00000000000000000000000001084200610064
           002000540049004D007300}
+        ExplicitHeight = 481
       end
       object pgcMain: TPageControl
         Left = 204
         Top = 0
         Width = 522
-        Height = 481
+        Height = 467
         ActivePage = tsImage
         Align = alClient
         TabOrder = 1
+        ExplicitHeight = 481
         object tsInfo: TTabSheet
           Caption = 'INFO'
-          ExplicitLeft = 0
-          ExplicitTop = 0
-          ExplicitWidth = 0
-          ExplicitHeight = 0
+          ExplicitHeight = 453
           object tbInfo: TStringGrid
             Left = 0
             Top = 0
             Width = 514
-            Height = 453
+            Height = 439
             Align = alClient
             ColCount = 3
             DefaultColWidth = 50
@@ -83,6 +84,7 @@ object frmMain: TfrmMain
             Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goColSizing, goRowSelect]
             ScrollBars = ssVertical
             TabOrder = 0
+            ExplicitHeight = 453
             ColWidths = (
               210
               108
@@ -92,32 +94,31 @@ object frmMain: TfrmMain
         object tsImage: TTabSheet
           Caption = 'IMAGE'
           ImageIndex = 1
+          ExplicitHeight = 453
           object pnlImage: TPanel
             Left = 0
             Top = 0
             Width = 514
-            Height = 453
+            Height = 439
             Align = alClient
             BevelOuter = bvLowered
             TabOrder = 0
+            ExplicitHeight = 453
           end
         end
         object tsClut: TTabSheet
           Caption = 'CLUT'
           ImageIndex = 2
-          ExplicitLeft = 0
-          ExplicitTop = 0
-          ExplicitWidth = 0
-          ExplicitHeight = 0
+          ExplicitHeight = 453
         end
       end
     end
   end
   object stbMain: TStatusBar
     Left = 0
-    Top = 491
+    Top = 477
     Width = 734
-    Height = 19
+    Height = 33
     Panels = <
       item
         Width = 250
@@ -135,6 +136,15 @@ object frmMain: TfrmMain
     Height = 16
     Smooth = True
     TabOrder = 2
+  end
+  object btnStopScan: TButton
+    Left = 404
+    Top = 440
+    Width = 75
+    Height = 25
+    Caption = 'Stop Scan'
+    TabOrder = 3
+    OnClick = btnStopScanClick
   end
   object mmMain: TMainMenu
     Left = 592
@@ -182,7 +192,7 @@ object frmMain: TfrmMain
   object dlgOpenFile: TOpenDialog
     DefaultExt = '.bin'
     Filter = 'All Files (*.*)|*.*'
-    Options = [ofHideReadOnly, ofNoChangeDir, ofFileMustExist, ofNoNetworkButton, ofEnableSizing]
+    Options = [ofHideReadOnly, ofFileMustExist, ofNoNetworkButton, ofEnableSizing, ofForceShowHidden]
     Title = 'Please, select File to Scan...'
     Left = 652
     Top = 478
