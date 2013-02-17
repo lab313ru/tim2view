@@ -1,7 +1,7 @@
 object frmMain: TfrmMain
   Left = 426
   Top = 188
-  Caption = 'TimView2+'
+  Caption = 'Tim2View by [Lab 313]'
   ClientHeight = 510
   ClientWidth = 734
   Color = clBtnFace
@@ -65,6 +65,10 @@ object frmMain: TfrmMain
         TabOrder = 1
         object tsInfo: TTabSheet
           Caption = 'INFO'
+          ExplicitLeft = 0
+          ExplicitTop = 0
+          ExplicitWidth = 0
+          ExplicitHeight = 0
           object tbInfo: TStringGrid
             Left = 0
             Top = 0
@@ -101,6 +105,10 @@ object frmMain: TfrmMain
         object tsClut: TTabSheet
           Caption = 'CLUT'
           ImageIndex = 2
+          ExplicitLeft = 0
+          ExplicitTop = 0
+          ExplicitWidth = 0
+          ExplicitHeight = 0
         end
       end
     end
