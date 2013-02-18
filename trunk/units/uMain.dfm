@@ -31,9 +31,6 @@ object frmMain: TfrmMain
         Width = 50
       end>
     OnDrawPanel = stbMainDrawPanel
-    ExplicitLeft = -316
-    ExplicitTop = 208
-    ExplicitWidth = 734
   end
   object tbcFiles: TTabControl
     Left = 0
@@ -43,10 +40,6 @@ object frmMain: TfrmMain
     Align = alClient
     MultiLine = True
     TabOrder = 3
-    ExplicitLeft = -316
-    ExplicitTop = -236
-    ExplicitWidth = 734
-    ExplicitHeight = 477
     object pnlMain: TPanel
       Left = 4
       Top = 6
@@ -55,8 +48,6 @@ object frmMain: TfrmMain
       Align = alClient
       BevelOuter = bvNone
       TabOrder = 0
-      ExplicitWidth = 726
-      ExplicitHeight = 467
       object splMain: TSplitter
         Left = 201
         Top = 0
@@ -77,7 +68,6 @@ object frmMain: TfrmMain
           0000000000010947006F006F0064002000540049004D0073002E000000000000
           0000000000FFFFFFFFFFFFFFFF00000000000000000000000001084200610064
           002000540049004D007300}
-        ExplicitHeight = 467
       end
       object pgcMain: TPageControl
         Left = 204
@@ -87,10 +77,10 @@ object frmMain: TfrmMain
         ActivePage = tsImage
         Align = alClient
         TabOrder = 1
-        ExplicitWidth = 522
-        ExplicitHeight = 467
         object tsInfo: TTabSheet
           Caption = 'INFO'
+          ExplicitLeft = 0
+          ExplicitTop = 0
           ExplicitWidth = 514
           ExplicitHeight = 439
           object tbInfo: TStringGrid
@@ -118,8 +108,6 @@ object frmMain: TfrmMain
         object tsImage: TTabSheet
           Caption = 'IMAGE'
           ImageIndex = 1
-          ExplicitWidth = 514
-          ExplicitHeight = 439
           object pnlImage: TPanel
             Left = 0
             Top = 0
@@ -128,13 +116,13 @@ object frmMain: TfrmMain
             Align = alClient
             BevelOuter = bvLowered
             TabOrder = 0
-            ExplicitWidth = 514
-            ExplicitHeight = 439
           end
         end
         object tsClut: TTabSheet
           Caption = 'CLUT'
           ImageIndex = 2
+          ExplicitLeft = 0
+          ExplicitTop = 0
           ExplicitWidth = 468
           ExplicitHeight = 369
         end

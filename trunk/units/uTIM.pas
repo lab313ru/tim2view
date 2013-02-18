@@ -106,7 +106,6 @@ function GetTIMSize(HEAD: PTIMHeader; CLUT: PCLUTHeader; IMAGE: PIMAGEHeader):
 function IWidthToRWidth(HEAD: PTIMHeader; IMAGE: PIMAGEHeader): Word;
 function TIMIsGood(HEAD: PTIMHeader; IMAGE: PIMAGEHeader): boolean;
 function TIMisHERE(BUFFER: PBytesArray; TIM: PTIM; var Position: DWORD): boolean;
-//function CheckTIM(TIM: PTIM): boolean;
 function LoadTimFromFile(const FileName: string; var Position: DWORD): PTIM;
 function CreateTIM: PTIM;
 procedure FreeTIM(TIM: PTIM);
@@ -233,8 +232,6 @@ var
   TIM_POS: DWORD;
 begin
   Result := False;
-  TIM^.CLUT_DATA := nil;
-  TIM^.IMAGE_DATA := nil;
 
   P := Position;
   Inc(Position);
@@ -310,8 +307,8 @@ begin
   Result^.dwTIMNumber := 0;
   Result^.bGOOD := False;
   New(Result^.DATA);
-  Result^.CLUT_DATA := nil;
-  Result^.IMAGE_DATA := nil;
+  New(Result^.CLUT_DATA);
+  New(Result^.IMAGE_DATA);
 end;
 
 procedure FreeTIM(TIM: PTIM);
@@ -324,10 +321,11 @@ begin
   TIM^.IMAGE := nil;
   Dispose(TIM^.DATA);
   TIM^.DATA := nil;
+  Dispose(TIM^.CLUT_DATA);
   TIM^.CLUT_DATA := nil;
+  Dispose(TIM^.IMAGE_DATA);
   TIM^.IMAGE_DATA := nil;
   Dispose(TIM);
-  TIM := nil;
 end;
 
 end.

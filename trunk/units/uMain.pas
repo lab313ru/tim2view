@@ -52,7 +52,6 @@ type
     { Private declarations }
     pResult: PNativeXml;
     pScanThread: PScanThread;
-    procedure ScanTerminated(Sender: TObject);
   public
     { Public declarations }
   end;
@@ -104,7 +103,7 @@ var
   fScanName, fResName: string;
 begin
   if dlgOpenFile.InitialDir = '' then
-    dlgOpenFile.InitialDir := ExtractFilePath(ParamStr(0));
+    dlgOpenFile.InitialDir := GetStartDir;
 
   if not dlgOpenFile.Execute then
     Exit;
@@ -126,15 +125,15 @@ begin
   pResult^ := TNativeXML.Create(nil);
   pScanThread^ := TScanThread.Create(fScanName, pResult);
 
-  //ScanThread := TScanThread.Create(fScanName, pResult);
   pScanThread^.FreeOnTerminate := True;
-  pScanThread^.OnTerminate := ScanTerminated;
   pScanThread^.Priority := tpHighest;
-  pScanThread^.Resume;
+  pScanThread^.Start;
 
   repeat
     Application.ProcessMessages;
   until pScanThread^.Terminated;
+
+  pbProgress.Position := 0;
 
   stbMain.Panels[0].Text := sStatusBarSavingResults;
   Application.ProcessMessages;
@@ -142,18 +141,14 @@ begin
   pResult^.SaveToFile(fResName);
   pResult^.Free;
 
+  Application.MessageBox(sScanResultGood, 'Information', MB_OK +
+    MB_ICONINFORMATION + MB_TOPMOST);
+
   stbMain.Panels[0].Text := '';
   Application.ProcessMessages;
 
   Dispose(pResult);
   Dispose(pScanThread);
-end;
-
-procedure TfrmMain.ScanTerminated(Sender: TObject);
-begin
-  Application.MessageBox(sScanResultGood, 'Information', MB_OK +
-    MB_ICONINFORMATION + MB_TOPMOST);
-  pbProgress.Position := 0;
 end;
 
 procedure TfrmMain.stbMainDrawPanel(StatusBar: TStatusBar; Panel: TStatusPanel;

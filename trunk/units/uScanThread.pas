@@ -48,7 +48,7 @@ constructor TScanThread.Create(const FileToScan: string; fResult: pointer);
 var
   Node: TXmlNode;
 begin
-  inherited Create(False);
+  inherited Create(True);
   pClearBufferPosition := 0;
   pFileToScan := FileToScan;
   pFileSize := GetFileSZ(pFileToScan);
