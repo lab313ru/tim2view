@@ -39,15 +39,16 @@ type
     tsInfo: TTabSheet;
     tbInfo: TStringGrid;
     tsImage: TTabSheet;
-    pnlImage: TPanel;
     tsClut: TTabSheet;
     xpMain: TXPManifest;
+    pnlImage: TPaintBox;
     procedure mnScanFileClick(Sender: TObject);
     procedure stbMainDrawPanel(StatusBar: TStatusBar; Panel: TStatusPanel;
       const Rect: TRect);
     procedure btnStopScanClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormResize(Sender: TObject);
+    procedure mnScanDirClick(Sender: TObject);
   private
     { Private declarations }
     pResult: PNativeXml;
@@ -61,9 +62,14 @@ var
 
 implementation
 
+uses
+  uDrawTIM, uTIM;
+
 {$R *.dfm}
 
 procedure TfrmMain.btnStopScanClick(Sender: TObject);
+var
+r: TRect;
 begin
   if pScanThread = nil then Exit;
 
@@ -95,6 +101,19 @@ begin
 
   for i := 1 to tbInfo.ColCount do
     tbInfo.ColWidths[i - 1] := w;
+end;
+
+procedure TfrmMain.mnScanDirClick(Sender: TObject);
+var
+  TIM: PTIM;
+  P: Cardinal;
+begin
+  P := 0;
+  TIM := LoadTimFromFile('test.tim', P);
+
+  DrawTIM(TIM, @pnlImage.Canvas, pnlImage.ClientRect);
+
+  FreeTIM(TIM);
 end;
 
 procedure TfrmMain.mnScanFileClick(Sender: TObject);

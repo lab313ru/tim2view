@@ -12,14 +12,14 @@ uses
   uCommon in 'Units\uCommon.pas',
   uMain in 'Units\uMain.pas' {frmMain},
   uScanThread in 'Units\uScanThread.pas',
-  uTIM in 'units\uTIM.pas';
+  uTIM in 'units\uTIM.pas',
+  uDrawTIM in 'units\uDrawTIM.pas';
 
 {$R *.res}
 
 begin
   Application.Initialize;
   Application.MainFormOnTaskbar := True;
-  TStyleManager.TrySetStyle('Metropolis UI Blue');
   Application.CreateForm(TfrmMain, frmMain);
   Application.CreateForm(TfrmMain, frmMain);
   Application.Run;

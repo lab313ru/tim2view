@@ -22,10 +22,10 @@ const
   cTIMMix = $04;
   cTIMVersions = [$00, $01];
   cTIMWrongBads = [cTIM4NC, cTIM8NC, cTIMMix];
-  cTIMCLUT = [cTIM4C, cTIM8C, cTIM16C, cTIM24C, cTIMMix];
+  cTIMCLUT = [cTIM4C, cTIM8C, cTIM16C, cTIM24C];
   cTIMNOCLUT = [cTIM4NC, cTIM8NC, cTIM16NC, cTIM24NC, cTIMMix];
-  cTIMBpp = [cTIM4C, cTIM8C, cTIM16C, cTIM24C, cTIMMix,
-    cTIM4NC, cTIM8NC, cTIM16NC, cTIM24NC, cTIMMix];
+  cTIMBpp = [cTIM4C, cTIM8C, cTIM16C, cTIM24C, cTIM4NC, cTIM8NC, cTIM16NC,
+             cTIM24NC, cTIMMix];
 
   cCLUTColorsMax = 1024;
   cCLUTCountMax = 512;
@@ -114,6 +114,7 @@ function GetTIMCLUTSize(HEAD: PTIMHeader; CLUT: PCLUTHeader): DWORD;
 function GetTIMIMAGESize(HEAD: PTIMHeader; IMAGE: PIMAGEHeader): DWORD;
 function GetTIMSize(HEAD: PTIMHeader; CLUT: PCLUTHeader; IMAGE: PIMAGEHeader):
   DWORD;
+function GetTimHeight(IMAGE: PIMAGEHeader): Word;
 function IWidthToRWidth(HEAD: PTIMHeader; IMAGE: PIMAGEHeader): Word;
 function TIMIsGood(HEAD: PTIMHeader; IMAGE: PIMAGEHeader): boolean;
 function TIMisHERE(BUFFER: PBytesArray; TIM: PTIM; var Position: DWORD): boolean;
@@ -125,6 +126,11 @@ implementation
 
 uses
   System.SysUtils, System.Classes;
+
+function GetTimHeight(IMAGE: PIMAGEHeader): Word;
+begin
+  Result := IMAGE^.wHeight;
+end;
 
 function GetTIMSize(HEAD: PTIMHeader; CLUT: PCLUTHeader; IMAGE: PIMAGEHeader):
   DWORD;

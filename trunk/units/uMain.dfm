@@ -79,10 +79,6 @@ object frmMain: TfrmMain
         TabOrder = 1
         object tsInfo: TTabSheet
           Caption = 'INFO'
-          ExplicitLeft = 0
-          ExplicitTop = 0
-          ExplicitWidth = 0
-          ExplicitHeight = 0
           object tbInfo: TStringGrid
             Left = 0
             Top = 0
@@ -106,23 +102,21 @@ object frmMain: TfrmMain
         object tsImage: TTabSheet
           Caption = 'IMAGE'
           ImageIndex = 1
-          object pnlImage: TPanel
+          object pnlImage: TPaintBox
             Left = 0
             Top = 0
             Width = 518
             Height = 433
             Align = alClient
-            BevelOuter = bvLowered
-            TabOrder = 0
+            ExplicitLeft = 144
+            ExplicitTop = 168
+            ExplicitWidth = 105
+            ExplicitHeight = 105
           end
         end
         object tsClut: TTabSheet
           Caption = 'CLUT'
           ImageIndex = 2
-          ExplicitLeft = 0
-          ExplicitTop = 0
-          ExplicitWidth = 0
-          ExplicitHeight = 0
         end
       end
     end
@@ -163,6 +157,7 @@ object frmMain: TfrmMain
       end
       object mnScanDir: TMenuItem
         Caption = 'Scan &Directory...'
+        OnClick = mnScanDirClick
       end
       object N1: TMenuItem
         Caption = '-'
