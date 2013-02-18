@@ -6,6 +6,7 @@ uses
   Classes, Windows, crc32, uCommon, uTIM;
 
 type
+  PScanThread = ^TScanThread;
   TScanThread = class(Classes.TThread)
   private
     { Private declarations }

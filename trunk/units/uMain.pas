@@ -3,53 +3,55 @@ unit uMain;
 interface
 
 uses
-  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, Menus, ExtCtrls, ComCtrls, XPMan, Grids, ecc, edc, dglOpenGL,
-  uScanThread, uCommon, Vcl.StdCtrls, NativeXml;
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.XPMan, Vcl.Grids, Vcl.ComCtrls,
+  Vcl.ExtCtrls, Vcl.Menus, Vcl.StdCtrls, NativeXml, uScanThread, uCommon;
 
 type
   TfrmMain = class(TForm)
+    btnStopScan: TButton;
+    dlgOpenFile: TOpenDialog;
     mmMain: TMainMenu;
     mnFile: TMenuItem;
-    mnImage: TMenuItem;
-    mnTIM: TMenuItem;
-    mnHelp: TMenuItem;
-    pnlMain: TPanel;
-    tvList: TTreeView;
-    splMain: TSplitter;
-    pgcMain: TPageControl;
-    tsInfo: TTabSheet;
-    tsImage: TTabSheet;
-    tsClut: TTabSheet;
-    xpMain: TXPManifest;
-    tbInfo: TStringGrid;
     mnScanFile: TMenuItem;
     mnScanDir: TMenuItem;
     N1: TMenuItem;
-    tbcFiles: TTabControl;
     mnCloseFile: TMenuItem;
-    mnExit: TMenuItem;
     mnCloseAllFiles: TMenuItem;
-    dlgOpenFile: TOpenDialog;
-    stbMain: TStatusBar;
-    pbProgress: TProgressBar;
-    btnStopScan: TButton;
+    mnExit: TMenuItem;
+    mnImage: TMenuItem;
+    mnTIM: TMenuItem;
+    mnReplaceIn: TMenuItem;
+    mnHelp: TMenuItem;
     mnHelpFile: TMenuItem;
     N2: TMenuItem;
     mnSVN: TMenuItem;
     mnSite: TMenuItem;
     N3: TMenuItem;
     mnAbout: TMenuItem;
-    procedure FormResize(Sender: TObject);
+    pbProgress: TProgressBar;
+    stbMain: TStatusBar;
+    tbcFiles: TTabControl;
+    pnlMain: TPanel;
+    splMain: TSplitter;
+    tvList: TTreeView;
+    pgcMain: TPageControl;
+    tsInfo: TTabSheet;
+    tbInfo: TStringGrid;
+    tsImage: TTabSheet;
+    pnlImage: TPanel;
+    tsClut: TTabSheet;
+    xpMain: TXPManifest;
     procedure mnScanFileClick(Sender: TObject);
     procedure stbMainDrawPanel(StatusBar: TStatusBar; Panel: TStatusPanel;
       const Rect: TRect);
-    procedure FormCreate(Sender: TObject);
     procedure btnStopScanClick(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
+    procedure FormResize(Sender: TObject);
   private
     { Private declarations }
-    pResult: ^TNativeXml;
-    pScanThread: ^TScanThread;
+    pResult: PNativeXml;
+    pScanThread: PScanThread;
     procedure ScanTerminated(Sender: TObject);
   public
     { Public declarations }
@@ -61,6 +63,26 @@ var
 implementation
 
 {$R *.dfm}
+
+procedure TfrmMain.btnStopScanClick(Sender: TObject);
+begin
+  if pScanThread = nil then Exit;
+
+  pScanThread^.StopScan := True;
+end;
+
+procedure TfrmMain.FormCreate(Sender: TObject);
+var
+  Style: integer;
+begin
+  pbProgress.Parent := stbMain;
+  Style := GetWindowLong(pbProgress.Handle, GWL_EXSTYLE) - WS_EX_STATICEDGE;
+  SetWindowLong(pbProgress.Handle, GWL_EXSTYLE, Style);
+
+  btnStopScan.Parent := stbMain;
+  Style := GetWindowLong(btnStopScan.Handle, GWL_EXSTYLE) - WS_EX_STATICEDGE;
+  SetWindowLong(btnStopScan.Handle, GWL_EXSTYLE, Style);
+end;
 
 procedure TfrmMain.FormResize(Sender: TObject);
 var
@@ -82,7 +104,7 @@ var
   fScanName, fResName: string;
 begin
   if dlgOpenFile.InitialDir = '' then
-    dlgOpenFile.InitialDir := GetStartDir;
+    dlgOpenFile.InitialDir := ExtractFilePath(ParamStr(0));
 
   if not dlgOpenFile.Execute then
     Exit;
@@ -134,8 +156,8 @@ begin
   pbProgress.Position := 0;
 end;
 
-procedure TfrmMain.stbMainDrawPanel(StatusBar: TStatusBar;
-  Panel: TStatusPanel; const Rect: TRect);
+procedure TfrmMain.stbMainDrawPanel(StatusBar: TStatusBar; Panel: TStatusPanel;
+  const Rect: TRect);
 begin
   if Panel = stbMain.Panels[1] then
   begin
@@ -150,25 +172,4 @@ begin
   end;
 end;
 
-procedure TfrmMain.btnStopScanClick(Sender: TObject);
-begin
-  if pScanThread = nil then Exit;
-
-  pScanThread^.StopScan := True;
-end;
-
-procedure TfrmMain.FormCreate(Sender: TObject);
-var
-  Style: integer;
-begin
-  pbProgress.Parent := stbMain;
-  Style := GetWindowLong(pbProgress.Handle, GWL_EXSTYLE) - WS_EX_STATICEDGE;
-  SetWindowLong(pbProgress.Handle, GWL_EXSTYLE, Style);
-
-  btnStopScan.Parent := stbMain;
-  Style := GetWindowLong(btnStopScan.Handle, GWL_EXSTYLE) - WS_EX_STATICEDGE;
-  SetWindowLong(btnStopScan.Handle, GWL_EXSTYLE, Style);
-end;
-
 end.
-
