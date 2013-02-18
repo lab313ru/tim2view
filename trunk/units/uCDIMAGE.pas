@@ -25,7 +25,7 @@ function ReplaceTimInFile(const FileName, TimToInsert: string; InsertTo:
 implementation
 
 uses
-  uCommon, uTIM, ecc, edc, SysUtils, Classes;
+  uCommon, uTIM, ecc, edc, System.SysUtils, System.Classes;
 
 type
   TCDSector = packed record

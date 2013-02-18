@@ -133,8 +133,6 @@ begin
     Application.ProcessMessages;
   until pScanThread^.Terminated;
 
-  pbProgress.Position := 0;
-
   stbMain.Panels[0].Text := sStatusBarSavingResults;
   Application.ProcessMessages;
 
@@ -143,6 +141,8 @@ begin
 
   Application.MessageBox(sScanResultGood, 'Information', MB_OK +
     MB_ICONINFORMATION + MB_TOPMOST);
+
+  pbProgress.Position := 0;
 
   stbMain.Panels[0].Text := '';
   Application.ProcessMessages;

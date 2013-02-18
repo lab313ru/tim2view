@@ -36,7 +36,7 @@ type
 implementation
 
 uses
-  uMain, uCDIMAGE, SysUtils, NativeXml;
+  uMain, uCDIMAGE, System.SysUtils, NativeXml;
 
 const  
   cClearBufferSize = ((cTIMMaxSize div cSectorDataSize) + 1) * cSectorDataSize * 2;
@@ -118,15 +118,6 @@ begin
   SectorBuffer := GetMemory(pSectorBufferSize);
   ClearBuffer := GetMemory(pClearBufferSize);
 
- { New(TIM);
-  New(TIM^.HEAD);
-  New(TIM^.CLUT);
-  New(TIM^.IMAGE);
-  TIM^.dwSIZE := 0;
-  TIM^.dwTimPosition := 0;
-  TIM^.dwTIMNumber := 0;
-  TIM^.bGOOD := False;
-  New(TIM^.DATA);  }
   TIM := CreateTIM;
 
   pStatusText := sStatusBarScanningFile;
@@ -180,24 +171,12 @@ begin
       ClearSectorBuffer(SectorBuffer, ClearBuffer);
     end;
   end;
-{  ClearAndNil(TIM^.HEAD);
-  ClearAndNil(TIM^.CLUT);
-  ClearAndNil(TIM^.IMAGE);
-  ClearAndNil(TIM^.DATA);
-  Dispose(TIM);  }
   FreeTIM(TIM);
   FreeMemory(SectorBuffer);
   FreeMemory(ClearBuffer);
 
   Synchronize(UpdateProgressBar);
   pSrcFileStream.Free;
-
- { T := GetTickCount - T;
-  S := Format('Scan completed!' + #13#10 +
-    'Time (secs): %d; TIMs: %d', [T div 1000, pTimsCount]);
-  Text2Clipboard(S);
-  MessageBox(Self.Handle, PAnsiChar(S),
-    'Information', MB_OK + MB_ICONINFORMATION + MB_TOPMOST);  }
 
   pStatusText := sStatusBarCalculatingCRC;
   Synchronize(SetStatusText);

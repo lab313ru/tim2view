@@ -3,7 +3,7 @@ unit Crc32;
 interface
 
 uses
-  SysUtils, Classes;
+  System.SysUtils, System.Classes;
 
 function FileCRC32(const FileName: string): string;
 function UpdateCRC32(InitCRC: Cardinal; BufPtr: Pointer; Len: Word): cardinal;

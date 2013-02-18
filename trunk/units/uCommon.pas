@@ -30,6 +30,8 @@ const
   sStatusBarScanningFile = 'Scanning File...';
   sStatusBarSavingResults = 'Saving Results...';
   sScanResultGood = 'Scan completed!';
+  sSDLInitError = 'Unable to init SDL: %s';
+  sSDLSetVideoModeError = 'Can''t set video mode: %s';
 
 type
   PNativeXML = ^TNativeXML;
@@ -45,7 +47,7 @@ function CheckFileExists(const FileName: string): boolean;
 implementation
 
 uses
-  uCDIMAGE, SysUtils, Classes;
+  uCDIMAGE, System.SysUtils, System.Classes;
 
 function CheckFileExists(const FileName: string): boolean;
 begin

@@ -37,12 +37,6 @@ const
   cTIMMaxSize = cTIMHeadSize + cCLUTColorsMax * cCLUTCountMax * 2 +
                 cCLUTHeadSize + cIMAGEWidthMax * cIMAGEHeightMax * 2 + cIMAGEHeadSize;
 
-type                
-  TCLUTDataArray = array[0..(cCLUTColorsMax * cCLUTCountMax * 2) - 1] of byte;
-  PCLUTDataArray = ^TCLUTDataArray;
-  TIMAGEDataArray = array[0..(cIMAGEWidthMax * cIMAGEHeightMax * 2) - 1] of byte;
-  PIMAGEDataArray = ^TIMAGEDataArray;
-
 type
   TTIMHeader = packed record //TIM Header (8 bytes)
     bMagic: byte; //$10 (1 byte)
@@ -80,6 +74,23 @@ type
   PTIMDataArray = ^TTIMDataArray;
 
 type
+  TCLUT_COLOR = record
+    //stp (special transparency processing) D=[0,1]
+    STP: byte;
+    //r,g,b  D=[0,31]
+    R: byte;
+    G: byte;
+    B: byte;
+  end;
+  PCLUT_COLOR = ^TCLUT_COLOR;
+  TCLUT_COLORS = array[0..cCLUTColorsMax * cCLUTCountMax - 1] of PCLUT_COLOR;
+  PCLUT_COLORS = ^TCLUT_COLORS;
+
+type
+  TIMAGE_INDEXES = array[0..cIMAGEWidthMax * cIMAGEHeightMax * 2 - 1] of byte;
+  PIMAGE_INDEXES = ^TIMAGE_INDEXES;
+
+type
   TTIM = record
     dwTimNumber: DWORD;
     dwTimPosition: DWORD;
@@ -88,8 +99,8 @@ type
     IMAGE: PIMAGEHeader;
     dwSIZE: DWORD;
     DATA: PTIMDataArray;
-    CLUT_DATA: PTIMDataArray;
-    IMAGE_DATA: PTIMDataArray;
+  {  CLUT_DATA: PCLUT_COLORS;
+    IMAGE_DATA: PIMAGE_INDEXES;  }
     bGOOD: Boolean;
   end;
   PTIM = ^TTIM;
@@ -113,7 +124,7 @@ procedure FreeTIM(TIM: PTIM);
 implementation
 
 uses
-  SysUtils, Classes;
+  System.SysUtils, System.Classes;
 
 function GetTIMSize(HEAD: PTIMHeader; CLUT: PCLUTHeader; IMAGE: PIMAGEHeader):
   DWORD;
@@ -258,12 +269,6 @@ begin
 
   Move(BUFFER^[TIM_POS], TIM^.DATA^[0], TIM^.dwSIZE);
 
-  if isTIMHasCLUT(TIM^.HEAD) then
-  TIM^.CLUT_DATA := @TIM^.DATA^[cTIMHeadSize];
-
-  TIM^.IMAGE_DATA := @TIM^.DATA[cTIMHeadSize +
-                     GetTIMCLUTSize(TIM^.HEAD, TIM^.CLUT)];
-
   Result := True;
 end;
 
@@ -307,8 +312,8 @@ begin
   Result^.dwTIMNumber := 0;
   Result^.bGOOD := False;
   New(Result^.DATA);
-  New(Result^.CLUT_DATA);
-  New(Result^.IMAGE_DATA);
+ { New(Result^.CLUT_DATA);
+  New(Result^.IMAGE_DATA); }
 end;
 
 procedure FreeTIM(TIM: PTIM);
@@ -321,10 +326,10 @@ begin
   TIM^.IMAGE := nil;
   Dispose(TIM^.DATA);
   TIM^.DATA := nil;
-  Dispose(TIM^.CLUT_DATA);
+ { Dispose(TIM^.CLUT_DATA);
   TIM^.CLUT_DATA := nil;
   Dispose(TIM^.IMAGE_DATA);
-  TIM^.IMAGE_DATA := nil;
+  TIM^.IMAGE_DATA := nil; }
   Dispose(TIM);
 end;
 

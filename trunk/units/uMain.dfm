@@ -81,8 +81,8 @@ object frmMain: TfrmMain
           Caption = 'INFO'
           ExplicitLeft = 0
           ExplicitTop = 0
-          ExplicitWidth = 514
-          ExplicitHeight = 439
+          ExplicitWidth = 0
+          ExplicitHeight = 0
           object tbInfo: TStringGrid
             Left = 0
             Top = 0
@@ -97,8 +97,6 @@ object frmMain: TfrmMain
             Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goColSizing, goRowSelect]
             ScrollBars = ssVertical
             TabOrder = 0
-            ExplicitWidth = 514
-            ExplicitHeight = 439
             ColWidths = (
               210
               108
@@ -123,8 +121,8 @@ object frmMain: TfrmMain
           ImageIndex = 2
           ExplicitLeft = 0
           ExplicitTop = 0
-          ExplicitWidth = 468
-          ExplicitHeight = 369
+          ExplicitWidth = 0
+          ExplicitHeight = 0
         end
       end
     end

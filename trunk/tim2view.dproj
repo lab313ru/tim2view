@@ -88,9 +88,15 @@
         <DelphiCompile Include="$(MainSource)">
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
+        <DCCReference Include="units\crc32.pas"/>
+        <DCCReference Include="units\ecc.pas"/>
+        <DCCReference Include="units\edc.pas"/>
+        <DCCReference Include="units\uCDIMAGE.pas"/>
+        <DCCReference Include="Units\uCommon.pas"/>
         <DCCReference Include="Units\uMain.pas">
             <Form>frmMain</Form>
         </DCCReference>
+        <DCCReference Include="Units\uScanThread.pas"/>
         <DCCReference Include="units\uTIM.pas"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>

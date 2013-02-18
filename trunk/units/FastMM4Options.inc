@@ -36,7 +36,7 @@ Set the default options for FastMM here.
  the application is not being run inside the IDE debugger, then the default
  Delphi memory manager will be used (which, since Delphi 2006, is FastMM
  without FullDebugMode.}
-{.$define InstallOnlyIfRunningInIDE}
+{$define InstallOnlyIfRunningInIDE}
 
 {Due to QC#14070 ("Delphi IDE attempts to free memory after the shutdown code
  of borlndmm.dll has been called"), FastMM cannot be uninstalled safely when
