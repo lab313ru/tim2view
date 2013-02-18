@@ -21,10 +21,6 @@ type
     pStopScan: Boolean;
     procedure SetStatusText;
     procedure UpdateProgressBar;
-    procedure ClearAndNil(var HEAD: PTIMHeader); overload;
-    procedure ClearAndNil(var CLUT: PCLUTHeader); overload;
-    procedure ClearAndNil(var IMAGE: PIMAGEHeader); overload;
-    procedure ClearAndNil(var TIMDATA: PTIMDataArray); overload;
     procedure AddResult(TIM: PTIM);
     procedure ClearSectorBuffer(SectorBuffer, ClearBuffer: PBytesArray);
   protected
@@ -121,7 +117,7 @@ begin
   SectorBuffer := GetMemory(pSectorBufferSize);
   ClearBuffer := GetMemory(pClearBufferSize);
 
-  New(TIM);
+ { New(TIM);
   New(TIM^.HEAD);
   New(TIM^.CLUT);
   New(TIM^.IMAGE);
@@ -129,7 +125,8 @@ begin
   TIM^.dwTimPosition := 0;
   TIM^.dwTIMNumber := 0;
   TIM^.bGOOD := False;
-  New(TIM^.DATA);
+  New(TIM^.DATA);  }
+  TIM := CreateTIM;
 
   pStatusText := sStatusBarScanningFile;
   Synchronize(SetStatusText);
@@ -182,14 +179,15 @@ begin
       ClearSectorBuffer(SectorBuffer, ClearBuffer);
     end;
   end;
-  ClearAndNil(TIM^.HEAD);
+{  ClearAndNil(TIM^.HEAD);
   ClearAndNil(TIM^.CLUT);
   ClearAndNil(TIM^.IMAGE);
+  ClearAndNil(TIM^.DATA);
+  Dispose(TIM);  }
+  FreeTIM(TIM);
   FreeMemory(SectorBuffer);
   FreeMemory(ClearBuffer);
 
-  ClearAndNil(TIM^.DATA);
-  Dispose(TIM);
   Synchronize(UpdateProgressBar);
   pSrcFileStream.Free;
 
@@ -219,45 +217,9 @@ begin
   frmMain.stbMain.Panels[0].Text := pStatusText;
 end;
 
-procedure TScanThread.ClearAndNil(var HEAD: PTIMHeader);
-begin
-  if HEAD = nil then
-    Exit;
-  Dispose(HEAD);
-
-  HEAD := nil;
-end;
-
-procedure TScanThread.ClearAndNil(var CLUT: PCLUTHeader);
-begin
-  if CLUT = nil then
-    Exit;
-  Dispose(CLUT);
-
-  CLUT := nil;
-end;
-
-procedure TScanThread.ClearAndNil(var IMAGE: PIMAGEHeader);
-begin
-  if IMAGE = nil then
-    Exit;
-  Dispose(IMAGE);
-
-  IMAGE := nil;
-end;
-
 procedure TScanThread.UpdateProgressBar;
 begin
   frmMain.pbProgress.Position := pSrcFileStream.Position;
-end;
-
-procedure TScanThread.ClearAndNil(var TIMDATA: PTIMDataArray);
-begin
-  if TIMDATA = nil then
-    Exit;
-
-  Dispose(TIMDATA);
-  TIMDATA := nil;
 end;
 
 procedure TScanThread.ClearSectorBuffer(SectorBuffer, ClearBuffer: PBytesArray);

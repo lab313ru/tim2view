@@ -7,7 +7,6 @@ uses
   uTIM in 'units\uTIM.pas',
   uCommon in 'units\uCommon.pas',
   uScanThread in 'units\uScanThread.pas',
-  uTIMView in 'units\uTIMView.pas',
   uCDIMAGE in 'units\uCDIMAGE.pas';
 
 {$R *.res}

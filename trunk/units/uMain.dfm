@@ -1,6 +1,6 @@
 object frmMain: TfrmMain
-  Left = 426
-  Top = 188
+  Left = 411
+  Top = 192
   Caption = 'Tim2View by [Lab 313]'
   ClientHeight = 510
   ClientWidth = 734
@@ -12,7 +12,7 @@ object frmMain: TfrmMain
   Font.Style = []
   Menu = mmMain
   OldCreateOrder = False
-  Position = poScreenCenter
+  Position = poDesigned
   ScreenSnap = True
   OnCreate = FormCreate
   OnResize = FormResize
@@ -26,7 +26,6 @@ object frmMain: TfrmMain
     Align = alClient
     MultiLine = True
     TabOrder = 0
-    ExplicitHeight = 491
     object pnlMain: TPanel
       Left = 4
       Top = 6
@@ -35,7 +34,6 @@ object frmMain: TfrmMain
       Align = alClient
       BevelOuter = bvNone
       TabOrder = 0
-      ExplicitHeight = 481
       object splMain: TSplitter
         Left = 201
         Top = 0
@@ -56,7 +54,6 @@ object frmMain: TfrmMain
           0000000000010947006F006F0064002000540049004D0073002E000000000000
           0000000000FFFFFFFFFFFFFFFF00000000000000000000000001084200610064
           002000540049004D007300}
-        ExplicitHeight = 481
       end
       object pgcMain: TPageControl
         Left = 204
@@ -66,10 +63,12 @@ object frmMain: TfrmMain
         ActivePage = tsImage
         Align = alClient
         TabOrder = 1
-        ExplicitHeight = 481
         object tsInfo: TTabSheet
           Caption = 'INFO'
-          ExplicitHeight = 453
+          ExplicitLeft = 0
+          ExplicitTop = 0
+          ExplicitWidth = 0
+          ExplicitHeight = 0
           object tbInfo: TStringGrid
             Left = 0
             Top = 0
@@ -84,7 +83,6 @@ object frmMain: TfrmMain
             Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goColSizing, goRowSelect]
             ScrollBars = ssVertical
             TabOrder = 0
-            ExplicitHeight = 453
             ColWidths = (
               210
               108
@@ -94,7 +92,6 @@ object frmMain: TfrmMain
         object tsImage: TTabSheet
           Caption = 'IMAGE'
           ImageIndex = 1
-          ExplicitHeight = 453
           object pnlImage: TPanel
             Left = 0
             Top = 0
@@ -103,13 +100,15 @@ object frmMain: TfrmMain
             Align = alClient
             BevelOuter = bvLowered
             TabOrder = 0
-            ExplicitHeight = 453
           end
         end
         object tsClut: TTabSheet
           Caption = 'CLUT'
           ImageIndex = 2
-          ExplicitHeight = 453
+          ExplicitLeft = 0
+          ExplicitTop = 0
+          ExplicitWidth = 0
+          ExplicitHeight = 0
         end
       end
     end
@@ -183,6 +182,25 @@ object frmMain: TfrmMain
     end
     object mnHelp: TMenuItem
       Caption = '&Help'
+      object mnHelpFile: TMenuItem
+        Caption = '&Help'
+        ShortCut = 16496
+      end
+      object N2: TMenuItem
+        Caption = '-'
+      end
+      object mnSVN: TMenuItem
+        Caption = 'Tim2Vew &SVN Repo'
+      end
+      object mnSite: TMenuItem
+        Caption = '&Lab 313 Forum'
+      end
+      object N3: TMenuItem
+        Caption = '-'
+      end
+      object mnAbout: TMenuItem
+        Caption = '&About...'
+      end
     end
   end
   object xpMain: TXPManifest

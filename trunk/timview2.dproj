@@ -93,7 +93,6 @@
         <DCCReference Include="units\uTIM.pas"/>
         <DCCReference Include="units\uCommon.pas"/>
         <DCCReference Include="units\uScanThread.pas"/>
-        <DCCReference Include="units\uTIMView.pas"/>
         <DCCReference Include="units\uCDIMAGE.pas"/>
         <BuildConfiguration Include="Debug">
             <Key>Cfg_2</Key>

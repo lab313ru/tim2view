@@ -34,6 +34,12 @@ type
     stbMain: TStatusBar;
     pbProgress: TProgressBar;
     btnStopScan: TButton;
+    mnHelpFile: TMenuItem;
+    N2: TMenuItem;
+    mnSVN: TMenuItem;
+    mnSite: TMenuItem;
+    N3: TMenuItem;
+    mnAbout: TMenuItem;
     procedure FormResize(Sender: TObject);
     procedure mnScanFileClick(Sender: TObject);
     procedure stbMainDrawPanel(StatusBar: TStatusBar; Panel: TStatusPanel;

@@ -88,6 +88,8 @@ type
     IMAGE: PIMAGEHeader;
     dwSIZE: DWORD;
     DATA: PTIMDataArray;
+    CLUT_DATA: PTIMDataArray;
+    IMAGE_DATA: PTIMDataArray;
     bGOOD: Boolean;
   end;
   PTIM = ^TTIM;
@@ -106,6 +108,8 @@ function TIMIsGood(HEAD: PTIMHeader; IMAGE: PIMAGEHeader): boolean;
 function TIMisHERE(BUFFER: PBytesArray; TIM: PTIM; var Position: DWORD): boolean;
 //function CheckTIM(TIM: PTIM): boolean;
 function LoadTimFromFile(const FileName: string; var Position: DWORD): PTIM;
+function CreateTIM: PTIM;
+procedure FreeTIM(TIM: PTIM);
 
 implementation
 
@@ -229,6 +233,9 @@ var
   TIM_POS: DWORD;
 begin
   Result := False;
+  TIM^.CLUT_DATA := nil;
+  TIM^.IMAGE_DATA := nil;
+
   P := Position;
   Inc(Position);
 
@@ -254,6 +261,12 @@ begin
 
   Move(BUFFER^[TIM_POS], TIM^.DATA^[0], TIM^.dwSIZE);
 
+  if isTIMHasCLUT(TIM^.HEAD) then
+  TIM^.CLUT_DATA := @TIM^.DATA^[cTIMHeadSize];
+
+  TIM^.IMAGE_DATA := @TIM^.DATA[cTIMHeadSize +
+                     GetTIMCLUTSize(TIM^.HEAD, TIM^.CLUT)];
+
   Result := True;
 end;
 
@@ -274,7 +287,21 @@ begin
   BUF := GetMemory(cTIMMaxSize);
 
   sTIM := TFileStream.Create(FileName, fmOpenRead);
+  Result := CreateTIM;
+
+  sTIM.Read(BUF^[Position], SIZE);
+
+  if not TIMisHERE(BUF, Result, Position) then
+  FreeTIM(Result);
+
+  FreeMemory(BUF);
+  sTIM.Free;
+end;
+
+function CreateTIM: PTIM;
+begin
   New(Result);
+
   New(Result^.HEAD);
   New(Result^.CLUT);
   New(Result^.IMAGE);
@@ -283,24 +310,24 @@ begin
   Result^.dwTIMNumber := 0;
   Result^.bGOOD := False;
   New(Result^.DATA);
+  Result^.CLUT_DATA := nil;
+  Result^.IMAGE_DATA := nil;
+end;
 
-  sTIM.Read(BUF^[Position], SIZE);
-
-  if not TIMisHERE(BUF, Result, Position) then
-  begin
-    Dispose(Result^.HEAD);
-    Result^.HEAD := nil;
-    Dispose(Result^.CLUT);
-    Result^.CLUT := nil;
-    Dispose(Result^.IMAGE);
-    Result^.IMAGE := nil;
-    Dispose(Result^.DATA);
-    Result^.DATA := nil;
-    Dispose(Result);
-    Result := nil;
-  end;
-  FreeMemory(BUF);
-  sTIM.Free;
+procedure FreeTIM(TIM: PTIM);
+begin
+  Dispose(TIM^.HEAD);
+  TIM^.HEAD := nil;
+  Dispose(TIM^.CLUT);
+  TIM^.CLUT := nil;
+  Dispose(TIM^.IMAGE);
+  TIM^.IMAGE := nil;
+  Dispose(TIM^.DATA);
+  TIM^.DATA := nil;
+  TIM^.CLUT_DATA := nil;
+  TIM^.IMAGE_DATA := nil;
+  Dispose(TIM);
+  TIM := nil;
 end;
 
 end.
