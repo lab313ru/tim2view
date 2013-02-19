@@ -33,6 +33,8 @@ const
   sSDLInitError = 'Unable to init SDL: %s';
   sSDLSetVideoModeError = 'Can''t set video mode: %s';
 
+  cRandomPaletteSize = $200;
+
 type
   PNativeXML = ^TNativeXML;
                                                                            

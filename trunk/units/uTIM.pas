@@ -82,12 +82,11 @@ type
     G: byte;
     B: byte;
   end;
-  PCLUT_COLOR = ^TCLUT_COLOR;
-  TCLUT_COLORS = array[0..cCLUTColorsMax * cCLUTCountMax - 1] of PCLUT_COLOR;
+  TCLUT_COLORS = array[0..cCLUTColorsMax * cCLUTCountMax - 1] of TCLUT_COLOR;
   PCLUT_COLORS = ^TCLUT_COLORS;
 
 type
-  TIMAGE_INDEXES = array[0..cIMAGEWidthMax * cIMAGEHeightMax * 2 - 1] of byte;
+  TIMAGE_INDEXES = array[0..cIMAGEWidthMax * cIMAGEHeightMax * 4 - 1] of DWORD;
   PIMAGE_INDEXES = ^TIMAGE_INDEXES;
 
 type
