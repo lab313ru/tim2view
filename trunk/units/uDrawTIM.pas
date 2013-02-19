@@ -51,7 +51,7 @@ begin
 
   for I := 1 to GetTIMCLUTSize(TIM^.HEAD, TIM^.CLUT) do
   begin
-    Move(TIM^.DATA^[cTIMHeadSize + (I - 1) * 2], ColorValue, 2);
+    Move(TIM^.DATA^[cTIMHeadSize + cCLUTHeadSize + (I - 1) * 2], ColorValue, 2);
     Result^[I - 1] := ReadColor(ColorValue);
   end;
 end;
@@ -108,8 +108,8 @@ begin
   RH := GetTimHeight(TIM^.IMAGE);
 
   PNG := TPngImage.CreateBlank(COLOR_RGBALPHA, 16, RW, RH);
-  PNG.CompressionLevel := 5;
-  PNG.Filters := [pfNone];
+  PNG.CompressionLevel := 9;
+  PNG.Filters := [];
 
   for Y := 1 to RH do
     for X := 1 to RW do
