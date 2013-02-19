@@ -20,7 +20,7 @@ begin
   Result.R := (ColorValue and $1F);
   Result.G := (ColorValue and $3E0) shr 5;
   Result.B := (ColorValue and $7C00) shr 10;
-  Result.STP := (ColorValue and $FFFF8000) shr 15;
+  Result.STP := (ColorValue and $8000) shr 15;
 end;
 
 function PrepareCLUT(TIM: PTIM): PCLUT_COLORS;
@@ -62,7 +62,8 @@ var
   RW: Word;
 begin
   New(Result);
-  OFFSET := cTIMHeadSize + GetTIMCLUTSize(TIM^.HEAD, TIM^.CLUT);
+  OFFSET := cTIMHeadSize + GetTIMCLUTSize(TIM^.HEAD, TIM^.CLUT) +
+            cIMAGEHeadSize;
   RW := IWidthToRWidth(TIM^.HEAD, TIM^.IMAGE);
 
   case TIM^.HEAD^.bBPP of
