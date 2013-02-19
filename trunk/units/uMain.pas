@@ -34,7 +34,6 @@ type
     tbcFiles: TTabControl;
     pnlMain: TPanel;
     splMain: TSplitter;
-    tvList: TTreeView;
     pgcMain: TPageControl;
     tsInfo: TTabSheet;
     tbInfo: TStringGrid;
@@ -42,6 +41,7 @@ type
     tsClut: TTabSheet;
     xpMain: TXPManifest;
     pnlImage: TPaintBox;
+    tvList: TTreeView;
     procedure mnScanFileClick(Sender: TObject);
     procedure stbMainDrawPanel(StatusBar: TStatusBar; Panel: TStatusPanel;
       const Rect: TRect);

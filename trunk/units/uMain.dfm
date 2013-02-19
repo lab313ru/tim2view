@@ -54,21 +54,6 @@ object frmMain: TfrmMain
         Height = 461
         ExplicitHeight = 481
       end
-      object tvList: TTreeView
-        Left = 0
-        Top = 0
-        Width = 201
-        Height = 461
-        Align = alLeft
-        Indent = 19
-        RowSelect = True
-        TabOrder = 0
-        Items.NodeData = {
-          0302000000300000000000000000000000FFFFFFFFFFFFFFFF00000000000000
-          0000000000010947006F006F0064002000540049004D0073002E000000000000
-          0000000000FFFFFFFFFFFFFFFF00000000000000000000000001084200610064
-          002000540049004D007300}
-      end
       object pgcMain: TPageControl
         Left = 204
         Top = 0
@@ -76,7 +61,7 @@ object frmMain: TfrmMain
         Height = 461
         ActivePage = tsImage
         Align = alClient
-        TabOrder = 1
+        TabOrder = 0
         object tsInfo: TTabSheet
           Caption = 'INFO'
           object tbInfo: TStringGrid
@@ -118,6 +103,21 @@ object frmMain: TfrmMain
           Caption = 'CLUT'
           ImageIndex = 2
         end
+      end
+      object tvList: TTreeView
+        Left = 0
+        Top = 0
+        Width = 201
+        Height = 461
+        Align = alLeft
+        Indent = 19
+        RowSelect = True
+        TabOrder = 1
+        Items.NodeData = {
+          0302000000300000000000000000000000FFFFFFFFFFFFFFFF00000000000000
+          0000000000010947006F006F0064002000540049004D0073002E000000000000
+          0000000000FFFFFFFFFFFFFFFF00000000000000000000000001084200610064
+          002000540049004D007300}
       end
     end
   end

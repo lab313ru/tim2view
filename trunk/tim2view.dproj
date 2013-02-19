@@ -5,7 +5,7 @@
         <FrameworkType>VCL</FrameworkType>
         <MainSource>tim2view.dpr</MainSource>
         <Base>True</Base>
-        <Config Condition="'$(Config)'==''">Debug</Config>
+        <Config Condition="'$(Config)'==''">Release</Config>
         <Platform Condition="'$(Platform)'==''">Win32</Platform>
         <TargetedPlatforms>1</TargetedPlatforms>
         <AppType>Application</AppType>
@@ -39,6 +39,12 @@
         <CfgParent>Base</CfgParent>
         <Base>true</Base>
     </PropertyGroup>
+    <PropertyGroup Condition="('$(Platform)'=='Win32' and '$(Cfg_2)'=='true') or '$(Cfg_2_Win32)'!=''">
+        <Cfg_2_Win32>true</Cfg_2_Win32>
+        <CfgParent>Cfg_2</CfgParent>
+        <Cfg_2>true</Cfg_2>
+        <Base>true</Base>
+    </PropertyGroup>
     <PropertyGroup Condition="'$(Base)'!=''">
         <VCL_Custom_Styles>&quot;Metropolis UI Blue|VCLSTYLE|$(PUBLIC)\Documents\RAD Studio\10.0\Styles\MetropolisUIBlue.vsf&quot;</VCL_Custom_Styles>
         <DCC_UsePackage>bindcompfmx;fmx;rtl;dbrtl;DbxClientDriver;IndySystem;bindcomp;inetdb;DataSnapClient;DataSnapServer;DataSnapCommon;DBXInterBaseDriver;DataSnapProviderClient;xmlrtl;DbxCommonDriver;IndyProtocols;dbxcds;DBXMySQLDriver;bindengine;soaprtl;DBXOracleDriver;CustomIPTransport;dsnap;DBXInformixDriver;IndyCore;fmxase;DBXFirebirdDriver;inet;fmxobj;inetdbxpress;DBXSybaseASADriver;fmxdae;IPIndyImpl;dbexpress;DataSnapIndy10ServerTransport;$(DCC_UsePackage)</DCC_UsePackage>
@@ -53,6 +59,7 @@
         <DCC_K>false</DCC_K>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win32)'!=''">
+        <DCC_UnitSearchPath>.\units;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
         <DCC_UsePackage>vcldbx;TeeDB;inetdbbde;vclib;DBXOdbcDriver;Tee;DBXSybaseASEDriver;ibxpress;svnui;vclimg;fmi;intrawebdb_120_160;vclactnband;vcldb;FMXTee;vcldsnap;bindcompvcl;TeeUI;vclie;DBXDb2Driver;Intraweb_120_160;vcltouch;websnap;vclribbon;VclSmp;vcl;DataSnapConnectors;CloudService;DBXMSSQLDriver;FmxTeeUI;dsnapcon;vclx;webdsnap;svn;bdertl;adortl;$(DCC_UsePackage)</DCC_UsePackage>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <DCC_Namespace>Winapi;System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;Bde;$(DCC_Namespace)</DCC_Namespace>
@@ -64,6 +71,9 @@
         <DCC_UsePackage>DBXOdbcDriver;DBXSybaseASEDriver;vclimg;vclactnband;vcldb;vcldsnap;bindcompvcl;vclie;DBXDb2Driver;vcltouch;websnap;VclSmp;vcl;DBXMSSQLDriver;dsnapcon;vclx;webdsnap;adortl;$(DCC_UsePackage)</DCC_UsePackage>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1)'!=''">
+        <Manifest_File>None</Manifest_File>
+        <VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
+        <VerInfo_Locale>1049</VerInfo_Locale>
         <DCC_Define>DEBUG;$(DCC_Define)</DCC_Define>
         <DCC_Optimize>false</DCC_Optimize>
         <DCC_GenerateStackFrames>true</DCC_GenerateStackFrames>
@@ -71,11 +81,13 @@
         <DCC_RemoteDebug>true</DCC_RemoteDebug>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1_Win32)'!=''">
+        <DCC_IOChecking>false</DCC_IOChecking>
+        <DCC_IntegerOverflowCheck>true</DCC_IntegerOverflowCheck>
+        <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
+        <DCC_RangeChecking>true</DCC_RangeChecking>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
-        <DCC_UnitSearchPath>.\units;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
         <Icon_MainIcon>PROGRAMICON.ico</Icon_MainIcon>
         <VerInfo_Locale>1033</VerInfo_Locale>
-        <VerInfo_AutoGenVersion>true</VerInfo_AutoGenVersion>
         <DCC_RemoteDebug>false</DCC_RemoteDebug>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2)'!=''">
@@ -83,6 +95,11 @@
         <DCC_Define>RELEASE;$(DCC_Define)</DCC_Define>
         <DCC_SymbolReferenceInfo>0</DCC_SymbolReferenceInfo>
         <DCC_DebugInformation>false</DCC_DebugInformation>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
+        <VerInfo_Locale>1033</VerInfo_Locale>
+        <DCC_IOChecking>false</DCC_IOChecking>
+        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
     </PropertyGroup>
     <ItemGroup>
         <DelphiCompile Include="$(MainSource)">

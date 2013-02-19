@@ -60,6 +60,7 @@ function PrepareIMAGE(TIM: PTIM): PIMAGE_INDEXES;
 var
   I, OFFSET: Integer;
   RW: Word;
+  P24: DWORD;
 begin
   New(Result);
   OFFSET := cTIMHeadSize + GetTIMCLUTSize(TIM^.HEAD, TIM^.CLUT) +
@@ -79,15 +80,25 @@ begin
       Result^[I - 1] := TIM^.DATA^[OFFSET + I - 1];
 
     cTIM16C, cTIM16NC:
-    for I := 1 to TIM^.IMAGE^.wWidth * TIM^.IMAGE^.wHeight * 2 do
-      Move(TIM^.DATA^[OFFSET + (I - 1) * 2], Result^[(I - 1) * 2], 2);
+    for I := 1 to TIM^.IMAGE^.wWidth * TIM^.IMAGE^.wHeight do
+      Move(TIM^.DATA^[OFFSET + (I - 1) * 2], Result^[I - 1], 2);
 
     cTIM24C, cTIM24NC:
-    for I := 1 to TIM^.IMAGE^.wWidth * TIM^.IMAGE^.wHeight * 2 do
     begin
-      if Odd(RW) and ((i mod RW) = 0) then Continue;
+      I := 1;
+      P24 := 0;
 
-      Move(TIM^.DATA^[OFFSET + (I - 1) * 3], Result^[(I - 1) * 3], 3);
+      while I <= (TIM^.IMAGE^.wWidth * TIM^.IMAGE^.wHeight * 2) do
+      begin
+        Result^[P24] := 0;
+        Move(TIM^.DATA^[OFFSET + (I - 1)], Result^[P24], 3);
+        Inc(I, 3);
+
+        if Odd(RW) and (((P24 + 1) mod RW) = 0) then
+        Inc(OFFSET);
+
+        Inc(P24);
+      end;
     end;
   end;
 end;
@@ -95,11 +106,13 @@ end;
 procedure DrawTIM(TIM: PTIM; ACanvas: PCanvas; Rect: TRect);
 var
   PNG: TPngImage;
-  RW, RH: Word;
+  RW, RH, CW: Word;
   CLUT_DATA: PCLUT_COLORS;
   IMAGE_DATA: PIMAGE_INDEXES;
-  X, Y, INDEX: Integer;
-  R, G, B: Byte;
+  X, Y, INDEX, IMAGE_DATA_POS: Integer;
+  R, G, B, STP, ALPHA: Byte;
+  COLOR: TCLUT_COLOR;
+  CL: DWORD;
 begin
   CLUT_DATA := PrepareCLUT(TIM);
   IMAGE_DATA := PrepareIMAGE(TIM);
@@ -111,27 +124,78 @@ begin
   PNG.CompressionLevel := 9;
   PNG.Filters := [];
 
+  IMAGE_DATA_POS := 0;
+
+  R := 0;
+  G := 0;
+  B := 0;
+  STP := 0;
+
   for Y := 1 to RH do
     for X := 1 to RW do
     begin
-      INDEX := IMAGE_DATA^[(Y - 1) * RW + (X - 1)];
+      case TIM^.HEAD^.bBPP of
+        cTIM4C, cTIM4NC, cTIM8C, cTIM8NC:
+        begin
+          INDEX := IMAGE_DATA^[IMAGE_DATA_POS];
 
-      R := CLUT_DATA^[INDEX].R * 8;
-      G := CLUT_DATA^[INDEX].G * 8;
-      B := CLUT_DATA^[INDEX].B * 8;
+          R := CLUT_DATA^[INDEX].R * 8;
+          G := CLUT_DATA^[INDEX].G * 8;
+          B := CLUT_DATA^[INDEX].B * 8;
+          STP := CLUT_DATA^[INDEX].STP;
+        end;
+        cTIM16C, cTIM16NC, cTIMMix:
+        begin
+          Move(IMAGE_DATA^[IMAGE_DATA_POS], CW, 2);
+          COLOR := ReadColor(CW);
+
+          R := COLOR.R * 8;
+          G := COLOR.G * 8;
+          B := COLOR.B * 8;
+          STP := COLOR.STP;
+        end;
+        cTIM24C, cTIM24NC:
+        begin
+          CL := IMAGE_DATA^[IMAGE_DATA_POS];
+
+          R := (CL and $FF);
+          G := ((CL and $FF00) shr 8);
+          B := ((CL and $FF0000) shr 16);
+          STP := 0;
+        end;
+      else
+        Break;
+      end;
+
+      if (TIM^.HEAD^.bBPP in cTIM24) then
+        ALPHA := 255
+      else
+      begin
+        if (R + G + B) = 0 then
+          ALPHA := STP * 255
+        else
+        begin
+          if STP = 0 then
+            ALPHA := 255
+          else
+            ALPHA := 128;
+        end;
+      end;
+
+      PNG.AlphaScanline[Y - 1]^[X - 1] := ALPHA;
+
+      if ALPHA = 0 then
+      begin
+        B := 0;
+        G := 0;
+        R := 0;
+      end;
+
       pRGBLine(PNG.Scanline[Y - 1])^[X - 1].rgbtBlue := B;
       pRGBLine(PNG.Scanline[Y - 1])^[X - 1].rgbtGreen := G;
       pRGBLine(PNG.Scanline[Y - 1])^[X - 1].rgbtRed := R;
 
-      if CLUT_DATA^[INDEX].STP = 0 then
-      begin
-        PNG.AlphaScanline[Y - 1]^[X - 1] := 0;
-        pRGBLine(PNG.Scanline[Y - 1])^[X - 1].rgbtBlue := 0;
-        pRGBLine(PNG.Scanline[Y - 1])^[X - 1].rgbtGreen := 0;
-        pRGBLine(PNG.Scanline[Y - 1])^[X - 1].rgbtRed := 0;
-      end
-      else
-        PNG.AlphaScanline[Y - 1]^[X - 1] := 255;
+      Inc(IMAGE_DATA_POS);
     end;
 
   Rect.Width := RW;
