@@ -118,7 +118,6 @@ end;
 
 procedure TfrmMain.mnScanFileClick(Sender: TObject);
 var
-  //ScanThread: TScanThread;
   fScanName, fResName: string;
 begin
   if dlgOpenFile.InitialDir = '' then
@@ -136,7 +135,7 @@ begin
   pbProgress.Position := 0;
 
   fResName := ChangeFileExt(GetStartDir + cResultsDir +
-    ExtractFileName(fScanName), '.tsr');
+    ExtractFileName(fScanName), cResultsExt);
 
   New(pResult);
   New(pScanThread);

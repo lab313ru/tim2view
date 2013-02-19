@@ -13,7 +13,7 @@ procedure DrawTIM(TIM: PTIM; ACanvas: PCanvas; Rect: TRect);
 implementation
 
 uses
-  Vcl.Imaging.pngimage, uCommon, Windows;
+  Vcl.Imaging.pngimage, Windows;
 
 function ReadColor(ColorValue: Word): TCLUT_COLOR;
 begin
@@ -107,26 +107,34 @@ begin
   RH := GetTimHeight(TIM^.IMAGE);
 
   PNG := TPngImage.CreateBlank(COLOR_RGBALPHA, 16, RW, RH);
-  PNG.CompressionLevel := 9;
+  PNG.CompressionLevel := 5;
   PNG.Filters := [pfNone];
 
   for Y := 1 to RH do
     for X := 1 to RW do
     begin
-      INDEX := IMAGE_DATA^[Y * RW + X];
+      INDEX := IMAGE_DATA^[(Y - 1) * RW + (X - 1)];
 
-     // if CLUT_DATA^[INDEX].STP = 0 then
-     // begin
-        R := CLUT_DATA^[INDEX].R * 8;
-        G := CLUT_DATA^[INDEX].G * 8;
-        B := CLUT_DATA^[INDEX].B * 8;
-        pRGBLine(PNG.Scanline[Y - 1])^[X - 1].rgbtBlue := B;
-        pRGBLine(PNG.Scanline[Y - 1])^[X - 1].rgbtGreen := G;
-        pRGBLine(PNG.Scanline[Y - 1])^[X - 1].rgbtRed := R;
-        PNG.AlphaScanline[y - 1]^[x - 1] := 255;
-    //  end;
+      R := CLUT_DATA^[INDEX].R * 8;
+      G := CLUT_DATA^[INDEX].G * 8;
+      B := CLUT_DATA^[INDEX].B * 8;
+      pRGBLine(PNG.Scanline[Y - 1])^[X - 1].rgbtBlue := B;
+      pRGBLine(PNG.Scanline[Y - 1])^[X - 1].rgbtGreen := G;
+      pRGBLine(PNG.Scanline[Y - 1])^[X - 1].rgbtRed := R;
+
+      if CLUT_DATA^[INDEX].STP = 0 then
+      begin
+        PNG.AlphaScanline[Y - 1]^[X - 1] := 0;
+        pRGBLine(PNG.Scanline[Y - 1])^[X - 1].rgbtBlue := 0;
+        pRGBLine(PNG.Scanline[Y - 1])^[X - 1].rgbtGreen := 0;
+        pRGBLine(PNG.Scanline[Y - 1])^[X - 1].rgbtRed := 0;
+      end
+      else
+        PNG.AlphaScanline[Y - 1]^[X - 1] := 255;
     end;
 
+  Rect.Width := RW;
+  Rect.Height := RH;
   PNG.Draw(ACanvas^, Rect);
   PNG.SaveToFile('test.png');
   PNG.Free;

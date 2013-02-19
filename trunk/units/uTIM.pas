@@ -34,6 +34,7 @@ const
   cCLUTHeadSize = $0C;
   cIMAGEHeadSize = $0C;
   cTIMHeadSize = 8;
+  cRandomPaletteSize = $200;
   cTIMMaxSize = cTIMHeadSize + cCLUTColorsMax * cCLUTCountMax * 2 +
                 cCLUTHeadSize + cIMAGEWidthMax * cIMAGEHeightMax * 2 + cIMAGEHeadSize;
 

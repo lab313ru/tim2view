@@ -8,6 +8,7 @@ uses
 const
   cProgramVersion = '2.0';
   cMaxFileSize = $2EAEED80;
+  cResultsExt = '.tsr';
   cResultsDir = 'results\';
   cResultsRootName = 'TVSCANRESULT';
   cResultsInfoNode = 'INFO';
@@ -33,7 +34,6 @@ const
   sSDLInitError = 'Unable to init SDL: %s';
   sSDLSetVideoModeError = 'Can''t set video mode: %s';
 
-  cRandomPaletteSize = $200;
 
 type
   PNativeXML = ^TNativeXML;
