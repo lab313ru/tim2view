@@ -237,6 +237,8 @@ begin
 
       TIM_RES^ := TNativeXml.CreateName(cResultsRootName);
       pScanThread^ := TScanThread.Create(fName, OFFSET, TIM_RES, 1);
+      pScanThread^.FreeOnTerminate := True;
+      pScanThread^.Priority := tpNormal;
       pScanThread^.Start;
 
       repeat
@@ -257,11 +259,13 @@ begin
     else
       GROUP := 1;
 
+    lvList.Items.BeginUpdate;
     TIM_ITEM := lvList.Items.Add;
     TIM_ITEM.GroupID := GROUP;
     TIM_ITEM.Caption := Format('%.6d', [i]);
     TIM_ITEM.SubItems.Add(Format('%dx%d', [RW, RH]));
     TIM_ITEM.SubItems.Add(Format('%d', [BIT_MODE]));
+    lvList.Items.EndUpdate;
 
     Application.ProcessMessages;
   end;

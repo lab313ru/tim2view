@@ -173,8 +173,6 @@ object frmMain: TfrmMain
           TabOrder = 0
           ViewStyle = vsReport
           OnChange = lvListChange
-          ExplicitLeft = 1
-          ExplicitTop = -2
         end
       end
     end

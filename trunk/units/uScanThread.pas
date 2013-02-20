@@ -54,7 +54,7 @@ var
 begin
   inherited Create(True);
   FreeOnTerminate := True;
-  Priority := tpNormal;
+  Priority := tpHigher;
   pStartPos := FromPosition;
   pTimsLimit := Limit;
   pClearBufferPosition := 0;
@@ -195,6 +195,7 @@ begin
 
   Node := pResult^.Root.NodeFindOrCreate(cResultsInfoNode);
   Node.WriteAttributeString(cResultsAttributeCRC32, FileCRC32(pFileToScan));
+  Terminate;
 end;
 
 destructor TScanThread.Destroy;
