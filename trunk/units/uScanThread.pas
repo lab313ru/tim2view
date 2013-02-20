@@ -31,7 +31,6 @@ type
   public
     constructor Create(const FileToScan: string; FromPosition: DWORD;
                        fResult: pointer; Limit: DWORD = 0);
-    destructor Destroy; override;
     property Terminated;
     property StopScan: boolean write pStopScan;
   end;
@@ -187,6 +186,7 @@ begin
   Synchronize(UpdateProgressBar);
 
   pSrcFileStream.Free;
+  frmMain.pbProgress.Position := 0;
 
   if pTimsLimit = 1 then Exit;
 
@@ -198,20 +198,19 @@ begin
   Terminate;
 end;
 
-destructor TScanThread.Destroy;
-begin
-  pStatusText := '';
-  Synchronize(SetStatusText);
-  inherited;
-end;
-
 procedure TScanThread.SetStatusText;
 begin
-  frmMain.stbMain.Panels[0].Text := pStatusText;
+  //frmMain.stbMain.Panels[0].Text := pStatusText;
 end;
 
 procedure TScanThread.UpdateProgressBar;
 begin
+  if pSrcFileStream = nil then
+  begin
+    frmMain.pbProgress.Position := 0;
+    Exit;
+  end;
+
   frmMain.pbProgress.Position := pSrcFileStream.Position;
 end;
 

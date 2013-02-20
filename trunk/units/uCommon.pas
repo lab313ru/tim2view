@@ -27,6 +27,7 @@ const
   cResultsTimAttributeBitMode = 'BITMODE';
   cResultsTimAttributeGood = 'GOODTIM';
   cAutoExtractionTimFormat = '%s_%.2db_%.6d' + '.tim';
+  cMaxFilesToOpen = 50;
 
   sStatusBarCalculatingCRC = 'Calculating CRC32';
   sStatusBarScanningFile = 'Scanning File...';
@@ -35,10 +36,6 @@ const
   sScanResultGood = 'Scan completed!';
   sSDLInitError = 'Unable to init SDL: %s';
   sSDLSetVideoModeError = 'Can''t set video mode: %s';
-
-  sTimsListGoodGroup = 'Good TIMs';
-  sTimsListBadGroup = 'Bad TIMs';
-
 
 type
   PNativeXML = ^TNativeXML;

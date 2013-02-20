@@ -17,41 +17,30 @@ object frmMain: TfrmMain
   OnResize = FormResize
   PixelsPerInch = 96
   TextHeight = 13
-  object stbMain: TStatusBar
-    Left = 0
-    Top = 505
-    Width = 738
-    Height = 27
-    Panels = <
-      item
-        Width = 220
-      end
-      item
-        Style = psOwnerDraw
-        Width = 50
-      end>
-    OnDrawPanel = stbMainDrawPanel
-  end
-  object tbcFiles: TTabControl
+  object tbcMain: TTabControl
     Left = 0
     Top = 0
     Width = 738
-    Height = 505
+    Height = 503
     Align = alClient
-    MultiLine = True
-    TabOrder = 3
+    TabOrder = 0
+    ExplicitLeft = 232
+    ExplicitTop = 120
+    ExplicitWidth = 289
+    ExplicitHeight = 193
     object pnlMain: TPanel
       Left = 4
       Top = 6
       Width = 730
-      Height = 495
+      Height = 493
       Align = alClient
       BevelOuter = bvNone
       TabOrder = 0
+      ExplicitHeight = 495
       object splMain: TSplitter
         Left = 233
         Top = 0
-        Height = 495
+        Height = 493
         ExplicitLeft = 201
         ExplicitHeight = 481
       end
@@ -59,17 +48,19 @@ object frmMain: TfrmMain
         Left = 236
         Top = 0
         Width = 494
-        Height = 495
+        Height = 493
         ActivePage = tsImage
         Align = alClient
         TabOrder = 0
+        ExplicitHeight = 495
         object tsInfo: TTabSheet
           Caption = 'INFO'
+          ExplicitHeight = 467
           object tbInfo: TStringGrid
             Left = 0
             Top = 0
             Width = 486
-            Height = 467
+            Height = 465
             Align = alClient
             ColCount = 3
             DefaultColWidth = 50
@@ -79,6 +70,7 @@ object frmMain: TfrmMain
             Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goColSizing, goRowSelect]
             ScrollBars = ssVertical
             TabOrder = 0
+            ExplicitHeight = 467
             ColWidths = (
               210
               108
@@ -88,11 +80,12 @@ object frmMain: TfrmMain
         object tsImage: TTabSheet
           Caption = 'IMAGE'
           ImageIndex = 1
+          ExplicitHeight = 467
           object pnlImage: TPaintBox
             Left = 0
             Top = 0
             Width = 486
-            Height = 467
+            Height = 465
             Align = alClient
             ExplicitLeft = 144
             ExplicitTop = 168
@@ -103,11 +96,12 @@ object frmMain: TfrmMain
         object tsClut: TTabSheet
           Caption = 'CLUT'
           ImageIndex = 2
+          ExplicitHeight = 467
           object grdCLUT: TDrawGrid
             Left = 0
             Top = 0
             Width = 486
-            Height = 467
+            Height = 465
             Align = alClient
             ColCount = 16
             DefaultColWidth = 20
@@ -117,6 +111,7 @@ object frmMain: TfrmMain
             FixedRows = 0
             ScrollBars = ssNone
             TabOrder = 0
+            ExplicitHeight = 467
           end
         end
       end
@@ -124,15 +119,16 @@ object frmMain: TfrmMain
         Left = 0
         Top = 0
         Width = 233
-        Height = 495
+        Height = 493
         Align = alLeft
         BevelOuter = bvNone
         TabOrder = 1
+        ExplicitHeight = 495
         object lvList: TListView
           Left = 0
           Top = 0
           Width = 233
-          Height = 495
+          Height = 493
           Align = alClient
           Columns = <
             item
@@ -149,51 +145,66 @@ object frmMain: TfrmMain
               Caption = 'BPP'
             end>
           DoubleBuffered = True
-          Groups = <
-            item
-              Header = 'Good TIMs'
-              GroupID = 0
-              State = [lgsNormal, lgsCollapsed, lgsCollapsible]
-              HeaderAlign = taLeftJustify
-              FooterAlign = taLeftJustify
-              TitleImage = -1
-            end
-            item
-              Header = 'Bad TIMs'
-              GroupID = 1
-              State = [lgsNormal, lgsCollapsed, lgsCollapsible]
-              HeaderAlign = taLeftJustify
-              FooterAlign = taLeftJustify
-              TitleImage = -1
-            end>
-          GroupView = True
+          GridLines = True
+          MultiSelect = True
+          OwnerData = True
           ReadOnly = True
           RowSelect = True
           ParentDoubleBuffered = False
           TabOrder = 0
           ViewStyle = vsReport
-          OnChange = lvListChange
+          OnClick = lvListClick
+          OnData = lvListData
+          ExplicitHeight = 495
         end
       end
     end
   end
-  object btnStopScan: TButton
-    Left = 503
-    Top = 477
-    Width = 75
-    Height = 25
-    Caption = 'Stop Scan'
-    Enabled = False
-    TabOrder = 0
-    OnClick = btnStopScanClick
-  end
-  object pbProgress: TProgressBar
-    Left = 336
-    Top = 480
-    Width = 150
-    Height = 16
-    Smooth = True
+  object pnlStatus: TPanel
+    Left = 0
+    Top = 503
+    Width = 738
+    Height = 29
+    Align = alBottom
+    BevelOuter = bvLowered
     TabOrder = 1
+    object lblStatus: TLabel
+      Left = 76
+      Top = 1
+      Width = 161
+      Height = 27
+      Align = alClient
+      Alignment = taRightJustify
+      Caption = 'Status Text:'
+      Layout = tlCenter
+      ExplicitLeft = 4
+      ExplicitWidth = 60
+      ExplicitHeight = 13
+    end
+    object pbProgress: TProgressBar
+      Left = 237
+      Top = 1
+      Width = 500
+      Height = 27
+      Align = alRight
+      Smooth = True
+      TabOrder = 0
+      ExplicitHeight = 33
+    end
+    object btnStopScan: TButton
+      Left = 1
+      Top = 1
+      Width = 75
+      Height = 27
+      Align = alLeft
+      Caption = 'Stop Scan'
+      Enabled = False
+      TabOrder = 1
+      OnClick = btnStopScanClick
+      ExplicitLeft = 503
+      ExplicitTop = 4
+      ExplicitHeight = 25
+    end
   end
   object dlgOpenFile: TOpenDialog
     DefaultExt = '.bin'
@@ -221,7 +232,9 @@ object frmMain: TfrmMain
       end
       object mnCloseFile: TMenuItem
         Caption = 'Close &This File'
+        Enabled = False
         ShortCut = 119
+        OnClick = mnCloseFileClick
       end
       object mnExit: TMenuItem
         Caption = '&Exit...'
@@ -266,5 +279,9 @@ object frmMain: TfrmMain
         Caption = '&About...'
       end
     end
+  end
+  object xpMain: TXPManifest
+    Left = 624
+    Top = 480
   end
 end
