@@ -3,17 +3,18 @@ unit uDrawTIM;
 interface
 
 uses
-  Vcl.Graphics, uTIM, System.Types;
+  Vcl.Graphics, uTIM, System.Types, Vcl.Imaging.pngimage;
 
 type
   PCanvas = ^TCanvas;
 
 procedure DrawTIM(TIM: PTIM; ACanvas: PCanvas; Rect: TRect);
+function TimToPNG(TIM: PTIM): TPngImage;
 
 implementation
 
 uses
-  Vcl.Imaging.pngimage, Windows;
+  Windows;
 
 function ReadColor(ColorValue: Word): TCLUT_COLOR;
 begin
@@ -29,7 +30,7 @@ var
   I: Integer;
 begin
   Result := nil;
-  if (not isTIMHasCLUT(TIM^.HEAD)) and
+  if (not isTIMHasCLUT(TIM)) and
      (not (TIM^.HEAD^.bBPP in [cTIM4NC, cTIM8NC]))
   then
     Exit;
@@ -49,7 +50,7 @@ begin
     Exit;
   end;
 
-  for I := 1 to GetTIMCLUTSize(TIM^.HEAD, TIM^.CLUT) do
+  for I := 1 to GetTIMCLUTSize(TIM) do
   begin
     Move(TIM^.DATA^[cTIMHeadSize + cCLUTHeadSize + (I - 1) * 2], ColorValue, 2);
     Result^[I - 1] := ReadColor(ColorValue);
@@ -63,9 +64,9 @@ var
   P24: DWORD;
 begin
   New(Result);
-  OFFSET := cTIMHeadSize + GetTIMCLUTSize(TIM^.HEAD, TIM^.CLUT) +
+  OFFSET := cTIMHeadSize + GetTIMCLUTSize(TIM) +
             cIMAGEHeadSize;
-  RW := IWidthToRWidth(TIM^.HEAD, TIM^.IMAGE);
+  RW := GetTimRealWidth(TIM);
 
   case TIM^.HEAD^.bBPP of
     cTIM4C, cTIM4NC:
@@ -103,9 +104,8 @@ begin
   end;
 end;
 
-procedure DrawTIM(TIM: PTIM; ACanvas: PCanvas; Rect: TRect);
+function TimToPNG(TIM: PTIM): TPngImage;
 var
-  PNG: TPngImage;
   RW, RH, CW: Word;
   CLUT_DATA: PCLUT_COLORS;
   IMAGE_DATA: PIMAGE_INDEXES;
@@ -114,15 +114,15 @@ var
   COLOR: TCLUT_COLOR;
   CL: DWORD;
 begin
+  RW := GetTimRealWidth(TIM);
+  RH := GetTimHeight(TIM);
+
+  Result := TPngImage.CreateBlank(COLOR_RGBALPHA, 16, RW, RH);
+  Result.CompressionLevel := 9;
+  Result.Filters := [];
+
   CLUT_DATA := PrepareCLUT(TIM);
   IMAGE_DATA := PrepareIMAGE(TIM);
-
-  RW := IWidthToRWidth(TIM^.HEAD, TIM^.IMAGE);
-  RH := GetTimHeight(TIM^.IMAGE);
-
-  PNG := TPngImage.CreateBlank(COLOR_RGBALPHA, 16, RW, RH);
-  PNG.CompressionLevel := 9;
-  PNG.Filters := [];
 
   IMAGE_DATA_POS := 0;
 
@@ -182,7 +182,7 @@ begin
         end;
       end;
 
-      PNG.AlphaScanline[Y - 1]^[X - 1] := ALPHA;
+      Result.AlphaScanline[Y - 1]^[X - 1] := ALPHA;
 
       if ALPHA = 0 then
       begin
@@ -191,22 +191,27 @@ begin
         R := 0;
       end;
 
-      pRGBLine(PNG.Scanline[Y - 1])^[X - 1].rgbtBlue := B;
-      pRGBLine(PNG.Scanline[Y - 1])^[X - 1].rgbtGreen := G;
-      pRGBLine(PNG.Scanline[Y - 1])^[X - 1].rgbtRed := R;
+      pRGBLine(Result.Scanline[Y - 1])^[X - 1].rgbtBlue := B;
+      pRGBLine(Result.Scanline[Y - 1])^[X - 1].rgbtGreen := G;
+      pRGBLine(Result.Scanline[Y - 1])^[X - 1].rgbtRed := R;
 
       Inc(IMAGE_DATA_POS);
     end;
 
-  Rect.Width := RW;
-  Rect.Height := RH;
-  PNG.Draw(ACanvas^, Rect);
-  PNG.SaveToFile('test.png');
-  PNG.Free;
-
   Dispose(CLUT_DATA);
   Dispose(IMAGE_DATA);
+end;
 
+procedure DrawTIM(TIM: PTIM; ACanvas: PCanvas; Rect: TRect);
+var
+  PNG: TPngImage;
+begin
+  PNG := TimToPNG(TIM);
+
+  Rect.Width := PNG.Width;
+  Rect.Height := PNG.Height;
+  PNG.Draw(ACanvas^, Rect);
+  PNG.Free;
 end;
 
 end.

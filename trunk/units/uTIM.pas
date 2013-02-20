@@ -3,7 +3,7 @@ unit uTIM;
 interface
 
 uses
-  Windows, uCommon;
+  Windows, uCommon, System.Classes;
 
 const
   cTIMMagic = $10;
@@ -105,145 +105,143 @@ type
   end;
   PTIM = ^TTIM;
 
-function CheckHEAD(HEAD: PTIMHeader): boolean;
-function CheckCLUT(CLUT: PCLUTHeader): boolean;
-function CheckIMAGE(HEAD: PTIMHeader; IMAGE: PIMAGEHeader): boolean;
-function CheckTIMSize(HEAD: PTIMHeader; CLUT: PCLUTHeader; IMAGE: PIMAGEHeader): Boolean;
-function isTIMHasCLUT(HEAD: PTIMHeader): boolean;
-function GetTIMCLUTSize(HEAD: PTIMHeader; CLUT: PCLUTHeader): DWORD;
-function GetTIMIMAGESize(HEAD: PTIMHeader; IMAGE: PIMAGEHeader): DWORD;
-function GetTIMSize(HEAD: PTIMHeader; CLUT: PCLUTHeader; IMAGE: PIMAGEHeader):
-  DWORD;
-function GetTimHeight(IMAGE: PIMAGEHeader): Word;
-function IWidthToRWidth(HEAD: PTIMHeader; IMAGE: PIMAGEHeader): Word;
-function TIMIsGood(HEAD: PTIMHeader; IMAGE: PIMAGEHeader): boolean;
-function TIMisHERE(BUFFER: PBytesArray; TIM: PTIM; var Position: DWORD): boolean;
+function isTIMHasCLUT(TIM: PTIM): boolean;
+function GetTIMCLUTSize(TIM: PTIM): DWORD;
+function GetTIMSize(TIM: PTIM): DWORD;
+//function GetTimWidth(TIM: PTIM): Word;
+function GetTimRealWidth(TIM: PTIM): Word;
+function GetTimHeight(TIM: PTIM): Word;
+function TIMIsGood(TIM: PTIM): boolean;
+function LoadTimFromBuf(BUFFER: PBytesArray; var TIM: PTIM;
+                        var Position: DWORD): boolean;
 function LoadTimFromFile(const FileName: string; var Position: DWORD): PTIM;
+function LoadTimFromStream(Stream: TStream; var Position: DWORD): PTIM;
 function CreateTIM: PTIM;
 procedure FreeTIM(TIM: PTIM);
+function BppToBitMode(TIM: PTIM): byte;
 
 implementation
 
 uses
-  System.SysUtils, System.Classes;
+  System.SysUtils;
 
-function GetTimHeight(IMAGE: PIMAGEHeader): Word;
+function GetTimHeight(TIM: PTIM): Word;
 begin
-  Result := IMAGE^.wHeight;
+  Result := TIM^.IMAGE^.wHeight;
 end;
 
-function GetTIMSize(HEAD: PTIMHeader; CLUT: PCLUTHeader; IMAGE: PIMAGEHeader):
-  DWORD;
-begin
-  Result := GetTIMCLUTSize(HEAD, CLUT) + GetTIMIMAGESize(HEAD, IMAGE) +
-            cTIMHeadSize;
-end;
-
-function CheckVersion(HEAD: PTIMHeader): boolean;
-begin
-  Result := (HEAD^.bVersion in cTIMVersions);
-end;
-
-function CheckMagic(HEAD: PTIMHeader): Boolean;
-begin
-  Result := (HEAD^.bMagic = cTIMMagic);
-end;
-
-function CheckBpp(HEAD: PTIMHeader): Boolean;
-begin
-  Result := (HEAD^.bBPP in cTIMBpp);
-end;
-
-function CheckReserved(HEAD: PTIMHeader): boolean;
-begin
-  Result := (HEAD^.bReserved1 = 0) and (HEAD^.bReserved2 = 0);
-end;
-
-function isTIMHasCLUT(HEAD: PTIMHeader): boolean;
-begin
-  Result := (HEAD^.bBPP in cTIMCLUT);
-end;
-
-function CheckCLUTColors(CLUT: PCLUTHeader): boolean;
-begin
-  Result := (CLUT^.wColorsCount >= 1) and
-    (CLUT^.wColorsCount <= cCLUTColorsMax);
-end;
-
-function CheckCLUTCount(CLUT: PCLUTHeader): boolean;
-begin
-  Result := (CLUT^.wClutsCount >= 1) and
-    (CLUT^.wClutsCount <= cCLUTCountMax);
-end;
-
-function GetTIMCLUTSize(HEAD: PTIMHeader; CLUT: PCLUTHeader): DWORD;
+function GetTIMCLUTSize(TIM: PTIM): DWORD;
 begin
   Result := 0;
 
-  if not isTIMHasCLUT(HEAD) then Exit;
-  Result := CLUT^.wColorsCount * CLUT^.wClutsCount * 2 + cCLUTHeadSize;
+  if not isTIMHasCLUT(TIM) then Exit;
+  Result := TIM^.CLUT^.wColorsCount * TIM^.CLUT^.wClutsCount * 2 + cCLUTHeadSize;
 end;
 
-function GetTIMIMAGESize(HEAD: PTIMHeader; IMAGE: PIMAGEHeader): DWORD;
+function GetTIMIMAGESize(TIM: PTIM): DWORD;
 begin
-  result := IMAGE^.wWidth * IMAGE^.wHeight * 2 + cIMAGEHeadSize;
+  result := TIM^.IMAGE^.wWidth * TIM^.IMAGE^.wHeight * 2 + cIMAGEHeadSize;
 end;
 
-function IWidthToRWidth(HEAD: PTIMHeader; IMAGE: PIMAGEHeader): Word;
+function GetTIMSize(TIM: PTIM): DWORD;
 begin
-  case HEAD^.bBPP of
-    cTIM4C, cTIM4NC: Result := (IMAGE^.wWidth * 4) and $FFFF;
-    cTIM8C, cTIM8NC: Result := (IMAGE^.wWidth * 2) and $FFFF;
-    cTIM16C, cTIM16NC, cTIMMix: Result := IMAGE^.wWidth;
-    cTIM24C, cTIM24NC: Result := (Round(IMAGE^.wWidth * 2 / 3)) and $FFFF;
+  Result := GetTIMCLUTSize(TIM) + GetTIMIMAGESize(TIM) + cTIMHeadSize;
+end;
+
+function CheckVersion(TIM: PTIM): boolean;
+begin
+  Result := (TIM^.HEAD^.bVersion in cTIMVersions);
+end;
+
+function CheckMagic(TIM: PTIM): Boolean;
+begin
+  Result := (TIM^.HEAD^.bMagic = cTIMMagic);
+end;
+
+function CheckBpp(TIM: PTIM): Boolean;
+begin
+  Result := (TIM^.HEAD^.bBPP in cTIMBpp);
+end;
+
+function CheckReserved(TIM: PTIM): boolean;
+begin
+  Result := (TIM^.HEAD^.bReserved1 = 0) and (TIM^.HEAD^.bReserved2 = 0);
+end;
+
+function isTIMHasCLUT(TIM: PTIM): boolean;
+begin
+  Result := (TIM^.HEAD^.bBPP in cTIMCLUT);
+end;
+
+function CheckCLUTColors(TIM: PTIM): boolean;
+begin
+  Result := (TIM^.CLUT^.wColorsCount >= 1) and
+    (TIM^.CLUT^.wColorsCount <= cCLUTColorsMax);
+end;
+
+function CheckCLUTCount(TIM: PTIM): boolean;
+begin
+  Result := (TIM^.CLUT^.wClutsCount >= 1) and
+    (TIM^.CLUT^.wClutsCount <= cCLUTCountMax);
+end;
+
+function IWidthToRWidth(TIM: PTIM): Word;
+begin
+  case TIM^.HEAD^.bBPP of
+    cTIM4C, cTIM4NC: Result := (TIM^.IMAGE^.wWidth * 4) and $FFFF;
+    cTIM8C, cTIM8NC: Result := (TIM^.IMAGE^.wWidth * 2) and $FFFF;
+    cTIM16C, cTIM16NC, cTIMMix: Result := TIM^.IMAGE^.wWidth;
+    cTIM24C, cTIM24NC: Result := (Round(TIM^.IMAGE^.wWidth * 2 / 3)) and $FFFF;
   else
     Result := 0;
   end;
 end;
 
-function CheckHEAD(HEAD: PTIMHeader): boolean;
+function CheckHEAD(TIM: PTIM): boolean;
 begin
   Result := (
-    CheckMagic(HEAD) and
-    CheckVersion(HEAD) and
-    CheckBpp(HEAD) and
-    CheckReserved(HEAD)
+    CheckMagic(TIM) and
+    CheckVersion(TIM) and
+    CheckBpp(TIM) and
+    CheckReserved(TIM)
     )
 end;
 
-function CheckCLUT(CLUT: PCLUTHeader): boolean;
+function CheckCLUT(TIM: PTIM): boolean;
 begin
   Result := (
-    CheckCLUTColors(CLUT) and
-    CheckCLUTCount(CLUT)
+    CheckCLUTColors(TIM) and
+    CheckCLUTCount(TIM)
     // Need to Check CLUT^.dwSize
     );
 end;
 
-function CheckTIMSize(HEAD: PTIMHeader; CLUT: PCLUTHeader;
-                      IMAGE: PIMAGEHeader): Boolean;
+function CheckTIMSize(TIM: PTIM): Boolean;
 begin
-  Result := (GetTIMSize(HEAD, CLUT, IMAGE) <= cTIMMaxSize);
+  Result := (GetTIMSize(TIM) <= cTIMMaxSize);
 end;
 
-function TIMIsGood(HEAD: PTIMHeader; IMAGE: PIMAGEHeader): boolean;
+function TIMIsGood(TIM: PTIM): boolean;
 begin
-  Result := (IMAGE^.dwSize = GetTIMIMAGESize(HEAD, IMAGE));
+  Result := (TIM^.IMAGE^.dwSize = GetTIMIMAGESize(TIM));
 end;
 
-function CheckIMAGE(HEAD: PTIMHeader; IMAGE: PIMAGEHeader): boolean;
+function CheckIMAGE(TIM: PTIM): boolean;
 begin
   Result := False;
 
-  if (IMAGE^.wWidth = 0) or (IMAGE^.wHeight = 0) then Exit;
+  if (TIM^.IMAGE^.wWidth = 0) or (TIM^.IMAGE^.wHeight = 0) then Exit;
 
-  if (IMAGE^.wWidth > cIMAGEWidthMax) or (IMAGE^.wHeight > cIMAGEHeightMax) then
+  if (TIM^.IMAGE^.wWidth > cIMAGEWidthMax) or
+     (TIM^.IMAGE^.wHeight > cIMAGEHeightMax)
+  then
     Exit;
 
-  Result := (not(HEAD^.bBPP in cTIMWrongBads)) or TIMIsGood(HEAD, IMAGE);
+  Result := (not(TIM^.HEAD^.bBPP in cTIMWrongBads)) or TIMIsGood(TIM);
 end;
 
-function TIMisHERE(BUFFER: PBytesArray; TIM: PTIM; var Position: DWORD): boolean;
+function LoadTimFromBuf(BUFFER: PBytesArray; var TIM: PTIM;
+                        var Position: DWORD): boolean;
 var
   P: DWORD;
   TIM_POS: DWORD;
@@ -252,26 +250,29 @@ begin
 
   P := Position;
   Inc(Position);
-
   TIM_POS := P;
+
+  if TIM = nil then
+  TIM := CreateTIM;
+
   Move(BUFFER^[P], TIM^.HEAD^, cTIMHeadSize);
-  if not CheckHEAD(TIM^.HEAD) then Exit;
+  if not CheckHEAD(TIM) then Exit;
   inc(P, cTIMHeadSize);
 
-  if isTIMHasCLUT(TIM^.HEAD) then
+  if isTIMHasCLUT(TIM) then
   begin
     Move(BUFFER^[P], TIM^.CLUT^, cCLUTHeadSize);
-    if not CheckCLUT(TIM^.CLUT) then Exit;
-    Inc(P, GetTIMCLUTSize(TIM^.HEAD, TIM^.CLUT));
+    if not CheckCLUT(TIM) then Exit;
+    Inc(P, GetTIMCLUTSize(TIM));
   end;
 
   Move(BUFFER^[P], TIM^.IMAGE^, cIMAGEHeadSize);
 
-  if not CheckIMAGE(TIM^.HEAD, TIM^.IMAGE) then Exit;
-  if not CheckTIMSize(TIM^.HEAD, TIM^.CLUT, TIM^.IMAGE) then Exit;
+  if not CheckIMAGE(TIM) then Exit;
+  if not CheckTIMSize(TIM) then Exit;
 
-  TIM^.dwSIZE := GetTIMSize(TIM^.HEAD, TIM^.CLUT, TIM^.IMAGE);
-  TIM^.bGOOD := TIMIsGood(TIM^.HEAD, TIM^.IMAGE);
+  TIM^.dwSIZE := GetTIMSize(TIM);
+  TIM^.bGOOD := TIMIsGood(TIM);
 
   Move(BUFFER^[TIM_POS], TIM^.DATA^[0], TIM^.dwSIZE);
 
@@ -281,7 +282,6 @@ end;
 function LoadTimFromFile(const FileName: string; var Position: DWORD): PTIM;
 var
   sTIM: TFileStream;
-  BUF: PBytesArray;
   SIZE: DWORD;
 begin
   Result := nil;
@@ -289,21 +289,33 @@ begin
   if not CheckFileExists(FileName) then Exit;
 
   SIZE := GetFileSZ(FileName);
-
   if SIZE > cTIMMaxSize then Exit;
 
-  BUF := GetMemory(cTIMMaxSize);
-
   sTIM := TFileStream.Create(FileName, fmOpenRead);
+  Result := LoadTimFromStream(sTIM, Position);
+  sTIM.Free;
+end;
+
+function LoadTimFromStream(Stream: TStream; var Position: DWORD): PTIM;
+var
+  BUF: PBytesArray;
+  SIZE: DWORD;
+begin
+  Result := nil;
+
+  SIZE := Stream.Size;
+  if SIZE > cTIMMaxSize then Exit;
+
+  BUF := GetMemory(SIZE);
   Result := CreateTIM;
 
-  sTIM.Read(BUF^[Position], SIZE);
+  Stream.Seek(Position, soBeginning);
+  Stream.Read(BUF^[Position], SIZE);
 
-  if not TIMisHERE(BUF, Result, Position) then
+  if not LoadTimFromBuf(BUF, Result, Position) then
   FreeTIM(Result);
 
   FreeMemory(BUF);
-  sTIM.Free;
 end;
 
 function CreateTIM: PTIM;
@@ -318,8 +330,6 @@ begin
   Result^.dwTIMNumber := 0;
   Result^.bGOOD := False;
   New(Result^.DATA);
- { New(Result^.CLUT_DATA);
-  New(Result^.IMAGE_DATA); }
 end;
 
 procedure FreeTIM(TIM: PTIM);
@@ -332,11 +342,47 @@ begin
   TIM^.IMAGE := nil;
   Dispose(TIM^.DATA);
   TIM^.DATA := nil;
- { Dispose(TIM^.CLUT_DATA);
-  TIM^.CLUT_DATA := nil;
-  Dispose(TIM^.IMAGE_DATA);
-  TIM^.IMAGE_DATA := nil; }
   Dispose(TIM);
+end;
+
+function BppToBitMode(TIM: PTIM): byte;
+begin
+  Result := 4;
+  if (TIM^.HEAD^.bBPP in cTIM4) then
+  begin
+    Result := 4;
+    Exit;
+  end;
+  if (TIM^.HEAD^.bBPP in cTIM8) then
+  begin
+    Result := 8;
+    Exit;
+  end;
+  if (TIM^.HEAD^.bBPP in cTIM16) then
+  begin
+    Result := 16;
+    Exit;
+  end;
+  if (TIM^.HEAD^.bBPP in cTIM24) then
+  begin
+    Result := 24;
+    Exit;
+  end;
+  if (TIM^.HEAD^.bBPP = cTIMMix) then
+  begin
+    Result := 16;
+    Exit;
+  end;
+end;
+
+function GetTimWidth(TIM: PTIM): Word;
+begin
+  Result := TIM^.IMAGE^.wWidth;
+end;
+
+function GetTimRealWidth(TIM: PTIM): Word;
+begin
+  Result := IWidthToRWidth(TIM);
 end;
 
 end.

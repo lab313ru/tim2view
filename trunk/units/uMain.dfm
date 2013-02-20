@@ -1,9 +1,8 @@
 object frmMain: TfrmMain
   Left = 0
   Top = 0
-  ActiveControl = btnStopScan
   Caption = 'frmMain'
-  ClientHeight = 504
+  ClientHeight = 532
   ClientWidth = 738
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -14,17 +13,18 @@ object frmMain: TfrmMain
   Menu = mmMain
   OldCreateOrder = False
   OnCreate = FormCreate
+  OnDestroy = FormDestroy
   OnResize = FormResize
   PixelsPerInch = 96
   TextHeight = 13
   object stbMain: TStatusBar
     Left = 0
-    Top = 471
+    Top = 505
     Width = 738
-    Height = 33
+    Height = 27
     Panels = <
       item
-        Width = 250
+        Width = 220
       end
       item
         Style = psOwnerDraw
@@ -36,7 +36,7 @@ object frmMain: TfrmMain
     Left = 0
     Top = 0
     Width = 738
-    Height = 471
+    Height = 505
     Align = alClient
     MultiLine = True
     TabOrder = 3
@@ -44,21 +44,22 @@ object frmMain: TfrmMain
       Left = 4
       Top = 6
       Width = 730
-      Height = 461
+      Height = 495
       Align = alClient
       BevelOuter = bvNone
       TabOrder = 0
       object splMain: TSplitter
-        Left = 201
+        Left = 233
         Top = 0
-        Height = 461
+        Height = 495
+        ExplicitLeft = 201
         ExplicitHeight = 481
       end
       object pgcMain: TPageControl
-        Left = 204
+        Left = 236
         Top = 0
-        Width = 526
-        Height = 461
+        Width = 494
+        Height = 495
         ActivePage = tsImage
         Align = alClient
         TabOrder = 0
@@ -67,12 +68,12 @@ object frmMain: TfrmMain
           object tbInfo: TStringGrid
             Left = 0
             Top = 0
-            Width = 518
-            Height = 433
+            Width = 486
+            Height = 467
             Align = alClient
             ColCount = 3
             DefaultColWidth = 50
-            DefaultRowHeight = 20
+            DefaultRowHeight = 16
             FixedCols = 0
             RowCount = 26
             Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goColSizing, goRowSelect]
@@ -90,8 +91,8 @@ object frmMain: TfrmMain
           object pnlImage: TPaintBox
             Left = 0
             Top = 0
-            Width = 518
-            Height = 433
+            Width = 486
+            Height = 467
             Align = alClient
             ExplicitLeft = 144
             ExplicitTop = 168
@@ -102,22 +103,79 @@ object frmMain: TfrmMain
         object tsClut: TTabSheet
           Caption = 'CLUT'
           ImageIndex = 2
+          object grdCLUT: TDrawGrid
+            Left = 0
+            Top = 0
+            Width = 486
+            Height = 467
+            Align = alClient
+            ColCount = 16
+            DefaultColWidth = 20
+            DefaultRowHeight = 20
+            FixedCols = 0
+            RowCount = 16
+            FixedRows = 0
+            ScrollBars = ssNone
+            TabOrder = 0
+          end
         end
       end
-      object tvList: TTreeView
+      object pnlList: TPanel
         Left = 0
         Top = 0
-        Width = 201
-        Height = 461
+        Width = 233
+        Height = 495
         Align = alLeft
-        Indent = 19
-        RowSelect = True
+        BevelOuter = bvNone
         TabOrder = 1
-        Items.NodeData = {
-          0302000000300000000000000000000000FFFFFFFFFFFFFFFF00000000000000
-          0000000000010947006F006F0064002000540049004D0073002E000000000000
-          0000000000FFFFFFFFFFFFFFFF00000000000000000000000001084200610064
-          002000540049004D007300}
+        object lvList: TListView
+          Left = 0
+          Top = 0
+          Width = 233
+          Height = 495
+          Align = alClient
+          Columns = <
+            item
+              Caption = '#'
+              Width = 60
+            end
+            item
+              Alignment = taCenter
+              Caption = 'Resolution'
+              Width = 95
+            end
+            item
+              Alignment = taRightJustify
+              Caption = 'BPP'
+            end>
+          DoubleBuffered = True
+          Groups = <
+            item
+              Header = 'Good TIMs'
+              GroupID = 0
+              State = [lgsNormal, lgsCollapsed, lgsCollapsible]
+              HeaderAlign = taLeftJustify
+              FooterAlign = taLeftJustify
+              TitleImage = -1
+            end
+            item
+              Header = 'Bad TIMs'
+              GroupID = 1
+              State = [lgsNormal, lgsCollapsed, lgsCollapsible]
+              HeaderAlign = taLeftJustify
+              FooterAlign = taLeftJustify
+              TitleImage = -1
+            end>
+          GroupView = True
+          ReadOnly = True
+          RowSelect = True
+          ParentDoubleBuffered = False
+          TabOrder = 0
+          ViewStyle = vsReport
+          OnChange = lvListChange
+          ExplicitLeft = 1
+          ExplicitTop = -2
+        end
       end
     end
   end
@@ -127,6 +185,7 @@ object frmMain: TfrmMain
     Width = 75
     Height = 25
     Caption = 'Stop Scan'
+    Enabled = False
     TabOrder = 0
     OnClick = btnStopScanClick
   end
@@ -164,12 +223,11 @@ object frmMain: TfrmMain
       end
       object mnCloseFile: TMenuItem
         Caption = 'Close &This File'
-      end
-      object mnCloseAllFiles: TMenuItem
-        Caption = 'Close &All Files'
+        ShortCut = 119
       end
       object mnExit: TMenuItem
         Caption = '&Exit...'
+        ShortCut = 121
       end
     end
     object mnImage: TMenuItem
@@ -180,6 +238,12 @@ object frmMain: TfrmMain
       object mnReplaceIn: TMenuItem
         Caption = '&Replace in File...'
         ShortCut = 16466
+      end
+    end
+    object mnConfig: TMenuItem
+      Caption = '&Config'
+      object mnAutoExtract: TMenuItem
+        Caption = '&Auto Extraction'
       end
     end
     object mnHelp: TMenuItem
@@ -204,9 +268,5 @@ object frmMain: TfrmMain
         Caption = '&About...'
       end
     end
-  end
-  object xpMain: TXPManifest
-    Left = 624
-    Top = 480
   end
 end

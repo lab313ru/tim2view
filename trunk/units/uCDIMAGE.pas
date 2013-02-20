@@ -216,7 +216,6 @@ begin
   Dispose(TIM^.DATA);
   TIM^.DATA := nil;
   Dispose(TIM);
-  TIM := nil;
 
   sImageStream.Free;
   result := True;

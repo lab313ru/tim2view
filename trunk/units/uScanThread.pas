@@ -11,6 +11,8 @@ type
   private
     { Private declarations }
     pFileToScan: string;
+    pStartPos: DWORD;
+    pTimsLimit: DWORD;
     pImageScan: boolean;
     pResult: PNativeXml;
     pFileSize: DWORD;
@@ -27,7 +29,8 @@ type
   protected
     procedure Execute; override;
   public
-    constructor Create(const FileToScan: string; fResult: pointer);
+    constructor Create(const FileToScan: string; FromPosition: DWORD;
+                       fResult: pointer; Limit: DWORD = 0);
     destructor Destroy; override;
     property Terminated;
     property StopScan: boolean write pStopScan;
@@ -44,11 +47,16 @@ const
 
 { TScanThread }
 
-constructor TScanThread.Create(const FileToScan: string; fResult: pointer);
+constructor TScanThread.Create(const FileToScan: string; FromPosition: DWORD;
+                               fResult: pointer; Limit: DWORD = 0);
 var
   Node: TXmlNode;
 begin
   inherited Create(True);
+  FreeOnTerminate := True;
+  Priority := tpNormal;
+  pStartPos := FromPosition;
+  pTimsLimit := Limit;
   pClearBufferPosition := 0;
   pFileToScan := FileToScan;
   pFileSize := GetFileSZ(pFileToScan);
@@ -56,14 +64,10 @@ begin
   pStopScan := False;
 
   pResult := fResult;
-  pResult^.XmlFormat := xfCompact;
-
-  pResult^.Root.Name := cResultsRootName;
   pResult^.Root.WriteAttributeString(cResultsAttributeVersion,
     cProgramVersion);
   Node := pResult^.Root.NodeNew(cResultsInfoNode);
-  Node.WriteAttributeString(cResultsAttributeFile,
-    ExtractFileName(pFileToScan));
+  Node.WriteAttributeString(cResultsAttributeFile, pFileToScan);
   pImageScan := GetImageScan(pFileToScan);
   Node.WriteAttributeBool(cResultsAttributeImageFile, pImageScan);
   Node.WriteAttributeInteger(cResultsAttributeTimsCount, 0);
@@ -72,7 +76,6 @@ end;
 procedure TScanThread.AddResult(TIM: PTIM);
 var
   Node, AddedNode: TXmlNode;
-  RWidth: WORD;
 begin
   Node := pResult^.Root.NodeFindOrCreate(cResultsInfoNode);
   Node.WriteAttributeInteger(cResultsAttributeTimsCount, TIM^.dwTimNumber);
@@ -80,20 +83,20 @@ begin
   Node := pResult^.Root.NodeFindOrCreate(cResultsTimsNode);
 
   AddedNode := Node.NodeNew(cResultsTimNode);
-  AddedNode.WriteAttributeInteger(cResultsTimAttributeBitMode, TIM^.HEAD^.bBPP);
-  RWidth := IWidthToRWidth(TIM^.HEAD, TIM^.IMAGE);
-  AddedNode.WriteAttributeInteger(cResultsTimAttributeWidth, RWidth);
-  AddedNode.WriteAttributeInteger(cResultsTimAttributeHeight,
-    TIM^.IMAGE^.wHeight);
-  AddedNode.WriteAttributeBool(cResultsTimAttributeGood, TIM^.bGOOD);
-  AddedNode.WriteAttributeInteger(cResultsTimAttributeCLUTSize,
-    GetTIMCLUTSize(TIM^.HEAD, TIM^.CLUT));
-  AddedNode.WriteAttributeInteger(cResultsTimAttributeIMAGESize,
-    GetTIMIMAGESize(TIM^.HEAD, TIM^.IMAGE));
-  AddedNode.WriteAttributeString(cResultsTimAttributeFilePos,
+  AddedNode.WriteAttributeString(cResultsTimAttributePos,
                                  IntToHex(TIM^.dwTimPosition, 8));
+  AddedNode.WriteAttributeString(cResultsTimAttributeSize,
+                                 IntToHex(TIM^.dwSIZE, 6));
+  AddedNode.WriteAttributeInteger(cResultsTimAttributeWidth,
+                                  GetTimRealWidth(TIM));
+  AddedNode.WriteAttributeInteger(cResultsTimAttributeHeight,
+                                  GetTimHeight(TIM));
+  AddedNode.WriteAttributeInteger(cResultsTimAttributeBitMode,
+                                  BppToBitMode(TIM));
+  AddedNode.WriteAttributeBool(cResultsTimAttributeGood, TIMIsGood(TIM));
 
-  AddedNode.BufferWrite(TIM^.DATA^, TIM^.dwSIZE);
+  if pTimsLimit = 1 then
+  AddedNode.BufferWrite(TIM^.DATA^[0], TIM^.dwSIZE);
 end;
 
 procedure TScanThread.Execute;
@@ -107,6 +110,7 @@ begin
   if not CheckFileExists(pFileToScan) then Terminate;
 
   pSrcFileStream := TFileStream.Create(pFileToScan, fmOpenRead);
+  pSrcFileStream.Seek(pStartPos, soBeginning);
 
   if pImageScan then
     pSectorBufferSize := cSectorBufferSize
@@ -120,8 +124,11 @@ begin
 
   TIM := CreateTIM;
 
-  pStatusText := sStatusBarScanningFile;
-  Synchronize(SetStatusText);
+  if pTimsLimit <> 1 then
+  begin
+    pStatusText := sStatusBarScanningFile;
+    Synchronize(SetStatusText);
+  end;
 
   pRealBufSize := pSrcFileStream.Read(SectorBuffer^[0], pSectorBufferSize);
   ClearSectorBuffer(SectorBuffer, ClearBuffer);
@@ -129,9 +136,8 @@ begin
   pScanFinished := False;
   pTIMNumber := 0;
 
-  while not pStopScan do
-  begin
-    if TIMisHERE(ClearBuffer, TIM, pClearBufferPosition) then
+  repeat
+    if LoadTimFromBuf(ClearBuffer, TIM, pClearBufferPosition) then
     begin
       if pImageScan then
         pTimPosition := pSrcFileStream.Position - pRealBufSize +
@@ -167,16 +173,22 @@ begin
         pRealBufSize := pRealBufSize + (pSectorBufferSize div 2);
       end;
 
+      if pTimsLimit <> 1 then
       Synchronize(UpdateProgressBar);
+
       ClearSectorBuffer(SectorBuffer, ClearBuffer);
     end;
-  end;
+  until pStopScan or ((pTimsLimit = pTIMNumber) and (pTimsLimit <> 0));
   FreeTIM(TIM);
   FreeMemory(SectorBuffer);
   FreeMemory(ClearBuffer);
 
+  if pTimsLimit <> 1 then
   Synchronize(UpdateProgressBar);
+
   pSrcFileStream.Free;
+
+  if pTimsLimit = 1 then Exit;
 
   pStatusText := sStatusBarCalculatingCRC;
   Synchronize(SetStatusText);
