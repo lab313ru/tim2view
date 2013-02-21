@@ -6,7 +6,7 @@ uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.XPMan, Vcl.Grids, Vcl.ComCtrls,
   Vcl.ExtCtrls, Vcl.Menus, Vcl.StdCtrls, NativeXml, uScanThread, uCommon,
-  Vcl.CheckLst;
+  Vcl.CheckLst, Winapi.ShellAPI;
 
 type
   TfrmMain = class(TForm)
@@ -47,16 +47,18 @@ type
     pnlStatus: TPanel;
     lblStatus: TLabel;
     btnStopScan: TButton;
+    mnCloseAllFiles: TMenuItem;
     procedure mnScanFileClick(Sender: TObject);
     procedure btnStopScanClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormResize(Sender: TObject);
-    procedure mnScanDirClick(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure lvListData(Sender: TObject; Item: TListItem);
     procedure mnCloseFileClick(Sender: TObject);
     procedure lvListClick(Sender: TObject);
     procedure lvListKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure tbcMainChange(Sender: TObject);
+    procedure mnCloseAllFilesClick(Sender: TObject);
   private
     { Private declarations }
     //pResult: PNativeXml;
@@ -64,6 +66,10 @@ type
     pScanThread: PScanThread;
     procedure ParseResult(Res: PNativeXML);
     procedure ScanFinished(Sender: TObject);
+    function CheckForFileOpened(const FileName: string): boolean;
+    procedure RunScanner(const FileName: string);
+  protected
+    procedure WMDropFiles(var Msg: TWMDropFiles); message WM_DROPFILES;
   public
     { Public declarations }
   end;
@@ -85,10 +91,16 @@ begin
   pScanThread^.StopScan := True;
 end;
 
+function TfrmMain.CheckForFileOpened(const FileName: string): boolean;
+begin
+  Result := (tbcMain.Tabs.IndexOf(ExtractFileName(FileName)) <> -1);
+end;
+
 procedure TfrmMain.FormCreate(Sender: TObject);
 begin
   New(pScanThread);
   Caption := cProgramName;
+  DragAcceptFiles(Handle, True);
 end;
 
 procedure TfrmMain.FormDestroy(Sender: TObject);
@@ -184,7 +196,7 @@ begin
   RW := TIM_NODE.ReadAttributeInteger(cResultsTimAttributeWidth);
   RH := TIM_NODE.ReadAttributeInteger(cResultsTimAttributeHeight);
 
-  Item.Caption := Format('%.6d', [Item.Index]);
+  Item.Caption := Format('%.6d', [Item.Index + 1]);
   Item.SubItems.Add(Format('%dx%d', [RW, RH]));
   Item.SubItems.Add(Format('%d', [BIT_MODE]));
 end;
@@ -209,6 +221,15 @@ begin
   end;
 end;
 
+procedure TfrmMain.mnCloseAllFilesClick(Sender: TObject);
+begin
+  while tbcMain.Tabs.Count > 0 do
+  begin
+    tbcMain.TabIndex := tbcMain.Tabs.Count - 1;
+    mnCloseFileClick(Self);
+  end;
+end;
+
 procedure TfrmMain.mnCloseFileClick(Sender: TObject);
 begin
   Results[tbcMain.TabIndex]^.Free;
@@ -219,19 +240,7 @@ begin
   lvList.Column[0].Caption := '#';
   tbcMain.Tabs.Delete(tbcMain.TabIndex);
   mnCloseFile.Enabled := (tbcMain.Tabs.Count <> 0);
-end;
-
-procedure TfrmMain.mnScanDirClick(Sender: TObject);
-var
-  TIM: PTIM;
-  P: Cardinal;
-begin
-  P := 0;
-  TIM := LoadTimFromFile('test.tim', P);
-
-  DrawTIM(TIM, @pnlImage.Canvas, pnlImage.ClientRect);
-
-  FreeTIM(TIM);
+  mnCloseAllFiles.Enabled := (tbcMain.Tabs.Count <> 0);
 end;
 
 procedure TfrmMain.mnScanFileClick(Sender: TObject);
@@ -245,32 +254,7 @@ begin
   if not dlgOpenFile.Execute then
     Exit;
 
-  btnStopScan.Enabled := True;
-  lvList.Enabled := False;
-
-  fScanName := dlgOpenFile.FileName;
-  tbcMain.Tabs.Add(ExtractFileName(fScanName));
-
-  pbProgress.Max := GetFileSZ(fScanName);
-  pbProgress.Position := 0;
-
-  New(Results[tbcMain.Tabs.Count - 1]);
-  CurrentResult := Results[tbcMain.Tabs.Count - 1];
-  CurrentResult^ := TNativeXML.CreateName(cResultsRootName);
-  pScanThread^ := TScanThread.Create(fScanName, 0, CurrentResult);
-  pScanThread^.FreeOnTerminate := True;
-  pScanThread^.Priority := tpNormal;
-  pScanThread^.OnTerminate := ScanFinished;
-  pScanThread^.Start;
-
-  repeat
-    Application.ProcessMessages;
-  until pScanThread^.Terminated;
-
-  ParseResult(CurrentResult);
-
-  lblStatus.Caption := '';
-  lvList.Enabled := True;
+  RunScanner(dlgOpenFile.FileName);
   MessageBeep(MB_ICONASTERISK);
 end;
 
@@ -346,10 +330,85 @@ begin
   Dispose(TIM_BUF);
 end;
 
+procedure TfrmMain.RunScanner(const FileName: string);
+var
+  CurrentResult: PNativeXML;
+begin
+  btnStopScan.Enabled := True;
+  tbcMain.Enabled := False;
+
+  if CheckForFileOpened(FileName) then
+  begin
+    tbcMain.TabIndex := tbcMain.Tabs.IndexOf(ExtractFileName(FileName));
+    btnStopScan.Enabled := False;
+    tbcMain.Enabled := True;
+    Exit;
+  end;
+
+  tbcMain.Tabs.Add(ExtractFileName(FileName));
+  tbcMain.TabIndex := tbcMain.Tabs.Count - 1;
+
+  pbProgress.Max := GetFileSZ(FileName);
+  pbProgress.Position := 0;
+
+  New(Results[tbcMain.Tabs.Count - 1]);
+  CurrentResult := Results[tbcMain.Tabs.Count - 1];
+  CurrentResult^ := TNativeXML.CreateName(cResultsRootName);
+  pScanThread^ := TScanThread.Create(FileName, 0, CurrentResult);
+  pScanThread^.FreeOnTerminate := True;
+  pScanThread^.Priority := tpNormal;
+  pScanThread^.OnTerminate := ScanFinished;
+  pScanThread^.Start;
+
+  repeat
+    Application.ProcessMessages;
+  until pScanThread^.Terminated;
+
+  ParseResult(CurrentResult);
+
+  lblStatus.Caption := '';
+  tbcMain.Enabled := True;
+end;
+
 procedure TfrmMain.ScanFinished(Sender: TObject);
 begin
   btnStopScan.Enabled := False;
   mnCloseFile.Enabled := (tbcMain.Tabs.Count <> 0);
+  mnCloseAllFiles.Enabled := (tbcMain.Tabs.Count <> 0);
+end;
+
+procedure TfrmMain.tbcMainChange(Sender: TObject);
+var
+  Node: TXmlNode;
+begin
+  Node := Results[tbcMain.TabIndex]^.Root.FindNode(cResultsInfoNode);
+  lvList.Items.Count := Node.ReadAttributeInteger(cResultsAttributeTimsCount);
+  lvList.Invalidate;
+end;
+
+procedure TfrmMain.WMDropFiles(var Msg: TWMDropFiles);
+var
+  i: integer;
+  CountFile: integer;
+  size: integer;
+  Filename: PChar;
+begin
+try
+  CountFile := DragQueryFile(Msg.Drop, $FFFFFFFF, Filename, 255);
+
+  for i := 0 to (CountFile - 1) do
+  begin
+    size := DragQueryFile(Msg.Drop, i , nil, 0)+1;
+    Filename:= StrAlloc(size);
+    DragQueryFile(Msg.Drop,i , Filename, size);
+    RunScanner(StrPas(Filename));
+    StrDispose(Filename);
+  end;
+  MessageBeep(MB_ICONASTERISK);
+finally
+  DragFinish(Msg.Drop); // отпуститим файл
+end;
+
 end;
 
 end.

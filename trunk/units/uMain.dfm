@@ -24,6 +24,7 @@ object frmMain: TfrmMain
     Height = 503
     Align = alClient
     TabOrder = 0
+    OnChange = tbcMainChange
     object pnlMain: TPanel
       Left = 4
       Top = 6
@@ -131,7 +132,6 @@ object frmMain: TfrmMain
               Width = 95
             end
             item
-              Alignment = taRightJustify
               Caption = 'BPP'
             end>
           DoubleBuffered = True
@@ -211,7 +211,6 @@ object frmMain: TfrmMain
       end
       object mnScanDir: TMenuItem
         Caption = 'Scan &Directory...'
-        OnClick = mnScanDirClick
       end
       object N1: TMenuItem
         Caption = '-'
@@ -221,6 +220,11 @@ object frmMain: TfrmMain
         Enabled = False
         ShortCut = 119
         OnClick = mnCloseFileClick
+      end
+      object mnCloseAllFiles: TMenuItem
+        Caption = 'Close &All Files'
+        ShortCut = 120
+        OnClick = mnCloseAllFilesClick
       end
       object mnExit: TMenuItem
         Caption = '&Exit...'
