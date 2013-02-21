@@ -9,8 +9,6 @@ const
   cProgramName = 'Tim2View by [Lab 313]';
   cProgramVersion = '2.0';
   cMaxFileSize = $2EAEED80;
-  cResultsExt = '.tsr';
-  cResultsDir = 'RESULTS\';
   cExtractedTimsDir = 'TIMS\';
   cResultsRootName = 'TVSCANRESULT';
   cResultsInfoNode = 'INFO';
@@ -34,8 +32,6 @@ const
   sStatusBarTimsExtracting = 'TIM''s Extracting...';
   sStatusBarParsingResult = 'Parsing Result...';
   sScanResultGood = 'Scan completed!';
-  sSDLInitError = 'Unable to init SDL: %s';
-  sSDLSetVideoModeError = 'Can''t set video mode: %s';
 
 type
   PNativeXML = ^TNativeXML;

@@ -236,7 +236,7 @@ end;
 
 procedure TfrmMain.mnScanFileClick(Sender: TObject);
 var
-  fScanName, fResName: string;
+  fScanName: string;
   CurrentResult: PNativeXML;
 begin
   if dlgOpenFile.InitialDir = '' then
@@ -250,13 +250,9 @@ begin
 
   fScanName := dlgOpenFile.FileName;
   tbcMain.Tabs.Add(ExtractFileName(fScanName));
-  CreateDir(GetStartDir + cResultsDir);
 
   pbProgress.Max := GetFileSZ(fScanName);
   pbProgress.Position := 0;
-
-  fResName := ChangeFileExt(GetStartDir + cResultsDir +
-    ExtractFileName(fScanName), cResultsExt);
 
   New(Results[tbcMain.Tabs.Count - 1]);
   CurrentResult := Results[tbcMain.Tabs.Count - 1];
@@ -273,7 +269,6 @@ begin
 
   ParseResult(CurrentResult);
 
-  CurrentResult^.SaveToFile(fResName);
   lblStatus.Caption := '';
   lvList.Enabled := True;
   MessageBeep(MB_ICONASTERISK);
