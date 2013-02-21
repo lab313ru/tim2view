@@ -24,10 +24,6 @@ object frmMain: TfrmMain
     Height = 503
     Align = alClient
     TabOrder = 0
-    ExplicitLeft = 232
-    ExplicitTop = 120
-    ExplicitWidth = 289
-    ExplicitHeight = 193
     object pnlMain: TPanel
       Left = 4
       Top = 6
@@ -36,7 +32,6 @@ object frmMain: TfrmMain
       Align = alClient
       BevelOuter = bvNone
       TabOrder = 0
-      ExplicitHeight = 495
       object splMain: TSplitter
         Left = 233
         Top = 0
@@ -52,10 +47,8 @@ object frmMain: TfrmMain
         ActivePage = tsImage
         Align = alClient
         TabOrder = 0
-        ExplicitHeight = 495
         object tsInfo: TTabSheet
           Caption = 'INFO'
-          ExplicitHeight = 467
           object tbInfo: TStringGrid
             Left = 0
             Top = 0
@@ -70,7 +63,6 @@ object frmMain: TfrmMain
             Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goColSizing, goRowSelect]
             ScrollBars = ssVertical
             TabOrder = 0
-            ExplicitHeight = 467
             ColWidths = (
               210
               108
@@ -80,13 +72,14 @@ object frmMain: TfrmMain
         object tsImage: TTabSheet
           Caption = 'IMAGE'
           ImageIndex = 1
-          ExplicitHeight = 467
           object pnlImage: TPaintBox
             Left = 0
             Top = 0
             Width = 486
             Height = 465
             Align = alClient
+            Color = clWhite
+            ParentColor = False
             ExplicitLeft = 144
             ExplicitTop = 168
             ExplicitWidth = 105
@@ -96,7 +89,6 @@ object frmMain: TfrmMain
         object tsClut: TTabSheet
           Caption = 'CLUT'
           ImageIndex = 2
-          ExplicitHeight = 467
           object grdCLUT: TDrawGrid
             Left = 0
             Top = 0
@@ -111,7 +103,6 @@ object frmMain: TfrmMain
             FixedRows = 0
             ScrollBars = ssNone
             TabOrder = 0
-            ExplicitHeight = 467
           end
         end
       end
@@ -123,7 +114,6 @@ object frmMain: TfrmMain
         Align = alLeft
         BevelOuter = bvNone
         TabOrder = 1
-        ExplicitHeight = 495
         object lvList: TListView
           Left = 0
           Top = 0
@@ -146,7 +136,6 @@ object frmMain: TfrmMain
             end>
           DoubleBuffered = True
           GridLines = True
-          MultiSelect = True
           OwnerData = True
           ReadOnly = True
           RowSelect = True
@@ -155,7 +144,9 @@ object frmMain: TfrmMain
           ViewStyle = vsReport
           OnClick = lvListClick
           OnData = lvListData
-          ExplicitHeight = 495
+          OnKeyDown = lvListKeyDown
+          ExplicitLeft = 1
+          ExplicitTop = -1
         end
       end
     end
@@ -175,10 +166,9 @@ object frmMain: TfrmMain
       Height = 27
       Align = alClient
       Alignment = taRightJustify
-      Caption = 'Status Text:'
       Layout = tlCenter
-      ExplicitLeft = 4
-      ExplicitWidth = 60
+      ExplicitLeft = 234
+      ExplicitWidth = 3
       ExplicitHeight = 13
     end
     object pbProgress: TProgressBar
@@ -189,7 +179,6 @@ object frmMain: TfrmMain
       Align = alRight
       Smooth = True
       TabOrder = 0
-      ExplicitHeight = 33
     end
     object btnStopScan: TButton
       Left = 1
@@ -201,9 +190,6 @@ object frmMain: TfrmMain
       Enabled = False
       TabOrder = 1
       OnClick = btnStopScanClick
-      ExplicitLeft = 503
-      ExplicitTop = 4
-      ExplicitHeight = 25
     end
   end
   object dlgOpenFile: TOpenDialog
@@ -254,6 +240,7 @@ object frmMain: TfrmMain
     object mnConfig: TMenuItem
       Caption = '&Config'
       object mnAutoExtract: TMenuItem
+        AutoCheck = True
         Caption = '&Auto Extraction'
       end
     end

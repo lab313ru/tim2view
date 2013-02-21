@@ -6,6 +6,7 @@ uses
   NativeXML, Windows;
 
 const
+  cProgramName = 'Tim2View by [Lab 313]';
   cProgramVersion = '2.0';
   cMaxFileSize = $2EAEED80;
   cResultsExt = '.tsr';
@@ -31,7 +32,7 @@ const
 
   sStatusBarCalculatingCRC = 'Calculating CRC32';
   sStatusBarScanningFile = 'Scanning File...';
-  //sStatusBarSavingResults = 'Saving Results...';
+  sStatusBarTimsExtracting = 'TIM''s Extracting...';
   sStatusBarParsingResult = 'Parsing Result...';
   sScanResultGood = 'Scan completed!';
   sSDLInitError = 'Unable to init SDL: %s';

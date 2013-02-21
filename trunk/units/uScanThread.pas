@@ -126,7 +126,7 @@ begin
   if pTimsLimit <> 1 then
   begin
     pStatusText := sStatusBarScanningFile;
-    Synchronize(SetStatusText);
+    Queue(SetStatusText);
   end;
 
   pRealBufSize := pSrcFileStream.Read(SectorBuffer^[0], pSectorBufferSize);
@@ -173,7 +173,7 @@ begin
       end;
 
       if pTimsLimit <> 1 then
-      Synchronize(UpdateProgressBar);
+      Queue(UpdateProgressBar);
 
       ClearSectorBuffer(SectorBuffer, ClearBuffer);
     end;
@@ -183,24 +183,37 @@ begin
   FreeMemory(ClearBuffer);
 
   if pTimsLimit <> 1 then
-  Synchronize(UpdateProgressBar);
+  Queue(UpdateProgressBar);
 
   pSrcFileStream.Free;
-  frmMain.pbProgress.Position := 0;
+  pSrcFileStream := nil;
 
-  if pTimsLimit = 1 then Exit;
+  if pTimsLimit = 1 then
+  begin
+    pStatusText := '';
+    Queue(SetStatusText);
+
+    Terminate;
+    Exit;
+  end;
+
+  Queue(UpdateProgressBar);
 
   pStatusText := sStatusBarCalculatingCRC;
-  Synchronize(SetStatusText);
+  Queue(SetStatusText);
 
   Node := pResult^.Root.NodeFindOrCreate(cResultsInfoNode);
   Node.WriteAttributeString(cResultsAttributeCRC32, FileCRC32(pFileToScan));
+
+  pStatusText := '';
+  Queue(SetStatusText);
+
   Terminate;
 end;
 
 procedure TScanThread.SetStatusText;
 begin
-  //frmMain.stbMain.Panels[0].Text := pStatusText;
+  frmMain.lblStatus.Caption := pStatusText;
 end;
 
 procedure TScanThread.UpdateProgressBar;

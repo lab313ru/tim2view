@@ -112,7 +112,7 @@ function GetTIMSize(TIM: PTIM): DWORD;
 function GetTimRealWidth(TIM: PTIM): Word;
 function GetTimHeight(TIM: PTIM): Word;
 function TIMIsGood(TIM: PTIM): boolean;
-function LoadTimFromBuf(BUFFER: PBytesArray; var TIM: PTIM;
+function LoadTimFromBuf(BUFFER: pointer; var TIM: PTIM;
                         var Position: DWORD): boolean;
 function LoadTimFromFile(const FileName: string; var Position: DWORD): PTIM;
 function LoadTimFromStream(Stream: TStream; var Position: DWORD): PTIM;
@@ -240,7 +240,7 @@ begin
   Result := (not(TIM^.HEAD^.bBPP in cTIMWrongBads)) or TIMIsGood(TIM);
 end;
 
-function LoadTimFromBuf(BUFFER: PBytesArray; var TIM: PTIM;
+function LoadTimFromBuf(BUFFER: pointer; var TIM: PTIM;
                         var Position: DWORD): boolean;
 var
   P: DWORD;
@@ -255,18 +255,18 @@ begin
   if TIM = nil then
   TIM := CreateTIM;
 
-  Move(BUFFER^[P], TIM^.HEAD^, cTIMHeadSize);
+  Move(PBytesArray(BUFFER)^[P], TIM^.HEAD^, cTIMHeadSize);
   if not CheckHEAD(TIM) then Exit;
   inc(P, cTIMHeadSize);
 
   if isTIMHasCLUT(TIM) then
   begin
-    Move(BUFFER^[P], TIM^.CLUT^, cCLUTHeadSize);
+    Move(PBytesArray(BUFFER)^[P], TIM^.CLUT^, cCLUTHeadSize);
     if not CheckCLUT(TIM) then Exit;
     Inc(P, GetTIMCLUTSize(TIM));
   end;
 
-  Move(BUFFER^[P], TIM^.IMAGE^, cIMAGEHeadSize);
+  Move(PBytesArray(BUFFER)^[P], TIM^.IMAGE^, cIMAGEHeadSize);
 
   if not CheckIMAGE(TIM) then Exit;
   if not CheckTIMSize(TIM) then Exit;
@@ -274,7 +274,7 @@ begin
   TIM^.dwSIZE := GetTIMSize(TIM);
   TIM^.bGOOD := TIMIsGood(TIM);
 
-  Move(BUFFER^[TIM_POS], TIM^.DATA^[0], TIM^.dwSIZE);
+  Move(PBytesArray(BUFFER)^[TIM_POS], TIM^.DATA^[0], TIM^.dwSIZE);
 
   Result := True;
 end;
@@ -298,7 +298,7 @@ end;
 
 function LoadTimFromStream(Stream: TStream; var Position: DWORD): PTIM;
 var
-  BUF: PBytesArray;
+  BUF: PTIMDataArray;
   SIZE: DWORD;
 begin
   Result := nil;
@@ -306,7 +306,7 @@ begin
   SIZE := Stream.Size;
   if SIZE > cTIMMaxSize then Exit;
 
-  BUF := GetMemory(SIZE);
+  New(BUF);
   Result := CreateTIM;
 
   Stream.Seek(Position, soBeginning);
@@ -315,7 +315,7 @@ begin
   if not LoadTimFromBuf(BUF, Result, Position) then
   FreeTIM(Result);
 
-  FreeMemory(BUF);
+  Dispose(BUF);
 end;
 
 function CreateTIM: PTIM;

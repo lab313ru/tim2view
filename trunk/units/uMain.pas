@@ -56,6 +56,7 @@ type
     procedure lvListData(Sender: TObject; Item: TListItem);
     procedure mnCloseFileClick(Sender: TObject);
     procedure lvListClick(Sender: TObject);
+    procedure lvListKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
   private
     { Private declarations }
     //pResult: PNativeXml;
@@ -87,6 +88,7 @@ end;
 procedure TfrmMain.FormCreate(Sender: TObject);
 begin
   New(pScanThread);
+  Caption := cProgramName;
 end;
 
 procedure TfrmMain.FormDestroy(Sender: TObject);
@@ -109,10 +111,48 @@ begin
 end;
 
 procedure TfrmMain.lvListClick(Sender: TObject);
+var
+  Node, ONE_TIM: TXmlNode;
+  CurrentResult, TIM_RES: PNativeXML;
+  TIM_BUF: PTIMDataArray;
+  OFFSET, P: DWORD;
+  fName: string;
+  TIM: PTIM;
 begin
   if lvList.Items.Count = 0 then Exit;
 
   lvList.Column[0].Caption := Format('# (%d)', [lvList.Selected.Index + 1]);
+
+  CurrentResult := Results[tbcMain.TabIndex];
+  Node := CurrentResult^.Root.FindNode(cResultsInfoNode);
+  fName := Node.ReadAttributeString(cResultsAttributeFile);
+  Node := CurrentResult^.Root.FindNode(cResultsTimsNode);
+
+  Node := Node.Elements[lvList.Selected.Index];
+  OFFSET := cHex2Int(Node.ReadAttributeString(cResultsTimAttributePos));
+  New(TIM_BUF);
+  New(TIM_RES);
+
+  TIM_RES^ := TNativeXml.CreateName(cResultsRootName);
+  pScanThread^ := TScanThread.Create(fName, OFFSET, TIM_RES, 1);
+  pScanThread^.FreeOnTerminate := True;
+  pScanThread^.Priority := tpNormal;
+  pScanThread^.Start;
+
+  repeat
+    Application.ProcessMessages;
+  until pScanThread^.Terminated;
+
+  ONE_TIM := TIM_RES^.Root.FindNode(cResultsTimNode);
+  ONE_TIM.BufferRead(TIM_BUF^[0], ONE_TIM.BufferLength);
+
+  P := 0;
+  TIM := nil;
+  LoadTimFromBuf(TIM_BUF, TIM, P);
+  DrawTIM(TIM, @pnlImage.Canvas, pnlImage.ClientRect);
+  FreeTIM(TIM);
+
+  Dispose(TIM_BUF);
 end;
 
 procedure TfrmMain.lvListData(Sender: TObject; Item: TListItem);
@@ -133,11 +173,29 @@ begin
   RW := TIM_NODE.ReadAttributeInteger(cResultsTimAttributeWidth);
   RH := TIM_NODE.ReadAttributeInteger(cResultsTimAttributeHeight);
 
-  lvList.Items.BeginUpdate;
   Item.Caption := Format('%.6d', [Item.Index]);
   Item.SubItems.Add(Format('%dx%d', [RW, RH]));
   Item.SubItems.Add(Format('%d', [BIT_MODE]));
-  lvList.Items.EndUpdate;
+end;
+
+procedure TfrmMain.lvListKeyDown(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+begin
+  if (lvList.Items.Count = 0) or (lvList.Selected.Index = -1) then Exit;
+
+
+  if (Key = VK_DOWN) and ((lvList.Selected.Index + 1)<>lvList.Items.Count) then
+  begin
+    lvList.Items[lvList.Selected.Index + 1].Selected := True;
+    lvListClick(Self);
+    Exit;
+  end;
+
+  if (Key = VK_UP) and (lvList.Selected.Index <> 0) then
+  begin
+    lvList.Items[lvList.Selected.Index - 1].Selected := True;
+    lvListClick(Self);
+  end;
 end;
 
 procedure TfrmMain.mnCloseFileClick(Sender: TObject);
@@ -177,6 +235,7 @@ begin
     Exit;
 
   btnStopScan.Enabled := True;
+  lvList.Enabled := False;
 
   fScanName := dlgOpenFile.FileName;
   tbcMain.Tabs.Add(ExtractFileName(fScanName));
@@ -204,14 +263,17 @@ begin
   ParseResult(CurrentResult);
 
   CurrentResult^.SaveToFile(fResName);
+  lblStatus.Caption := '';
+  lvList.Enabled := True;
+  MessageBeep(MB_ICONASTERISK);
 end;
 
 procedure TfrmMain.ParseResult(Res: PNativeXML);
 var
   COUNT: integer;
   I: Integer;
-  Node, TIM_NODE: TXmlNode;
-  TIM_BUF: PBytesArray;
+  Node, TIM_NODE, ONE_TIM: TXmlNode;
+  TIM_BUF: PTIMDataArray;
   TIM: PTIM;
   OFFSET: Cardinal;
   fName, TIM_NAME: string;
@@ -225,9 +287,13 @@ begin
 
   if not mnAutoExtract.Checked then Exit;
 
+  lblStatus.Caption := sStatusBarTimsExtracting;
+  pbProgress.Max := COUNT;
+  pbProgress.Position := 0;
+
   fName := Node.ReadAttributeString(cResultsAttributeFile);
 
-  TIM_BUF := GetMemory(cTIMMaxSize);
+  New(TIM_BUF);
   Node := Res^.Root.FindNode(cResultsTimsNode);
 
   New(TIM_RES);
@@ -247,6 +313,8 @@ begin
 
     TIM_RES^ := TNativeXml.CreateName(cResultsRootName);
     pScanThread^ := TScanThread.Create(fName, OFFSET, TIM_RES, 1);
+    pScanThread^.FreeOnTerminate := True;
+    pScanThread^.Priority := tpNormal;
     pScanThread^.Start;
 
     repeat
@@ -254,24 +322,26 @@ begin
     until pScanThread^.Terminated;
 
     TIM_STREAM := TMemoryStream.Create;
-    TIM_NODE.BufferRead(TIM_BUF^[0], TIM_NODE.BufferLength);
-    TIM_STREAM.Write(TIM_BUF^[0], TIM_NODE.BufferLength);
+    ONE_TIM := TIM_RES^.Root.FindNode(cResultsTimNode);
+    ONE_TIM.BufferRead(TIM_BUF^[0], ONE_TIM.BufferLength);
+    TIM_STREAM.Write(TIM_BUF^[0], ONE_TIM.BufferLength);
     TIM_STREAM.SaveToFile(GetStartDir + cExtractedTimsDir + TIM_NAME);
     TIM_STREAM.Free;
 
     TIM_RES^.Free;
 
+    pbProgress.Position := I - 1;
     Application.ProcessMessages;
   end;
 
+  pbProgress.Position := 0;
   FreeTIM(TIM);
   Dispose(TIM_RES);
-  FreeMemory(TIM_BUF);
+  Dispose(TIM_BUF);
 end;
 
 procedure TfrmMain.ScanFinished(Sender: TObject);
 begin
-  MessageBeep(MB_ICONASTERISK);
   btnStopScan.Enabled := False;
   mnCloseFile.Enabled := (tbcMain.Tabs.Count <> 0);
 end;

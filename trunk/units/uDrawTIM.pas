@@ -42,9 +42,9 @@ begin
     Randomize;
     for I := 1 to cRandomPaletteSize do
     begin
-      Result^[I - 1].R := random($20) * 8;
-      Result^[I - 1].G := random($20) * 8;
-      Result^[I - 1].B := random($20) * 8;
+      Result^[I - 1].R := random($20);
+      Result^[I - 1].G := random($20);
+      Result^[I - 1].B := random($20);
       Result^[I - 1].STP := 1;
     end;
     Exit;
@@ -207,9 +207,11 @@ var
   PNG: TPngImage;
 begin
   PNG := TimToPNG(TIM);
+  PatBlt(ACanvas^.Handle, 0, 0, Rect.Width, Rect.Height, WHITENESS);
 
   Rect.Width := PNG.Width;
   Rect.Height := PNG.Height;
+
   PNG.Draw(ACanvas^, Rect);
   PNG.Free;
 end;
