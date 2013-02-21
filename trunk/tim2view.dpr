@@ -5,7 +5,6 @@ uses
   Vcl.Forms,
   Vcl.Themes,
   Vcl.Styles,
-  crc32 in 'units\crc32.pas',
   ecc in 'units\ecc.pas',
   edc in 'units\edc.pas',
   uCDIMAGE in 'units\uCDIMAGE.pas',

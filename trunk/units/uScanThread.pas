@@ -3,7 +3,7 @@ unit uScanThread;
 interface
 
 uses
-  Classes, Windows, crc32, uCommon, uTIM;
+  Classes, Windows, uCommon, uTIM;
 
 type
   PScanThread = ^TScanThread;
@@ -100,7 +100,6 @@ end;
 
 procedure TScanThread.Execute;
 var
-  Node: TXmlNode;
   SectorBuffer, ClearBuffer: PBytesArray;
   TIM: PTIM;
   pScanFinished: Boolean;
@@ -198,13 +197,6 @@ begin
   end;
 
   Queue(UpdateProgressBar);
-
-  pStatusText := sStatusBarCalculatingCRC;
-  Queue(SetStatusText);
-
-  Node := pResult^.Root.NodeFindOrCreate(cResultsInfoNode);
-  Node.WriteAttributeString(cResultsAttributeCRC32, FileCRC32(pFileToScan));
-
   pStatusText := '';
   Queue(SetStatusText);
 

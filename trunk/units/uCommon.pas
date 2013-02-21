@@ -30,7 +30,6 @@ const
   cAutoExtractionTimFormat = '%s_%.2db_%.6d' + '.tim';
   cMaxFilesToOpen = 50;
 
-  sStatusBarCalculatingCRC = 'Calculating CRC32';
   sStatusBarScanningFile = 'Scanning File...';
   sStatusBarTimsExtracting = 'TIM''s Extracting...';
   sStatusBarParsingResult = 'Parsing Result...';

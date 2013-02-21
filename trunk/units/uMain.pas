@@ -74,7 +74,7 @@ var
 implementation
 
 uses
-  uDrawTIM, uTIM;
+  uDrawTIM, uTIM, uCDIMAGE;
 
 {$R *.dfm}
 
@@ -115,9 +115,10 @@ var
   Node, ONE_TIM: TXmlNode;
   CurrentResult, TIM_RES: PNativeXML;
   TIM_BUF: PTIMDataArray;
-  OFFSET, P: DWORD;
+  OFFSET, P, SIZE: DWORD;
   fName: string;
   TIM: PTIM;
+  pImageScan: Boolean;
 begin
   if lvList.Items.Count = 0 then Exit;
 
@@ -130,29 +131,39 @@ begin
 
   Node := Node.Elements[lvList.Selected.Index];
   OFFSET := cHex2Int(Node.ReadAttributeString(cResultsTimAttributePos));
-  New(TIM_BUF);
-  New(TIM_RES);
+  SIZE := cHex2Int(Node.ReadAttributeString(cResultsTimAttributeSize));
 
-  TIM_RES^ := TNativeXml.CreateName(cResultsRootName);
-  pScanThread^ := TScanThread.Create(fName, OFFSET, TIM_RES, 1);
-  pScanThread^.FreeOnTerminate := True;
-  pScanThread^.Priority := tpNormal;
-  pScanThread^.Start;
-
-  repeat
-    Application.ProcessMessages;
-  until pScanThread^.Terminated;
-
-  ONE_TIM := TIM_RES^.Root.FindNode(cResultsTimNode);
-  ONE_TIM.BufferRead(TIM_BUF^[0], ONE_TIM.BufferLength);
-
-  P := 0;
   TIM := nil;
-  LoadTimFromBuf(TIM_BUF, TIM, P);
+  pImageScan := GetImageScan(fName);
+
+  if not pImageScan then
+  begin
+    New(TIM_BUF);
+    New(TIM_RES);
+
+    TIM_RES^ := TNativeXml.CreateName(cResultsRootName);
+    pScanThread^ := TScanThread.Create(fName, OFFSET, TIM_RES, 1);
+    pScanThread^.FreeOnTerminate := True;
+    pScanThread^.Priority := tpNormal;
+    pScanThread^.Start;
+
+    repeat
+      Application.ProcessMessages;
+    until pScanThread^.Terminated;
+
+    ONE_TIM := TIM_RES^.Root.FindNode(cResultsTimNode);
+    ONE_TIM.BufferRead(TIM_BUF^[0], ONE_TIM.BufferLength);
+
+    P := 0;
+    LoadTimFromBuf(TIM_BUF, TIM, P);
+    Dispose(TIM_BUF);
+  end
+  else
+    TIM := LoadTimFromFile(fName, OFFSET, SIZE);
+
   DrawTIM(TIM, @pnlImage.Canvas, pnlImage.ClientRect);
   FreeTIM(TIM);
-
-  Dispose(TIM_BUF);
+  lblStatus.Caption := IntToHex(OFFSET, 8);
 end;
 
 procedure TfrmMain.lvListData(Sender: TObject; Item: TListItem);

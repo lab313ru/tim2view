@@ -114,7 +114,8 @@ function GetTimHeight(TIM: PTIM): Word;
 function TIMIsGood(TIM: PTIM): boolean;
 function LoadTimFromBuf(BUFFER: pointer; var TIM: PTIM;
                         var Position: DWORD): boolean;
-function LoadTimFromFile(const FileName: string; var Position: DWORD): PTIM;
+function LoadTimFromFile(const FileName: string; var Position: DWORD;
+                         dwSIZE: DWORD = 0): PTIM;
 function LoadTimFromStream(Stream: TStream; var Position: DWORD): PTIM;
 function CreateTIM: PTIM;
 procedure FreeTIM(TIM: PTIM);
@@ -123,7 +124,7 @@ function BppToBitMode(TIM: PTIM): byte;
 implementation
 
 uses
-  System.SysUtils;
+  System.SysUtils, uCDIMAGE;
 
 function GetTimHeight(TIM: PTIM): Word;
 begin
@@ -279,21 +280,95 @@ begin
   Result := True;
 end;
 
-function LoadTimFromFile(const FileName: string; var Position: DWORD): PTIM;
+function LoadTimFromCDFile(const FileName: string; var Position: DWORD;
+                           SIZE: DWORD): PTIM;
+var
+  TimOffsetInSector, FirstPartSize, LastPartSize: DWORD;
+  TimSectorNumber, TimStartSectorPos: DWORD;
+  TIM_BUF: PTIMDataArray;
+  sImageStream: TFileStream;
+  Sector: TCDSector;
+  P, TIM_FULL_SECTORS: DWORD;
+begin
+  sImageStream := TFileStream.Create(FileName, fmOpenRead);
+
+  TimSectorNumber := Position div cSectorSize + 1;
+  TimOffsetInSector := Position mod cSectorSize - cSectorInfoSize;
+  TimStartSectorPos := (TimSectorNumber - 1) * cSectorSize;
+  FirstPartSize := cSectorDataSize - TimOffsetInSector;
+
+  New(TIM_BUF);
+  P := 0;
+
+  if SIZE < FirstPartSize then
+  FirstPartSize := SIZE;
+
+  sImageStream.Seek(TimStartSectorPos, soBeginning);
+  sImageStream.Read(Sector, cSectorSize);
+
+  Move(Sector.dwData[TimOffsetInSector], TIM_BUF^[P], FirstPartSize);
+  Inc(P, FirstPartSize);
+
+  Inc(TimStartSectorPos, cSectorSize);
+  sImageStream.Seek(TimStartSectorPos, soBeginning);
+
+  TIM_FULL_SECTORS := (SIZE - P) div cSectorDataSize;
+
+  while TIM_FULL_SECTORS > 0 do
+  begin
+    sImageStream.Read(Sector, cSectorSize);
+
+    Move(Sector.dwData[0], TIM_BUF^[P], cSectorDataSize);
+    Inc(P, cSectorDataSize);
+
+    Inc(TimStartSectorPos, cSectorSize);
+    sImageStream.Seek(TimStartSectorPos, soBeginning);
+
+    Dec(TIM_FULL_SECTORS);
+  end;
+
+  sImageStream.Read(Sector, cSectorSize);
+
+  if SIZE > P then
+  begin
+    LastPartSize := SIZE - P;
+    Move(Sector.dwData[0], TIM_BUF^[P], LastPartSize);
+  end;
+
+  P := 0;
+  Result := nil;
+  LoadTimFromBuf(TIM_BUF, Result, P);
+  sImageStream.Free;
+  Dispose(TIM_BUF);
+end;
+
+function LoadTimFromFile(const FileName: string; var Position: DWORD;
+                         dwSIZE: DWORD = 0): PTIM;
 var
   sTIM: TFileStream;
   SIZE: DWORD;
+  pImageScan: Boolean;
 begin
   Result := nil;
-
   if not CheckFileExists(FileName) then Exit;
 
-  SIZE := GetFileSZ(FileName);
-  if SIZE > cTIMMaxSize then Exit;
+  if dwSIZE = 0 then
+  begin
+    SIZE := GetFileSZ(FileName);
+    if SIZE > cTIMMaxSize then Exit;
+  end;
 
-  sTIM := TFileStream.Create(FileName, fmOpenRead);
-  Result := LoadTimFromStream(sTIM, Position);
-  sTIM.Free;
+  pImageScan := GetImageScan(FileName);
+
+  if not pImageScan then
+  begin
+    sTIM := TFileStream.Create(FileName, fmOpenRead);
+    Result := LoadTimFromStream(sTIM, Position);
+    sTIM.Free;
+    Exit;
+  end;
+
+  Result := LoadTimFromCDFile(FileName, Position, dwSIZE);
 end;
 
 function LoadTimFromStream(Stream: TStream; var Position: DWORD): PTIM;

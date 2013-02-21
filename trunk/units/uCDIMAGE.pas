@@ -18,15 +18,6 @@ const
   cSectorECCEDCSize = cSectorECCSize + cSectorEDCSize;
   cSectorSize = cSectorInfoSize + cSectorDataSize + cSectorECCEDCSize;
 
-function GetImageScan(const FileName: string): Boolean;
-function ReplaceTimInFile(const FileName, TimToInsert: string; InsertTo:
-  DWORD): boolean;
-
-implementation
-
-uses
-  uCommon, uTIM, ecc, edc, System.SysUtils, System.Classes;
-
 type
   TCDSector = packed record
     dwHeader: array[0..cSectorHeaderSize - 1] of byte;
@@ -38,6 +29,15 @@ type
     dwEDC: array[0..cSectorEDCSize - 1] of byte;
   end;
   PCDSector = ^TCDSector;
+
+function GetImageScan(const FileName: string): Boolean;
+function ReplaceTimInFile(const FileName, TimToInsert: string; InsertTo:
+  DWORD): boolean;
+
+implementation
+
+uses
+  uCommon, uTIM, ecc, edc, System.SysUtils, System.Classes;
 
 function bin2bcd(P: Integer): Byte;
 begin
