@@ -7,9 +7,11 @@ uses
 
 type
   PCanvas = ^TCanvas;
+  PPNGImage = ^TPngImage;
 
-procedure DrawTIM(TIM: PTIM; ACanvas: PCanvas; Rect: TRect);
-function TimToPNG(TIM: PTIM): TPngImage;
+procedure DrawTIM(TIM: PTIM; ACanvas: PCanvas; Rect: TRect; var PNG: PPNGImage);
+procedure TimToPNG(TIM: PTIM; var PNG: PPngImage);
+procedure DrawPNG(PNG: PPNGImage; ACanvas: PCanvas; Rect: TRect);
 
 implementation
 
@@ -64,8 +66,7 @@ var
   P24: DWORD;
 begin
   New(Result);
-  OFFSET := cTIMHeadSize + GetTIMCLUTSize(TIM) +
-            cIMAGEHeadSize;
+  OFFSET := cTIMHeadSize + GetTIMCLUTSize(TIM) + cIMAGEHeadSize;
   RW := GetTimRealWidth(TIM);
 
   case TIM^.HEAD^.bBPP of
@@ -104,7 +105,7 @@ begin
   end;
 end;
 
-function TimToPNG(TIM: PTIM): TPngImage;
+procedure TimToPNG(TIM: PTIM; var PNG: PPngImage);
 var
   RW, RH, CW: Word;
   CLUT_DATA: PCLUT_COLORS;
@@ -117,9 +118,9 @@ begin
   RW := GetTimRealWidth(TIM);
   RH := GetTimHeight(TIM);
 
-  Result := TPngImage.CreateBlank(COLOR_RGBALPHA, 16, RW, RH);
-  Result.CompressionLevel := 9;
-  Result.Filters := [];
+  PNG^ := TPngImage.CreateBlank(COLOR_RGBALPHA, 16, RW, RH);
+  PNG^.CompressionLevel := 9;
+  PNG^.Filters := [];
 
   CLUT_DATA := PrepareCLUT(TIM);
   IMAGE_DATA := PrepareIMAGE(TIM);
@@ -182,7 +183,7 @@ begin
         end;
       end;
 
-      Result.AlphaScanline[Y - 1]^[X - 1] := ALPHA;
+      PNG^.AlphaScanline[Y - 1]^[X - 1] := ALPHA;
 
       if ALPHA = 0 then
       begin
@@ -191,9 +192,9 @@ begin
         R := 0;
       end;
 
-      pRGBLine(Result.Scanline[Y - 1])^[X - 1].rgbtBlue := B;
-      pRGBLine(Result.Scanline[Y - 1])^[X - 1].rgbtGreen := G;
-      pRGBLine(Result.Scanline[Y - 1])^[X - 1].rgbtRed := R;
+      pRGBLine(PNG^.Scanline[Y - 1])^[X - 1].rgbtBlue := B;
+      pRGBLine(PNG^.Scanline[Y - 1])^[X - 1].rgbtGreen := G;
+      pRGBLine(PNG^.Scanline[Y - 1])^[X - 1].rgbtRed := R;
 
       Inc(IMAGE_DATA_POS);
     end;
@@ -202,18 +203,22 @@ begin
   Dispose(IMAGE_DATA);
 end;
 
-procedure DrawTIM(TIM: PTIM; ACanvas: PCanvas; Rect: TRect);
-var
-  PNG: TPngImage;
+procedure DrawTIM(TIM: PTIM; ACanvas: PCanvas; Rect: TRect; var PNG: PPNGImage);
 begin
-  PNG := TimToPNG(TIM);
+  TimToPNG(TIM, PNG);
+  DrawPNG(PNG, ACanvas, Rect);
+end;
+
+procedure DrawPNG(PNG: PPNGImage; ACanvas: PCanvas; Rect: TRect);
+begin
+  if PNG^ = nil then Exit;
+
   PatBlt(ACanvas^.Handle, 0, 0, Rect.Width, Rect.Height, WHITENESS);
 
-  Rect.Width := PNG.Width;
-  Rect.Height := PNG.Height;
+  Rect.Width := PNG^.Width;
+  Rect.Height := PNG^.Height;
 
-  PNG.Draw(ACanvas^, Rect);
-  PNG.Free;
+  PNG^.Draw(ACanvas^, Rect);
 end;
 
 end.

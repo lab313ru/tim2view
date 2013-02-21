@@ -12,7 +12,6 @@ type
     { Private declarations }
     pFileToScan: string;
     pStartPos: DWORD;
-    pTimsLimit: DWORD;
     pImageScan: boolean;
     pResult: PNativeXml;
     pFileSize: DWORD;
@@ -30,7 +29,7 @@ type
     procedure Execute; override;
   public
     constructor Create(const FileToScan: string; FromPosition: DWORD;
-                       fResult: pointer; Limit: DWORD = 0);
+                       fResult: pointer; ImageScan: Boolean);
     property Terminated;
     property StopScan: boolean write pStopScan;
   end;
@@ -47,7 +46,7 @@ const
 { TScanThread }
 
 constructor TScanThread.Create(const FileToScan: string; FromPosition: DWORD;
-                               fResult: pointer; Limit: DWORD = 0);
+                               fResult: pointer; ImageScan: Boolean);
 var
   Node: TXmlNode;
 begin
@@ -55,20 +54,19 @@ begin
   FreeOnTerminate := True;
   Priority := tpHigher;
   pStartPos := FromPosition;
-  pTimsLimit := Limit;
   pClearBufferPosition := 0;
   pFileToScan := FileToScan;
-  pFileSize := GetFileSZ(pFileToScan);
+  pFileSize := GetFileSizeAPI(pFileToScan);
   pStatusText := '';
   pStopScan := False;
+  pImageScan := ImageScan;
 
   pResult := fResult;
   pResult^.Root.WriteAttributeString(cResultsAttributeVersion,
     cProgramVersion);
   Node := pResult^.Root.NodeNew(cResultsInfoNode);
   Node.WriteAttributeString(cResultsAttributeFile, pFileToScan);
-  pImageScan := GetImageScan(pFileToScan);
-  Node.WriteAttributeBool(cResultsAttributeImageFile, pImageScan);
+  Node.WriteAttributeBool(cResultsAttributeImageFile, ImageScan);
   Node.WriteAttributeInteger(cResultsAttributeTimsCount, 0);
 end;
 
@@ -93,9 +91,6 @@ begin
   AddedNode.WriteAttributeInteger(cResultsTimAttributeBitMode,
                                   BppToBitMode(TIM));
   AddedNode.WriteAttributeBool(cResultsTimAttributeGood, TIMIsGood(TIM));
-
-  if pTimsLimit = 1 then
-  AddedNode.BufferWrite(TIM^.DATA^[0], TIM^.dwSIZE);
 end;
 
 procedure TScanThread.Execute;
@@ -105,9 +100,8 @@ var
   pScanFinished: Boolean;
   pRealBufSize, pTimPosition, pTIMNumber: DWORD;
 begin
-  if not CheckFileExists(pFileToScan) then Terminate;
-
-  pSrcFileStream := TFileStream.Create(pFileToScan, fmOpenRead);
+  pSrcFileStream := TFileStream.Create(pFileToScan,
+                                       fmOpenRead or fmShareDenyWrite);
   pSrcFileStream.Seek(pStartPos, soBeginning);
 
   if pImageScan then
@@ -122,11 +116,8 @@ begin
 
   TIM := CreateTIM;
 
-  if pTimsLimit <> 1 then
-  begin
-    pStatusText := sStatusBarScanningFile;
-    Queue(SetStatusText);
-  end;
+  pStatusText := sStatusBarScanningFile;
+  Queue(SetStatusText);
 
   pRealBufSize := pSrcFileStream.Read(SectorBuffer^[0], pSectorBufferSize);
   ClearSectorBuffer(SectorBuffer, ClearBuffer);
@@ -171,30 +162,19 @@ begin
         pRealBufSize := pRealBufSize + (pSectorBufferSize div 2);
       end;
 
-      if pTimsLimit <> 1 then
       Queue(UpdateProgressBar);
 
       ClearSectorBuffer(SectorBuffer, ClearBuffer);
     end;
-  until pStopScan or ((pTimsLimit = pTIMNumber) and (pTimsLimit <> 0));
+  until pStopScan;
   FreeTIM(TIM);
   FreeMemory(SectorBuffer);
   FreeMemory(ClearBuffer);
 
-  if pTimsLimit <> 1 then
   Queue(UpdateProgressBar);
 
   pSrcFileStream.Free;
   pSrcFileStream := nil;
-
-  if pTimsLimit = 1 then
-  begin
-    pStatusText := '';
-    Queue(SetStatusText);
-
-    Terminate;
-    Exit;
-  end;
 
   Queue(UpdateProgressBar);
   pStatusText := '';

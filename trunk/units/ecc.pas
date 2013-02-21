@@ -49,10 +49,10 @@ begin
 				Dec(PD_P, (4 + L2_RAW + 4 + 8 + L2_P));
     end;
 		Data^[PQ + 0]      := a SHR 8;
-    Move(a, Data^[PQ + 26*2], SizeOf(a));
+    Move(a, Data^[PQ + 26*2], 1);
 		//Q^[26*2]   := a;
 		Data^[PQ + 1]      := b SHR 8;
-    Move(b, Data^[PQ + 26*2 + 1], SizeOf(b));
+    Move(b, Data^[PQ + 26*2 + 1], 1);
 		//Q^[26*2+1] := b;
 
 		Inc(PQ, 2);

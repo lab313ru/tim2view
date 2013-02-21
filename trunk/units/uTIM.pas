@@ -115,8 +115,8 @@ function TIMIsGood(TIM: PTIM): boolean;
 function LoadTimFromBuf(BUFFER: pointer; var TIM: PTIM;
                         var Position: DWORD): boolean;
 function LoadTimFromFile(const FileName: string; var Position: DWORD;
-                         dwSIZE: DWORD = 0): PTIM;
-function LoadTimFromStream(Stream: TStream; var Position: DWORD): PTIM;
+                         ImageScan: Boolean; dwSIZE: DWORD): PTIM;
+procedure SaveTimToFile(const FileName: string; TIM: PTIM);
 function CreateTIM: PTIM;
 procedure FreeTIM(TIM: PTIM);
 function BppToBitMode(TIM: PTIM): byte;
@@ -285,12 +285,12 @@ function LoadTimFromCDFile(const FileName: string; var Position: DWORD;
 var
   TimOffsetInSector, FirstPartSize, LastPartSize: DWORD;
   TimSectorNumber, TimStartSectorPos: DWORD;
-  TIM_BUF: PTIMDataArray;
+  TIM_BUF: PBytesArray;
   sImageStream: TFileStream;
   Sector: TCDSector;
   P, TIM_FULL_SECTORS: DWORD;
 begin
-  sImageStream := TFileStream.Create(FileName, fmOpenRead);
+  sImageStream := TFileStream.Create(FileName, fmOpenRead or fmShareDenyWrite);
 
   TimSectorNumber := Position div cSectorSize + 1;
   TimOffsetInSector := Position mod cSectorSize - cSectorInfoSize;
@@ -342,28 +342,36 @@ begin
   Dispose(TIM_BUF);
 end;
 
-function LoadTimFromFile(const FileName: string; var Position: DWORD;
-                         dwSIZE: DWORD = 0): PTIM;
+function LoadTimFromStream(Stream: TStream; var Position: DWORD;
+                           dwSIZE: DWORD): PTIM;
 var
-  sTIM: TFileStream;
-  SIZE: DWORD;
-  pImageScan: Boolean;
+  BUF: PBytesArray;
 begin
   Result := nil;
-  if not CheckFileExists(FileName) then Exit;
 
-  if dwSIZE = 0 then
+  if dwSIZE > cTIMMaxSize then Exit;
+
+  New(BUF);
+  Result := CreateTIM;
+
+  Stream.Seek(Position, soBeginning);
+  Stream.Read(BUF^[Position], dwSIZE);
+
+  if not LoadTimFromBuf(BUF, Result, Position) then
+  FreeTIM(Result);
+
+  Dispose(BUF);
+end;
+
+function LoadTimFromFile(const FileName: string; var Position: DWORD;
+                         ImageScan: Boolean; dwSIZE: DWORD): PTIM;
+var
+  sTIM: TFileStream;
+begin
+  if not ImageScan then
   begin
-    SIZE := GetFileSZ(FileName);
-    if SIZE > cTIMMaxSize then Exit;
-  end;
-
-  pImageScan := GetImageScan(FileName);
-
-  if not pImageScan then
-  begin
-    sTIM := TFileStream.Create(FileName, fmOpenRead);
-    Result := LoadTimFromStream(sTIM, Position);
+    sTIM := TFileStream.Create(FileName, fmOpenRead or fmShareDenyWrite);
+    Result := LoadTimFromStream(sTIM, Position, dwSIZE);
     sTIM.Free;
     Exit;
   end;
@@ -371,26 +379,16 @@ begin
   Result := LoadTimFromCDFile(FileName, Position, dwSIZE);
 end;
 
-function LoadTimFromStream(Stream: TStream; var Position: DWORD): PTIM;
+procedure SaveTimToFile(const FileName: string; TIM: PTIM);
 var
-  BUF: PTIMDataArray;
-  SIZE: DWORD;
+  tmp: TMemoryStream;
 begin
-  Result := nil;
+  if TIM = nil then Exit;
 
-  SIZE := Stream.Size;
-  if SIZE > cTIMMaxSize then Exit;
-
-  New(BUF);
-  Result := CreateTIM;
-
-  Stream.Seek(Position, soBeginning);
-  Stream.Read(BUF^[Position], SIZE);
-
-  if not LoadTimFromBuf(BUF, Result, Position) then
-  FreeTIM(Result);
-
-  Dispose(BUF);
+  tmp := TMemoryStream.Create;
+  tmp.Write(TIM^.DATA^[0], TIM^.dwSIZE);
+  tmp.SaveToFile(FileName);
+  tmp.Free;
 end;
 
 function CreateTIM: PTIM;

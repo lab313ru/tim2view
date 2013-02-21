@@ -36,7 +36,7 @@ Set the default options for FastMM here.
  the application is not being run inside the IDE debugger, then the default
  Delphi memory manager will be used (which, since Delphi 2006, is FastMM
  without FullDebugMode.}
-{.$define InstallOnlyIfRunningInIDE}
+{$define InstallOnlyIfRunningInIDE}
 
 {Due to QC#14070 ("Delphi IDE attempts to free memory after the shutdown code
  of borlndmm.dll has been called"), FastMM cannot be uninstalled safely when
@@ -69,7 +69,7 @@ Set the default options for FastMM here.
  timeslice when a thread contention occurs, unless UseSwitchToThread is
  also defined (see below) in which case it will call SwitchToThread instead of
  Sleep.}
-{$define NeverSleepOnThreadContention}
+{.$define NeverSleepOnThreadContention}
 
   {Set this option to call SwitchToThread instead of sitting in a "busy waiting"
    loop when a thread contention occurs. This is used in conjunction with the
@@ -77,7 +77,7 @@ Set the default options for FastMM here.
    NeverSleepOnThreadContention is also defined. This option may improve
    performance with many CPU cores and/or threads of different priorities. Note
    that the SwitchToThread API call is only available on Windows 2000 and later.}
-  {$define UseSwitchToThread}
+  {.$define UseSwitchToThread}
 
 {-----------------------------Debugging Options-------------------------------}
 
@@ -159,9 +159,9 @@ Set the default options for FastMM here.
    then stack traces will not be available. Note that this may cause problems
    due to a changed DLL unload order when sharing the memory manager. Use with
    care.}
-  {$define LoadDebugDLLDynamically}
+  {.$define LoadDebugDLLDynamically}
 
-  {$define DoNotInstallIfDLLMissing}
+  {.$define DoNotInstallIfDLLMissing}
     {If the FastMM_FullDebugMode.dll file is not available then FastMM will not
      install itself. No effect unless FullDebugMode and LoadDebugDLLDynamically
      are also defined.}
@@ -220,7 +220,7 @@ Set the default options for FastMM here.
   {Set this option to require the presence of debug info ($D+ option) in the
    compiled unit to perform memory leak checking. This option has no effect if
    the option "EnableMemoryLeakReporting" is not also set.}
-  {$define RequireDebugInfoForLeakReporting}
+  {.$define RequireDebugInfoForLeakReporting}
 
   {Set this option to enable manual control of the memory leak report. When
    this option is set the ReportMemoryLeaksOnShutdown variable (default = false)

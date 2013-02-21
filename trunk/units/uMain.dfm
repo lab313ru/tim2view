@@ -195,8 +195,8 @@ object frmMain: TfrmMain
   object dlgOpenFile: TOpenDialog
     DefaultExt = '.bin'
     Filter = 'All Files (*.*)|*.*'
-    Options = [ofHideReadOnly, ofFileMustExist, ofNoNetworkButton, ofEnableSizing, ofForceShowHidden]
-    Title = 'Please, select File to Scan...'
+    Options = [ofHideReadOnly, ofNoChangeDir, ofFileMustExist, ofNoNetworkButton, ofEnableSizing, ofForceShowHidden]
+    Title = 'Please, select File...'
     Left = 652
     Top = 478
   end
@@ -207,17 +207,19 @@ object frmMain: TfrmMain
       Caption = '&File'
       object mnScanFile: TMenuItem
         Caption = 'Scan &File...'
+        ShortCut = 116
         OnClick = mnScanFileClick
       end
       object mnScanDir: TMenuItem
         Caption = 'Scan &Directory...'
+        ShortCut = 117
+        OnClick = mnScanDirClick
       end
       object N1: TMenuItem
         Caption = '-'
       end
       object mnCloseFile: TMenuItem
         Caption = 'Close &This File'
-        Enabled = False
         ShortCut = 119
         OnClick = mnCloseFileClick
       end
@@ -233,12 +235,23 @@ object frmMain: TfrmMain
     end
     object mnImage: TMenuItem
       Caption = '&Image'
+      object mnSaveToPNG: TMenuItem
+        Caption = 'Save to PNG File...'
+        ShortCut = 114
+        OnClick = mnSaveToPNGClick
+      end
     end
     object mnTIM: TMenuItem
       Caption = '&TIM'
+      object mnSaveTIM: TMenuItem
+        Caption = '&Save TIM to File...'
+        ShortCut = 113
+        OnClick = mnSaveTIMClick
+      end
       object mnReplaceIn: TMenuItem
         Caption = '&Replace in File...'
         ShortCut = 16466
+        OnClick = mnReplaceInClick
       end
     end
     object mnConfig: TMenuItem
@@ -273,6 +286,22 @@ object frmMain: TfrmMain
   end
   object xpMain: TXPManifest
     Left = 624
+    Top = 480
+  end
+  object dlgSavePNG: TSavePictureDialog
+    DefaultExt = 'png'
+    Filter = 'Portable Network Graphics (*.png)|*.png'
+    Options = [ofHideReadOnly, ofNoChangeDir, ofNoNetworkButton, ofEnableSizing]
+    Title = 'Please, select filename for PNG...'
+    Left = 688
+    Top = 480
+  end
+  object dlgSaveTIM: TSaveDialog
+    DefaultExt = 'tim'
+    Filter = 'PSX TIM Files (*.tim)|*.tim|All Files (*.*)|*.*'
+    Options = [ofOverwritePrompt, ofHideReadOnly, ofNoChangeDir, ofNoNetworkButton, ofEnableSizing]
+    Title = 'Please, select where to save TIM file...'
+    Left = 560
     Top = 480
   end
 end

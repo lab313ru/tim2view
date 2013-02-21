@@ -32,7 +32,7 @@ type
 
 function GetImageScan(const FileName: string): Boolean;
 function ReplaceTimInFile(const FileName, TimToInsert: string; InsertTo:
-  DWORD): boolean;
+                          DWORD; ImageScan: Boolean): boolean;
 
 implementation
 
@@ -68,19 +68,13 @@ var
   pFile: PBytesArray;
   tmp: TFileStream;
 begin
-  result := false;
+  Result := False;
+  Sz := GetFileSizeAPI(FileName);
 
-  if not CheckFileExists(FileName) then Exit;
-
-  Sz := GetFileSZ(FileName);
-
-  if Sz = 0 then
-    Exit;
-  if Sz > cMaxFileSize then
-    Exit;
+  if (Sz > cMaxFileSize) or (Sz = 0) then Exit;
 
   pFile := GetMemory(cSectorHeaderSize);
-  tmp := TFileStream.Create(FileName, fmOpenRead);
+  tmp := TFileStream.Create(FileName, fmOpenRead or fmShareDenyWrite);
   tmp.Read(pFile^[0], cSectorHeaderSize);
   result := ((Sz mod cSectorSize) = 0) and
     (CompareMem(@cSectorHeader, pFile, cSectorHeaderSize));
@@ -89,7 +83,7 @@ begin
 end;
 
 function ReplaceTimInFile(const FileName, TimToInsert: string; InsertTo:
-  DWORD): boolean;
+  DWORD; ImageScan: Boolean): boolean;
 type
   TSecAddrAndMode = array[0..cSectorAddressSize + cSectorModeSize] of byte;
 var
@@ -98,21 +92,18 @@ var
   TimSectorNumber, TimStartSectorPos: DWORD;
   Sector: TCDSector;
   ECC: DWORD;
-  P, TIM_FULL_SECTORS: DWORD;
-  ImageScan: Boolean;
+  P, TIM_FULL_SECTORS, SIZE: DWORD;
   TIM: PTIM;
   SecAddrAndMode: TSecAddrAndMode;
 begin
   result := false;
 
-  if not CheckFileExists(FileName) then Exit;
-
+  SIZE := GetFileSizeAPI(TimToInsert);
   P := 0;
-  TIM := LoadTimFromFile(TimToInsert, P);
+  TIM := LoadTimFromFile(TimToInsert, P, False, SIZE);
   if TIM = nil then Exit;
 
-  ImageScan := GetImageScan(FileName);
-  sImageStream := TFileStream.Create(FileName, fmOpenRead);
+  sImageStream := TFileStream.Create(FileName, fmOpenReadWrite or fmShareDenyWrite);
 
   if not ImageScan then
   begin
@@ -132,6 +123,7 @@ begin
     FirstPartSize := TIM^.dwSIZE;
 
     sImageStream.Seek(TimStartSectorPos, soBeginning);
+    FillChar(Sector, SizeOf(Sector), 0);
     sImageStream.Read(Sector, cSectorSize);
     Move(Sector.dwAddress[0], SecAddrAndMode[0], cSectorAddressSize +
       cSectorModeSize);

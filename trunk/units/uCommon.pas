@@ -41,7 +41,7 @@ type
   PBytesArray = ^TBytesArray;
 
 function GetStartDir: string;
-function GetFileSZ(const FileName: string): DWORD;
+function GetFileSizeAPI(const FileName: string): Int64;
 function CheckFileExists(const FileName: string): boolean;
 function cHex2Int( const Value : string) : Integer;
 function ExtractFileNameWOext( const Path : string ) : string;
@@ -98,18 +98,25 @@ begin
   result := FileExists(FileName);
 end;
 
-function GetFileSZ(const FileName: string): DWORD;
+function GetFileSizeAPI(const FileName: string): Int64;
 var
-  tmp: TFileStream;
+  FindData: TWin32FindData;
+  hFind: THandle;
 begin
-  result := 0;
+  Result := -1;
+  hFind := FindFirstFile( PChar(FileName), FindData );
 
-  if not CheckFileExists(FileName) then Exit;
+  if hFind <> INVALID_HANDLE_VALUE then
+  begin
 
-  tmp := TFileStream.Create(FileName, fmOpenRead);
+      Windows.FindClose(hFind);
+      if ( FindData.dwFileAttributes
+           and
+           FILE_ATTRIBUTE_DIRECTORY) = 0
+      then
+        Result := FindData.nFileSizeLow;
+  end;
 
-  result := tmp.Size;
-  tmp.Free;
 end;
 
 function GetStartDir: string;
