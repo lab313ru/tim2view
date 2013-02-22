@@ -72,6 +72,7 @@ type
     procedure lblStatusMouseMove(Sender: TObject; Shift: TShiftState; X,
       Y: Integer);
     procedure pnlImagePaint(Sender: TObject);
+    procedure mnExitClick(Sender: TObject);
   private
     { Private declarations }
     //pResult: PNativeXml;
@@ -194,6 +195,7 @@ begin
   end;
 
   DrawTIM(TIM, @pnlImage.Canvas, pnlImage.ClientRect, pCurrentPNG);
+  //DrawCLUT(TIM, @grdCLUT);
   FreeTIM(TIM);
 end;
 
@@ -370,6 +372,11 @@ begin
   pnlTimInfo.Caption := '';
   tbcMain.Tabs.Delete(tbcMain.TabIndex);
   CheckMainMenu;
+end;
+
+procedure TfrmMain.mnExitClick(Sender: TObject);
+begin
+  Close;
 end;
 
 procedure TfrmMain.mnReplaceInClick(Sender: TObject);

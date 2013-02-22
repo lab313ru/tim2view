@@ -99,8 +99,6 @@ type
     IMAGE: PIMAGEHeader;
     dwSIZE: DWORD;
     DATA: PTIMDataArray;
-  {  CLUT_DATA: PCLUT_COLORS;
-    IMAGE_DATA: PIMAGE_INDEXES;  }
     bGOOD: Boolean;
   end;
   PTIM = ^TTIM;

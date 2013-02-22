@@ -45,11 +45,15 @@ object frmMain: TfrmMain
         Top = 0
         Width = 494
         Height = 493
-        ActivePage = tsImage
+        ActivePage = tsClut
         Align = alClient
         TabOrder = 0
         object tsInfo: TTabSheet
           Caption = 'INFO'
+          ExplicitLeft = 0
+          ExplicitTop = 0
+          ExplicitWidth = 0
+          ExplicitHeight = 0
           object tbInfo: TStringGrid
             Left = 0
             Top = 0
@@ -73,6 +77,10 @@ object frmMain: TfrmMain
         object tsImage: TTabSheet
           Caption = 'IMAGE'
           ImageIndex = 1
+          ExplicitLeft = 0
+          ExplicitTop = 0
+          ExplicitWidth = 0
+          ExplicitHeight = 0
           object pnlImage: TPaintBox
             Left = 0
             Top = 0
@@ -97,12 +105,15 @@ object frmMain: TfrmMain
             Width = 486
             Height = 465
             Align = alClient
-            ColCount = 16
+            ColCount = 1
             DefaultColWidth = 20
             DefaultRowHeight = 20
+            DoubleBuffered = False
             FixedCols = 0
-            RowCount = 16
+            RowCount = 1
             FixedRows = 0
+            Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine]
+            ParentDoubleBuffered = False
             ScrollBars = ssNone
             TabOrder = 0
           end
@@ -146,8 +157,6 @@ object frmMain: TfrmMain
           OnClick = lvListClick
           OnData = lvListData
           OnKeyDown = lvListKeyDown
-          ExplicitLeft = 1
-          ExplicitTop = -6
         end
         object pnlTimInfo: TPanel
           Left = 0
@@ -244,6 +253,7 @@ object frmMain: TfrmMain
       object mnExit: TMenuItem
         Caption = '&Exit...'
         ShortCut = 121
+        OnClick = mnExitClick
       end
     end
     object mnImage: TMenuItem

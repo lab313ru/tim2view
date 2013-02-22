@@ -3,15 +3,17 @@ unit uDrawTIM;
 interface
 
 uses
-  Vcl.Graphics, uTIM, System.Types, Vcl.Imaging.pngimage;
+  Vcl.Graphics, uTIM, System.Types, Vcl.Imaging.pngimage, Vcl.Grids;
 
 type
   PCanvas = ^TCanvas;
   PPNGImage = ^TPngImage;
+  PDrawGrid = ^TDrawGrid;
 
 procedure DrawTIM(TIM: PTIM; ACanvas: PCanvas; Rect: TRect; var PNG: PPNGImage);
 procedure TimToPNG(TIM: PTIM; var PNG: PPngImage);
 procedure DrawPNG(PNG: PPNGImage; ACanvas: PCanvas; Rect: TRect);
+procedure DrawCLUT(TIM: PTIM; Grid: PDrawGrid);
 
 implementation
 
@@ -20,10 +22,10 @@ uses
 
 function ReadColor(ColorValue: Word): TCLUT_COLOR;
 begin
-  Result.R := (ColorValue and $1F);
-  Result.G := (ColorValue and $3E0) shr 5;
-  Result.B := (ColorValue and $7C00) shr 10;
-  Result.STP := (ColorValue and $8000) shr 15;
+  Result.R := (ColorValue and $1F) * 8;
+  Result.G := ((ColorValue and $3E0) shr 5) * 8;
+  Result.B := ((ColorValue and $7C00) shr 10) * 8;
+  Result.STP := ((ColorValue and $8000) shr 15);
 end;
 
 function PrepareCLUT(TIM: PTIM): PCLUT_COLORS;
@@ -44,9 +46,9 @@ begin
     Randomize;
     for I := 1 to cRandomPaletteSize do
     begin
-      Result^[I - 1].R := random($20);
-      Result^[I - 1].G := random($20);
-      Result^[I - 1].B := random($20);
+      Result^[I - 1].R := random($20) * 8;
+      Result^[I - 1].G := random($20) * 8;
+      Result^[I - 1].B := random($20) * 8;
       Result^[I - 1].STP := 1;
     end;
     Exit;
@@ -140,9 +142,9 @@ begin
         begin
           INDEX := IMAGE_DATA^[IMAGE_DATA_POS];
 
-          R := CLUT_DATA^[INDEX].R * 8;
-          G := CLUT_DATA^[INDEX].G * 8;
-          B := CLUT_DATA^[INDEX].B * 8;
+          R := CLUT_DATA^[INDEX].R;
+          G := CLUT_DATA^[INDEX].G;
+          B := CLUT_DATA^[INDEX].B;
           STP := CLUT_DATA^[INDEX].STP;
         end;
         cTIM16C, cTIM16NC, cTIMMix:
@@ -150,9 +152,9 @@ begin
           Move(IMAGE_DATA^[IMAGE_DATA_POS], CW, 2);
           COLOR := ReadColor(CW);
 
-          R := COLOR.R * 8;
-          G := COLOR.G * 8;
-          B := COLOR.B * 8;
+          R := COLOR.R;
+          G := COLOR.G;
+          B := COLOR.B;
           STP := COLOR.STP;
         end;
         cTIM24C, cTIM24NC:
@@ -219,6 +221,57 @@ begin
   Rect.Height := PNG^.Height;
 
   PNG^.Draw(ACanvas^, Rect);
+end;
+
+procedure DrawCLUT(TIM: PTIM; Grid: PDrawGrid);
+var
+  X, Y, W, H: Word;
+  CLUT_DATA: PCLUT_COLORS;
+  R, G, B, STP, ALPHA: Byte;
+  Rect: TRect;
+begin
+  W := TIM^.CLUT^.wColorsCount;
+  H := TIM^.CLUT^.wClutsCount;
+  Grid^.ColCount := W;
+  Grid^.RowCount := H;
+
+  CLUT_DATA := PrepareCLUT(TIM);
+
+  for Y := 1 to H do
+    for X := 1 to W do
+    begin
+      Grid^.ColWidths[X - 1] := (Grid^.Width div W) * W;
+      Grid^.RowHeights[Y - 1] := Grid^.ColWidths[X - 1];
+      R := CLUT_DATA^[(Y - 1) * W + (X - 1)].R;
+      G := CLUT_DATA^[(Y - 1) * W + (X - 1)].G;
+      B := CLUT_DATA^[(Y - 1) * W + (X - 1)].B;
+      STP := CLUT_DATA^[(Y - 1) * W + (X - 1)].STP;
+      Grid^.Canvas.Brush.Color := RGB(R, G, B);
+      Rect := Grid^.CellRect(X - 1, Y - 1);
+      Grid^.Canvas.FillRect(Rect);
+
+      if (R + G + B) = 0 then
+        ALPHA := STP * 255
+      else
+      begin
+        if STP = 0 then
+          ALPHA := 255
+        else
+          ALPHA := 128;
+      end;
+
+      if ALPHA in [0, 128] then
+      begin
+        Grid^.Canvas.Brush.Color := clWhite;
+        Rect.Top := Rect.Height div 2;
+        Grid^.Canvas.FillRect(Rect);
+      end;
+
+    end;
+
+  Dispose(CLUT_DATA);
+  Grid^.Invalidate;
+
 end;
 
 end.

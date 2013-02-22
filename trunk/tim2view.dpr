@@ -1,7 +1,7 @@
 program tim2view;
 
 uses
-  FastMM4,
+  //FastMM4,
   Vcl.Forms,
   Vcl.Themes,
   Vcl.Styles,
