@@ -241,6 +241,14 @@ begin
   Result := (not(TIM^.HEAD^.bBPP in cTIMWrongBads)) or TIMIsGood(TIM);
 end;
 
+procedure ClearTIM(TIM: PTIM);
+begin
+  FillChar(TIM^.HEAD^, cTIMHeadSize, 0);
+  FillChar(TIM^.CLUT^, cCLUTHeadSize, 0);
+  FillChar(TIM^.IMAGE^, cIMAGEHeadSize, 0);
+  FillChar(TIM^.DATA^, cTIMMaxSize, 0);
+end;
+
 function LoadTimFromBuf(BUFFER: pointer; var TIM: PTIM;
                         var Position: DWORD): boolean;
 var
@@ -403,6 +411,7 @@ begin
   Result^.dwTIMNumber := 0;
   Result^.bGOOD := False;
   New(Result^.DATA);
+  ClearTIM(Result);
 end;
 
 procedure FreeTIM(TIM: PTIM);

@@ -12,8 +12,8 @@ object frmMain: TfrmMain
   Font.Style = []
   Menu = mmMain
   OldCreateOrder = False
+  OnClose = FormClose
   OnCreate = FormCreate
-  OnDestroy = FormDestroy
   OnResize = FormResize
   PixelsPerInch = 96
   TextHeight = 13
@@ -81,6 +81,7 @@ object frmMain: TfrmMain
             Align = alClient
             Color = clWhite
             ParentColor = False
+            OnPaint = pnlImagePaint
             ExplicitLeft = 144
             ExplicitTop = 168
             ExplicitWidth = 105
@@ -119,7 +120,7 @@ object frmMain: TfrmMain
           Left = 0
           Top = 0
           Width = 233
-          Height = 493
+          Height = 470
           Align = alClient
           Columns = <
             item
@@ -146,7 +147,17 @@ object frmMain: TfrmMain
           OnData = lvListData
           OnKeyDown = lvListKeyDown
           ExplicitLeft = 1
-          ExplicitTop = -1
+          ExplicitTop = -6
+        end
+        object pnlTimInfo: TPanel
+          Left = 0
+          Top = 470
+          Width = 233
+          Height = 23
+          Align = alBottom
+          BevelOuter = bvSpace
+          Locked = True
+          TabOrder = 1
         end
       end
     end
@@ -167,6 +178,8 @@ object frmMain: TfrmMain
       Align = alClient
       Alignment = taRightJustify
       Layout = tlCenter
+      OnClick = lblStatusClick
+      OnMouseMove = lblStatusMouseMove
       ExplicitLeft = 234
       ExplicitWidth = 3
       ExplicitHeight = 13
@@ -195,7 +208,7 @@ object frmMain: TfrmMain
   object dlgOpenFile: TOpenDialog
     DefaultExt = '.bin'
     Filter = 'All Files (*.*)|*.*'
-    Options = [ofHideReadOnly, ofNoChangeDir, ofFileMustExist, ofNoNetworkButton, ofEnableSizing, ofForceShowHidden]
+    Options = [ofHideReadOnly, ofNoChangeDir, ofAllowMultiSelect, ofFileMustExist, ofNoNetworkButton, ofEnableSizing, ofForceShowHidden]
     Title = 'Please, select File...'
     Left = 652
     Top = 478

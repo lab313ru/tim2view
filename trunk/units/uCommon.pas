@@ -7,13 +7,12 @@ uses
 
 const
   cProgramName = 'Tim2View by [Lab 313]';
-  cProgramVersion = '2.0';
+  //cProgramVersion = '2.0';
   cMaxFileSize = $2EAEED80;
-  cExtractedTimsDir = 'TIMS\';
+  cExtractedTimsDir = 'TIMS';
   cResultsRootName = 'TVSCANRESULT';
   cResultsInfoNode = 'INFO';
   cResultsAttributeFile = 'FILENAME';
-  cResultsAttributeCRC32 = 'CRC32';
   cResultsAttributeVersion = 'VERSION';
   cResultsAttributeImageFile = 'CDIMAGE';
   cResultsAttributeTimsCount = 'TIMSCOUNT';
@@ -25,7 +24,7 @@ const
   cResultsTimAttributeHeight = 'HEIGHT';
   cResultsTimAttributeBitMode = 'BITMODE';
   cResultsTimAttributeGood = 'GOODTIM';
-  cAutoExtractionTimFormat = '%s_%.2db_%.6d' + '.tim';
+  cAutoExtractionTimFormat = '%s_%.6d_%.2db' + '.tim';
   cMaxFilesToOpen = 50;
 
   sStatusBarScanningFile = 'Scanning File...';
@@ -45,11 +44,35 @@ function GetFileSizeAPI(const FileName: string): Int64;
 function CheckFileExists(const FileName: string): boolean;
 function cHex2Int( const Value : string) : Integer;
 function ExtractFileNameWOext( const Path : string ) : string;
+function Text2Clipboard( const S: string ): Boolean;
 
 implementation
 
 uses
   uCDIMAGE, System.SysUtils, System.Classes;
+
+function Text2Clipboard( const S: string ): Boolean;
+var gbl: THandle;
+    str: PChar;
+begin
+  Result := False;
+  if not OpenClipboard( 0 ) then Exit; {>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>}
+  EmptyClipboard;
+  if S <> '' then
+  begin
+    gbl := GlobalAlloc( GMEM_DDESHARE, Length( S ) + 1 );
+    if gbl <> 0 then
+    begin
+      str := GlobalLock( gbl );
+      Move( S[ 1 ], str^, Length( S ) + 1 );
+      GlobalUnlock( gbl );
+      Result := SetClipboardData( CF_TEXT, gbl ) <> 0;
+    end;
+  end
+    else
+      Result := True;
+  CloseClipboard;
+end;
 
 function ExtractFileNameWOext( const Path : string ) : string;
 begin
