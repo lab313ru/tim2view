@@ -351,7 +351,7 @@ end;
 function LoadTimFromStream(Stream: TStream; var Position: DWORD;
                            dwSIZE: DWORD): PTIM;
 var
-  BUF: PBytesArray;
+  BUF: PTIMDataArray;
 begin
   Result := nil;
 

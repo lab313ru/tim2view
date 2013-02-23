@@ -31,6 +31,7 @@ const
   sStatusBarTimsExtracting = 'TIM''s Extracting...';
   sStatusBarParsingResult = 'Parsing Result...';
   sScanResultGood = 'Scan completed!';
+  sSelectDirCaption = 'Please, select directory for scan...';
 
 type
   PNativeXML = ^TNativeXML;

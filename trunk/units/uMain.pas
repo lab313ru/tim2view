@@ -108,7 +108,7 @@ var
 implementation
 
 uses
-  uCDIMAGE, Vcl.FileCtrl;
+  uCDIMAGE;
 
 {$R *.dfm}
 
@@ -419,13 +419,10 @@ begin
 end;
 
 procedure TfrmMain.mnScanDirClick(Sender: TObject);
-var
-  SelectedDir: string;
+{var
+  SelectedDir: string; }
 begin
-  if SelectDirectory('Please, select directory for scan...', '\', SelectedDir,
-                     [], frmMain)
-  then
-    ScanPath(SelectedDir);
+  //empty for now. looking for a good browse for folder
 end;
 
 procedure TfrmMain.mnScanFileClick(Sender: TObject);

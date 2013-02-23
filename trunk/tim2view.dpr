@@ -6,7 +6,6 @@ uses
   madListHardware,
   madListProcesses,
   madListModules,
-  //FastMM4,
   Vcl.Forms,
   Vcl.Themes,
   Vcl.Styles,
