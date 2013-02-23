@@ -291,7 +291,7 @@ function LoadTimFromCDFile(const FileName: string; var Position: DWORD;
 var
   TimOffsetInSector, FirstPartSize, LastPartSize: DWORD;
   TimSectorNumber, TimStartSectorPos: DWORD;
-  TIM_BUF: PBytesArray;
+  TIM_BUF: PTIMDataArray;
   sImageStream: TFileStream;
   Sector: TCDSector;
   P, TIM_FULL_SECTORS: DWORD;

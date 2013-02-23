@@ -1,6 +1,11 @@
 program tim2view;
 
 uses
+  madExcept,
+  madLinkDisAsm,
+  madListHardware,
+  madListProcesses,
+  madListModules,
   //FastMM4,
   Vcl.Forms,
   Vcl.Themes,

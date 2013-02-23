@@ -45,7 +45,7 @@ object frmMain: TfrmMain
         Top = 0
         Width = 494
         Height = 493
-        ActivePage = tsClut
+        ActivePage = tsImage
         Align = alClient
         TabOrder = 0
         object tsInfo: TTabSheet
@@ -77,10 +77,6 @@ object frmMain: TfrmMain
         object tsImage: TTabSheet
           Caption = 'IMAGE'
           ImageIndex = 1
-          ExplicitLeft = 0
-          ExplicitTop = 0
-          ExplicitWidth = 0
-          ExplicitHeight = 0
           object pnlImage: TPaintBox
             Left = 0
             Top = 0

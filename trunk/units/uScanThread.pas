@@ -52,7 +52,6 @@ var
 begin
   inherited Create(True);
   FreeOnTerminate := True;
-  Priority := tpHigher;
   pClearBufferPosition := 0;
   pFilePos := 0;
   pFileToScan := FileToScan;
