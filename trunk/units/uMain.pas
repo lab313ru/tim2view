@@ -31,18 +31,6 @@ type
     pbProgress: TProgressBar;
     mnConfig: TMenuItem;
     mnAutoExtract: TMenuItem;
-    tbcMain: TTabControl;
-    pnlMain: TPanel;
-    splMain: TSplitter;
-    pgcMain: TPageControl;
-    tsInfo: TTabSheet;
-    tbInfo: TStringGrid;
-    tsImage: TTabSheet;
-    pnlImage: TPaintBox;
-    tsClut: TTabSheet;
-    grdCLUT: TDrawGrid;
-    pnlList: TPanel;
-    lvList: TListView;
     xpMain: TXPManifest;
     pnlStatus: TPanel;
     lblStatus: TLabel;
@@ -52,6 +40,18 @@ type
     dlgSavePNG: TSavePictureDialog;
     mnSaveTIM: TMenuItem;
     dlgSaveTIM: TSaveDialog;
+    cbbFiles: TComboBox;
+    pnlMain: TPanel;
+    splMain: TSplitter;
+    pgcMain: TPageControl;
+    tsInfo: TTabSheet;
+    tblInfo: TStringGrid;
+    tsImage: TTabSheet;
+    pbImage: TPaintBox;
+    tsClut: TTabSheet;
+    grdCLUT: TDrawGrid;
+    pnlList: TPanel;
+    lvList: TListView;
     pnlTimInfo: TPanel;
     procedure mnScanFileClick(Sender: TObject);
     procedure btnStopScanClick(Sender: TObject);
@@ -61,7 +61,6 @@ type
     procedure mnCloseFileClick(Sender: TObject);
     procedure lvListClick(Sender: TObject);
     procedure lvListKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
-    procedure tbcMainChange(Sender: TObject);
     procedure mnCloseAllFilesClick(Sender: TObject);
     procedure mnScanDirClick(Sender: TObject);
     procedure mnSaveToPNGClick(Sender: TObject);
@@ -72,10 +71,11 @@ type
     procedure lblStatusMouseMove(Sender: TObject; Shift: TShiftState; X,
       Y: Integer);
     procedure mnExitClick(Sender: TObject);
+    procedure cbbFilesChange(Sender: TObject);
   private
     { Private declarations }
     //pResult: PNativeXml;
-    Results: array[0..cMaxFilesToOpen - 1] of PNativeXML;
+    Results: array of PNativeXML;
     pScanThread: PScanThread;
     pCurrentPNG: PPNGImage;
     pLastDir: string;
@@ -119,15 +119,24 @@ begin
   pScanThread^.StopScan := True;
 end;
 
+procedure TfrmMain.cbbFilesChange(Sender: TObject);
+var
+  Node: TXmlNode;
+begin
+  Node := Results[cbbFiles.ItemIndex]^.Root.FindNode(cResultsInfoNode);
+  lvList.Items.Count := Node.ReadAttributeInteger(cResultsAttributeTimsCount);
+  lvList.Invalidate;
+end;
+
 function TfrmMain.CheckForFileOpened(const FileName: string): boolean;
 begin
-  Result := (tbcMain.Tabs.IndexOf(ExtractFileName(FileName)) <> -1);
+  Result := (cbbFiles.Items.IndexOf(ExtractFileName(FileName)) <> -1);
 end;
 
 procedure TfrmMain.CheckMainMenu;
 begin
-  mnCloseFile.Enabled := (tbcMain.Tabs.Count <> 0);
-  mnCloseAllFiles.Enabled := (tbcMain.Tabs.Count <> 0);
+  mnCloseFile.Enabled := (cbbFiles.Items.Count <> 0);
+  mnCloseAllFiles.Enabled := (cbbFiles.Items.Count <> 0);
   mnSaveToPNG.Enabled := (pCurrentPNG^ <> nil);
   mnReplaceIn.Enabled := (lvList.SelCount = 1);
   mnSaveTIM.Enabled := (lvList.SelCount = 1);
@@ -150,7 +159,7 @@ function TfrmMain.CurrentTimBitMode(Index: Integer): Byte;
 var
   Node: TXmlNode;
 begin
-  Node := Results[tbcMain.TabIndex]^.Root.FindNode(cResultsTimsNode);
+  Node := Results[cbbFiles.ItemIndex]^.Root.FindNode(cResultsTimsNode);
   Node := Node.Elements[Index];
   result := Node.ReadAttributeInteger(cResultsTimAttributeBitMode);
 end;
@@ -159,7 +168,7 @@ function TfrmMain.CurrentTimHeight(Index: Integer): Word;
 var
   Node: TXmlNode;
 begin
-  Node := Results[tbcMain.TabIndex]^.Root.FindNode(cResultsTimsNode);
+  Node := Results[cbbFiles.ItemIndex]^.Root.FindNode(cResultsTimsNode);
   Node := Node.Elements[Index];
   result := cHex2Int(Node.ReadAttributeString(cResultsTimAttributeHeight));
 end;
@@ -176,7 +185,7 @@ function TfrmMain.CurrentTimWidth(Index: Integer): Word;
 var
   Node: TXmlNode;
 begin
-  Node := Results[tbcMain.TabIndex]^.Root.FindNode(cResultsTimsNode);
+  Node := Results[cbbFiles.ItemIndex]^.Root.FindNode(cResultsTimsNode);
   Node := Node.Elements[Index];
   result := cHex2Int(Node.ReadAttributeString(cResultsTimAttributeWidth));
 end;
@@ -194,7 +203,7 @@ begin
     pCurrentPNG^ := nil;
   end;
 
-  DrawTIM(TIM, @pnlImage.Canvas, pnlImage.ClientRect, pCurrentPNG);
+  DrawTIM(TIM, @pbImage.Canvas, pbImage.ClientRect, pCurrentPNG);
   //DrawCLUT(TIM, @grdCLUT);
   FreeTIM(TIM);
 end;
@@ -203,7 +212,7 @@ function TfrmMain.CurrentFileIsImage: boolean;
 var
   Node: TXmlNode;
 begin
-  Node := Results[tbcMain.TabIndex]^.Root.FindNode(cResultsInfoNode);
+  Node := Results[cbbFiles.ItemIndex]^.Root.FindNode(cResultsInfoNode);
   Result := Node.ReadAttributeBool(cResultsAttributeImageFile);
 end;
 
@@ -211,7 +220,7 @@ function TfrmMain.CurrentFileName: string;
 var
   Node: TXmlNode;
 begin
-  Node := Results[tbcMain.TabIndex]^.Root.FindNode(cResultsInfoNode);
+  Node := Results[cbbFiles.ItemIndex]^.Root.FindNode(cResultsInfoNode);
   Result := Node.ReadAttributeString(cResultsAttributeFile);
 end;
 
@@ -219,7 +228,7 @@ function TfrmMain.CurrentTimPos(Index: Integer): DWORD;
 var
   Node: TXmlNode;
 begin
-  Node := Results[tbcMain.TabIndex]^.Root.FindNode(cResultsTimsNode);
+  Node := Results[cbbFiles.ItemIndex]^.Root.FindNode(cResultsTimsNode);
   Node := Node.Elements[Index];
   result := cHex2Int(Node.ReadAttributeString(cResultsTimAttributePos));
 end;
@@ -228,7 +237,7 @@ function TfrmMain.CurrentTimSize(Index: Integer): DWORD;
 var
   Node: TXmlNode;
 begin
-  Node := Results[tbcMain.TabIndex]^.Root.FindNode(cResultsTimsNode);
+  Node := Results[cbbFiles.ItemIndex]^.Root.FindNode(cResultsTimsNode);
   Node := Node.Elements[Index];
   result := cHex2Int(Node.ReadAttributeString(cResultsTimAttributeSize));
 end;
@@ -258,13 +267,13 @@ var
   w, i, x: integer;
 begin
   x := 0;
-  if (GetWindowlong(tbInfo.Handle, GWL_STYLE) and WS_VSCROLL) <> 0 then
+  if (GetWindowlong(tblInfo.Handle, GWL_STYLE) and WS_VSCROLL) <> 0 then
     x := GetSystemMetrics(SM_CXVSCROLL);
 
-  w := (tbInfo.Width - X - 5) div tbInfo.ColCount;
+  w := (tblInfo.Width - X - 5) div tblInfo.ColCount;
 
-  for i := 1 to tbInfo.ColCount do
-    tbInfo.ColWidths[i - 1] := w;
+  for i := 1 to tblInfo.ColCount do
+    tblInfo.ColWidths[i - 1] := w;
 end;
 
 procedure TfrmMain.ScanDirectory(const Directory: string);
@@ -281,8 +290,7 @@ begin
     begin
       if ( sRec.Attr and faDirectory ) = faDirectory then
       ScanDirectory(Dir + sRec.Name);
-
-      ScanFile(Dir + sRec.Name);
+      ScanPath(Dir + sRec.Name);
     end;
     Application.ProcessMessages;
     isFound := FindNext( sRec ) = 0;
@@ -293,10 +301,7 @@ end;
 procedure TfrmMain.lblStatusClick(Sender: TObject);
 begin
   if lblStatus.Caption <> '' then
-  begin
     Text2Clipboard(lblStatus.Caption);
-    MessageBeep(MB_ICONASTERISK);
-  end;
 end;
 
 procedure TfrmMain.lblStatusMouseMove(Sender: TObject; Shift: TShiftState; X,
@@ -324,8 +329,8 @@ end;
 
 procedure TfrmMain.lvListData(Sender: TObject; Item: TListItem);
 begin
-  if tbcMain.TabIndex = -1 then Exit;
-  if Results[tbcMain.TabIndex] = nil then Exit;
+  if cbbFiles.ItemIndex = -1 then Exit;
+  if Results[cbbFiles.ItemIndex] = nil then Exit;
 
   Item.Caption := Format('%.6d', [Item.Index + 1]);
   Item.SubItems.Add(Format('%dx%d',
@@ -356,23 +361,24 @@ end;
 
 procedure TfrmMain.mnCloseAllFilesClick(Sender: TObject);
 begin
-  while tbcMain.Tabs.Count > 0 do
+  while cbbFiles.Items.Count > 0 do
   begin
-    tbcMain.TabIndex := tbcMain.Tabs.Count - 1;
+    cbbFiles.ItemIndex := cbbFiles.Items.Count - 1;
     mnCloseFileClick(Self);
   end;
 end;
 
 procedure TfrmMain.mnCloseFileClick(Sender: TObject);
 begin
-  Results[tbcMain.TabIndex]^.Free;
-  Dispose(Results[tbcMain.TabIndex]);
+  Results[cbbFiles.ItemIndex]^.Free;
+  Dispose(Results[cbbFiles.ItemIndex]);
+  SetLength(Results, Length(Results) - 1);
   lvList.Items.BeginUpdate;
   lvList.Items.Count := 0;
   lvList.Items.EndUpdate;
   lblStatus.Caption := '';
   pnlTimInfo.Caption := '';
-  tbcMain.Tabs.Delete(tbcMain.TabIndex);
+  cbbFiles.Items.Delete(cbbFiles.ItemIndex);
   CheckMainMenu;
 end;
 
@@ -389,7 +395,6 @@ begin
 
   ReplaceTimInFile(CurrentFileName, dlgOpenFile.FileName,
                    CurrentTimPos(lvList.Selected.Index), CurrentFileIsImage);
-  MessageBeep(MB_ICONASTERISK);
   lvListClick(Self);
 end;
 
@@ -404,7 +409,6 @@ begin
   TIM := CurrentTIM;
   SaveTimToFile(dlgSaveTIM.FileName, TIM);
   FreeTIM(TIM);
-  MessageBeep(MB_ICONASTERISK);
 end;
 
 procedure TfrmMain.mnSaveToPNGClick(Sender: TObject);
@@ -441,7 +445,6 @@ begin
 
   for I := 1 to dlgOpenFile.Files.Count do
   ScanPath(dlgOpenFile.Files.Strings[I - 1]);
-  MessageBeep(MB_ICONASTERISK);
 end;
 
 procedure TfrmMain.ParseResult(Res: PNativeXML);
@@ -500,27 +503,25 @@ var
   CurrentResult: PNativeXML;
 begin
   btnStopScan.Enabled := True;
-  tbcMain.Enabled := False;
+  cbbFiles.Enabled := False;
 
   if CheckForFileOpened(FileName) then
   begin
-    tbcMain.TabIndex := tbcMain.Tabs.IndexOf(ExtractFileName(FileName));
+    cbbFiles.ItemIndex := cbbFiles.Items.IndexOf(ExtractFileName(FileName));
     btnStopScan.Enabled := False;
-    tbcMain.Enabled := True;
+    cbbFiles.Enabled := True;
     Exit;
   end;
 
-  if (tbcMain.Tabs.Count + 1) > cMaxFilesToOpen then
-    Exit;
-
-  tbcMain.Tabs.Add(ExtractFileName(FileName));
-  tbcMain.TabIndex := tbcMain.Tabs.Count - 1;
+  SetLength(Results, Length(Results) + 1);
+  cbbFiles.Items.Add(ExtractFileName(FileName));
+  cbbFiles.ItemIndex := cbbFiles.Items.Count - 1;
 
   pbProgress.Max := GetFileSizeAPI(FileName);
   pbProgress.Position := 0;
 
-  New(Results[tbcMain.Tabs.Count - 1]);
-  CurrentResult := Results[tbcMain.Tabs.Count - 1];
+  New(Results[cbbFiles.Items.Count - 1]);
+  CurrentResult := Results[cbbFiles.Items.Count - 1];
   CurrentResult^ := TNativeXML.CreateName(cResultsRootName);
   pScanThread^ := TScanThread.Create(FileName, CurrentResult,
                                      GetImageScan(FileName));
@@ -528,20 +529,16 @@ begin
   pScanThread^.Priority := tpNormal;
   pScanThread^.OnTerminate := ScanFinished;
   pScanThread^.Start;
-
-  repeat
-    Application.ProcessMessages;
-  until pScanThread^.Terminated;
-
-  ParseResult(CurrentResult);
-
-  lblStatus.Caption := '';
-  tbcMain.Enabled := True;
 end;
 
 
 procedure TfrmMain.ScanFinished(Sender: TObject);
 begin
+  ParseResult(Results[cbbFiles.Items.Count - 1]);
+
+  lblStatus.Caption := '';
+  cbbFiles.Enabled := True;
+
   btnStopScan.Enabled := False;
   CheckMainMenu;
 end;
@@ -552,15 +549,6 @@ begin
     ScanFile(Path)
   else
     ScanDirectory(Path);
-end;
-
-procedure TfrmMain.tbcMainChange(Sender: TObject);
-var
-  Node: TXmlNode;
-begin
-  Node := Results[tbcMain.TabIndex]^.Root.FindNode(cResultsInfoNode);
-  lvList.Items.Count := Node.ReadAttributeInteger(cResultsAttributeTimsCount);
-  lvList.Invalidate;
 end;
 
 procedure TfrmMain.WMDropFiles(var Msg: TWMDropFiles);
@@ -582,7 +570,6 @@ begin
       ScanPath(StrPas(Filename));
       StrDispose(Filename);
     end;
-    MessageBeep(MB_ICONASTERISK);
   finally
     DragFinish(Msg.Drop);
   end;

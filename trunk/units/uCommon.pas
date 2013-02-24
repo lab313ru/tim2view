@@ -25,7 +25,6 @@ const
   cResultsTimAttributeBitMode = 'BITMODE';
   cResultsTimAttributeGood = 'GOODTIM';
   cAutoExtractionTimFormat = '%s_%.6d_%.2db' + '.tim';
-  cMaxFilesToOpen = 50;
 
   sStatusBarScanningFile = 'Scanning File...';
   sStatusBarTimsExtracting = 'TIM''s Extracting...';

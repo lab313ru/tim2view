@@ -182,8 +182,6 @@ begin
   Synchronize(UpdateProgressBar);
   pStatusText := '';
   Synchronize(SetStatusText);
-
-  Terminate;
 end;
 
 procedure TScanThread.SetStatusText;

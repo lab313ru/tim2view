@@ -17,151 +17,6 @@ object frmMain: TfrmMain
   OnResize = FormResize
   PixelsPerInch = 96
   TextHeight = 13
-  object tbcMain: TTabControl
-    Left = 0
-    Top = 0
-    Width = 738
-    Height = 503
-    Align = alClient
-    TabOrder = 0
-    OnChange = tbcMainChange
-    object pnlMain: TPanel
-      Left = 4
-      Top = 6
-      Width = 730
-      Height = 493
-      Align = alClient
-      BevelOuter = bvNone
-      TabOrder = 0
-      object splMain: TSplitter
-        Left = 233
-        Top = 0
-        Height = 493
-        ExplicitLeft = 201
-        ExplicitHeight = 481
-      end
-      object pgcMain: TPageControl
-        Left = 236
-        Top = 0
-        Width = 494
-        Height = 493
-        ActivePage = tsImage
-        Align = alClient
-        TabOrder = 0
-        object tsInfo: TTabSheet
-          Caption = 'INFO'
-          object tbInfo: TStringGrid
-            Left = 0
-            Top = 0
-            Width = 486
-            Height = 465
-            Align = alClient
-            ColCount = 3
-            DefaultColWidth = 50
-            DefaultRowHeight = 16
-            FixedCols = 0
-            RowCount = 26
-            Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goColSizing, goRowSelect]
-            ScrollBars = ssVertical
-            TabOrder = 0
-            ColWidths = (
-              210
-              108
-              154)
-          end
-        end
-        object tsImage: TTabSheet
-          Caption = 'IMAGE'
-          ImageIndex = 1
-          object pnlImage: TPaintBox
-            Left = 0
-            Top = 0
-            Width = 486
-            Height = 465
-            Align = alClient
-            Color = clWhite
-            ParentColor = False
-            ExplicitLeft = 144
-            ExplicitTop = 168
-            ExplicitWidth = 105
-            ExplicitHeight = 105
-          end
-        end
-        object tsClut: TTabSheet
-          Caption = 'CLUT'
-          ImageIndex = 2
-          object grdCLUT: TDrawGrid
-            Left = 0
-            Top = 0
-            Width = 486
-            Height = 465
-            Align = alClient
-            ColCount = 1
-            DefaultColWidth = 10
-            DefaultRowHeight = 10
-            DoubleBuffered = True
-            FixedCols = 0
-            RowCount = 1
-            FixedRows = 0
-            Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine]
-            ParentDoubleBuffered = False
-            TabOrder = 0
-          end
-        end
-      end
-      object pnlList: TPanel
-        Left = 0
-        Top = 0
-        Width = 233
-        Height = 493
-        Align = alLeft
-        BevelOuter = bvNone
-        TabOrder = 1
-        object lvList: TListView
-          Left = 0
-          Top = 0
-          Width = 233
-          Height = 470
-          Align = alClient
-          Columns = <
-            item
-              Caption = '#'
-              Width = 60
-            end
-            item
-              Alignment = taCenter
-              Caption = 'Resolution'
-              Width = 95
-            end
-            item
-              Caption = 'BPP'
-            end>
-          DoubleBuffered = True
-          GridLines = True
-          HideSelection = False
-          OwnerData = True
-          ReadOnly = True
-          RowSelect = True
-          ParentDoubleBuffered = False
-          TabOrder = 0
-          ViewStyle = vsReport
-          OnClick = lvListClick
-          OnData = lvListData
-          OnKeyDown = lvListKeyDown
-        end
-        object pnlTimInfo: TPanel
-          Left = 0
-          Top = 470
-          Width = 233
-          Height = 23
-          Align = alBottom
-          BevelOuter = bvSpace
-          Locked = True
-          TabOrder = 1
-        end
-      end
-    end
-  end
   object pnlStatus: TPanel
     Left = 0
     Top = 503
@@ -169,7 +24,7 @@ object frmMain: TfrmMain
     Height = 29
     Align = alBottom
     BevelOuter = bvLowered
-    TabOrder = 1
+    TabOrder = 0
     object lblStatus: TLabel
       Left = 76
       Top = 1
@@ -203,6 +58,170 @@ object frmMain: TfrmMain
       Enabled = False
       TabOrder = 1
       OnClick = btnStopScanClick
+    end
+  end
+  object cbbFiles: TComboBox
+    Left = 0
+    Top = 0
+    Width = 738
+    Height = 21
+    Align = alTop
+    AutoDropDown = True
+    AutoCloseUp = True
+    Style = csDropDownList
+    DropDownCount = 30
+    TabOrder = 1
+    OnChange = cbbFilesChange
+  end
+  object pnlMain: TPanel
+    Left = 0
+    Top = 21
+    Width = 738
+    Height = 482
+    Align = alClient
+    BevelOuter = bvNone
+    TabOrder = 2
+    ExplicitLeft = 4
+    ExplicitTop = 6
+    ExplicitWidth = 730
+    ExplicitHeight = 493
+    object splMain: TSplitter
+      Left = 233
+      Top = 0
+      Height = 482
+      ExplicitLeft = 201
+      ExplicitHeight = 481
+    end
+    object pgcMain: TPageControl
+      Left = 236
+      Top = 0
+      Width = 502
+      Height = 482
+      ActivePage = tsImage
+      Align = alClient
+      TabOrder = 0
+      ExplicitWidth = 494
+      ExplicitHeight = 493
+      object tsInfo: TTabSheet
+        Caption = 'INFO'
+        ExplicitWidth = 486
+        ExplicitHeight = 444
+        object tblInfo: TStringGrid
+          Left = 0
+          Top = 0
+          Width = 494
+          Height = 454
+          Align = alClient
+          ColCount = 3
+          DefaultColWidth = 50
+          DefaultRowHeight = 16
+          FixedCols = 0
+          RowCount = 26
+          Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goColSizing, goRowSelect]
+          ScrollBars = ssVertical
+          TabOrder = 0
+          ExplicitWidth = 486
+          ExplicitHeight = 444
+          ColWidths = (
+            210
+            108
+            154)
+        end
+      end
+      object tsImage: TTabSheet
+        Caption = 'IMAGE'
+        ImageIndex = 1
+        ExplicitWidth = 486
+        ExplicitHeight = 444
+        object pbImage: TPaintBox
+          Left = 0
+          Top = 0
+          Width = 494
+          Height = 454
+          Align = alClient
+          Color = clWhite
+          ParentColor = False
+          ExplicitLeft = 144
+          ExplicitTop = 168
+          ExplicitWidth = 105
+          ExplicitHeight = 105
+        end
+      end
+      object tsClut: TTabSheet
+        Caption = 'CLUT'
+        ImageIndex = 2
+        object grdCLUT: TDrawGrid
+          Left = 0
+          Top = 0
+          Width = 494
+          Height = 454
+          Align = alClient
+          ColCount = 1
+          DefaultColWidth = 10
+          DefaultRowHeight = 10
+          DoubleBuffered = True
+          FixedCols = 0
+          RowCount = 1
+          FixedRows = 0
+          Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine]
+          ParentDoubleBuffered = False
+          TabOrder = 0
+        end
+      end
+    end
+    object pnlList: TPanel
+      Left = 0
+      Top = 0
+      Width = 233
+      Height = 482
+      Align = alLeft
+      BevelOuter = bvNone
+      TabOrder = 1
+      ExplicitHeight = 472
+      object lvList: TListView
+        Left = 0
+        Top = 0
+        Width = 233
+        Height = 459
+        Align = alClient
+        Columns = <
+          item
+            Caption = '#'
+            Width = 60
+          end
+          item
+            Alignment = taCenter
+            Caption = 'Resolution'
+            Width = 95
+          end
+          item
+            Caption = 'BPP'
+          end>
+        DoubleBuffered = True
+        GridLines = True
+        HideSelection = False
+        OwnerData = True
+        ReadOnly = True
+        RowSelect = True
+        ParentDoubleBuffered = False
+        TabOrder = 0
+        ViewStyle = vsReport
+        OnClick = lvListClick
+        OnData = lvListData
+        OnKeyDown = lvListKeyDown
+        ExplicitHeight = 449
+      end
+      object pnlTimInfo: TPanel
+        Left = 0
+        Top = 459
+        Width = 233
+        Height = 23
+        Align = alBottom
+        BevelOuter = bvSpace
+        Locked = True
+        TabOrder = 1
+        ExplicitTop = 449
+      end
     end
   end
   object dlgOpenFile: TOpenDialog
