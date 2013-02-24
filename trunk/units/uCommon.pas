@@ -7,23 +7,23 @@ uses
 
 const
   cProgramName = 'Tim2View by [Lab 313]';
-  //cProgramVersion = '2.0';
+  cProgramVersion = '2.0';
   cMaxFileSize = $2EAEED80;
   cExtractedTimsDir = 'TIMS';
-  cResultsRootName = 'TVSCANRESULT';
-  cResultsInfoNode = 'INFO';
-  cResultsAttributeFile = 'FILENAME';
-  cResultsAttributeVersion = 'VERSION';
-  cResultsAttributeImageFile = 'CDIMAGE';
-  cResultsAttributeTimsCount = 'TIMSCOUNT';
-  cResultsTimsNode = 'TIMS';
-  cResultsTimNode = 'TIM';
-  cResultsTimAttributePos = 'POSITION';
-  cResultsTimAttributeSize = 'SIZE';
-  cResultsTimAttributeWidth = 'WIDTH';
-  cResultsTimAttributeHeight = 'HEIGHT';
-  cResultsTimAttributeBitMode = 'BITMODE';
-  cResultsTimAttributeGood = 'GOODTIM';
+  cResRootName = 'TVSCANRESULT';
+  cResInfoNode = 'INFO';
+  cResAttrFile = 'FILENAME';
+  cResAttrVersion = 'VERSION';
+  cResAttrImageFile = 'CDIMAGE';
+  cResAttrTimsCount = 'TIMSCOUNT';
+  cResTimsNode = 'TIMS';
+  cResTimNode = 'TIM';
+  cResTimAttrPos = 'POSITION';
+  cResTimAttrSize = 'SIZE';
+  cResTimAttrWidth = 'WIDTH';
+  cResTimAttrHeight = 'HEIGHT';
+  cResTimAttrBitMode = 'BITMODE';
+  cResTimAttrGood = 'GOODTIM';
   cAutoExtractionTimFormat = '%s_%.6d_%.2db' + '.tim';
 
   sStatusBarScanningFile = 'Scanning File...';

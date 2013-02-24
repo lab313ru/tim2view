@@ -10,10 +10,16 @@ type
   PPNGImage = ^TPngImage;
   PDrawGrid = ^TDrawGrid;
 
-procedure DrawTIM(TIM: PTIM; ACanvas: PCanvas; Rect: TRect; var PNG: PPNGImage);
-procedure TimToPNG(TIM: PTIM; var PNG: PPngImage);
+procedure DrawTIM(TIM: PTIM; CLUT_NUM: Integer; ACanvas: PCanvas; Rect: TRect;
+                  var PNG: PPNGImage; TranspMode: Byte);
+procedure TimToPNG(TIM: PTIM; CLUT_NUM: Integer; var PNG: PPngImage;
+                   TranspMode: Byte);
 procedure DrawPNG(PNG: PPNGImage; ACanvas: PCanvas; Rect: TRect);
-procedure DrawCLUT(TIM: PTIM; Grid: PDrawGrid);
+procedure DrawClutCell(TIM: PTIM; CLUT_NUM: Integer; Grid: PDrawGrid;
+                       X, Y: Integer);
+procedure DrawCLUT(TIM: PTIM; CLUT_NUM: Integer; Grid: PDrawGrid);
+procedure ClearCanvas(CHandle: THandle; Rect: TRect);
+procedure ClearGrid(Grid: PDrawGrid);
 
 implementation
 
@@ -28,10 +34,11 @@ begin
   Result.STP := ((ColorValue and $8000) shr 15);
 end;
 
-function PrepareCLUT(TIM: PTIM): PCLUT_COLORS;
+function PrepareCLUT(TIM: PTIM; CLUT_NUM: Integer): PCLUT_COLORS;
 var
   ColorValue: Word;
   I: Integer;
+  CLUT_OFFSET: Integer;
 begin
   Result := nil;
   if (not isTIMHasCLUT(TIM)) and
@@ -54,9 +61,12 @@ begin
     Exit;
   end;
 
+  CLUT_OFFSET := CLUT_NUM * TIM^.CLUT.wColorsCount * 2;
+
   for I := 1 to GetTIMCLUTSize(TIM) do
   begin
-    Move(TIM^.DATA^[cTIMHeadSize + cCLUTHeadSize + (I - 1) * 2], ColorValue, 2);
+    Move(TIM^.DATA^[cTIMHeadSize + cCLUTHeadSize + (I - 1) * 2 + CLUT_OFFSET],
+                    ColorValue, 2);
     Result^[I - 1] := ReadColor(ColorValue);
   end;
 end;
@@ -107,7 +117,8 @@ begin
   end;
 end;
 
-procedure TimToPNG(TIM: PTIM; var PNG: PPngImage);
+procedure TimToPNG(TIM: PTIM; CLUT_NUM: Integer; var PNG: PPngImage;
+                   TranspMode: Byte);
 var
   RW, RH, CW: Word;
   CLUT_DATA: PCLUT_COLORS;
@@ -116,6 +127,7 @@ var
   R, G, B, STP, ALPHA: Byte;
   COLOR: TCLUT_COLOR;
   CL: DWORD;
+  Transparent, SemiTransparent: boolean;
 begin
   RW := GetTimRealWidth(TIM);
   RH := GetTimHeight(TIM);
@@ -124,7 +136,7 @@ begin
   PNG^.CompressionLevel := 9;
   PNG^.Filters := [];
 
-  CLUT_DATA := PrepareCLUT(TIM);
+  CLUT_DATA := PrepareCLUT(TIM, CLUT_NUM);
   IMAGE_DATA := PrepareIMAGE(TIM);
 
   IMAGE_DATA_POS := 0;
@@ -133,6 +145,9 @@ begin
   G := 0;
   B := 0;
   STP := 0;
+
+  Transparent := TranspMode in [0, 1];
+  SemiTransparent := TranspMode in [0, 2];
 
   for Y := 1 to RH do
     for X := 1 to RW do
@@ -170,7 +185,9 @@ begin
         Break;
       end;
 
-      if (TIM^.HEAD^.bBPP in cTIM24) then
+      if (TIM^.HEAD^.bBPP in cTIM24) or
+         (not (Transparent or SemiTransparent))
+      then
         ALPHA := 255
       else
       begin
@@ -178,11 +195,16 @@ begin
           ALPHA := STP * 255
         else
         begin
-          if STP = 0 then
+          if (STP = 0) then
             ALPHA := 255
           else
             ALPHA := 128;
         end;
+
+        if ((not Transparent) and (ALPHA = 0)) or
+           ((not SemiTransparent) and (ALPHA = 128))
+        then
+          ALPHA := 255;
       end;
 
       PNG^.AlphaScanline[Y - 1]^[X - 1] := ALPHA;
@@ -205,17 +227,33 @@ begin
   Dispose(IMAGE_DATA);
 end;
 
-procedure DrawTIM(TIM: PTIM; ACanvas: PCanvas; Rect: TRect; var PNG: PPNGImage);
+procedure DrawTIM(TIM: PTIM; CLUT_NUM: Integer; ACanvas: PCanvas; Rect: TRect;
+                  var PNG: PPNGImage; TranspMode: Byte);
 begin
-  TimToPNG(TIM, PNG);
+  TimToPNG(TIM, CLUT_NUM, PNG, TranspMode);
   DrawPNG(PNG, ACanvas, Rect);
+end;
+
+procedure ClearCanvas(CHandle: THandle; Rect: TRect);
+begin
+  PatBlt(CHandle, Rect.Left, Rect.Top, Rect.Width, Rect.Height, WHITENESS);
+end;
+
+procedure ClearGrid(Grid: PDrawGrid);
+var
+  X, Y, W, H: Word;
+begin
+  W := Grid^.ColCount;
+  H := Grid^.RowCount;
+
+  for Y := 1 to H do
+    for X := 1 to W do
+    ClearCanvas(Grid^.Canvas.Handle, Grid^.CellRect(X - 1, Y - 1));
 end;
 
 procedure DrawPNG(PNG: PPNGImage; ACanvas: PCanvas; Rect: TRect);
 begin
   if PNG^ = nil then Exit;
-
-  PatBlt(ACanvas^.Handle, 0, 0, Rect.Width, Rect.Height, WHITENESS);
 
   Rect.Width := PNG^.Width;
   Rect.Height := PNG^.Height;
@@ -223,53 +261,81 @@ begin
   PNG^.Draw(ACanvas^, Rect);
 end;
 
-procedure DrawCLUT(TIM: PTIM; Grid: PDrawGrid);
+procedure DrawClutCell(TIM: PTIM; CLUT_NUM: Integer; Grid: PDrawGrid;
+                       X, Y: Integer);
 var
-  X, Y, W, H: Word;
-  CLUT_DATA: PCLUT_COLORS;
+  ColorValue: Word;
+  CLUT_COLOR: PCLUT_COLOR;
   R, G, B, STP, ALPHA: Byte;
   Rect: TRect;
+  CLUT_OFFSET: Integer;
 begin
-  W := TIM^.CLUT^.wColorsCount;
-  H := TIM^.CLUT^.wClutsCount;
-  Grid^.ColCount := W;
-  Grid^.RowCount := H;
+  New(CLUT_COLOR);
 
-  CLUT_DATA := PrepareCLUT(TIM);
+  if (TIM^.HEAD^.bBPP in [cTIM4NC, cTIM8NC]) then
+  begin
+    Randomize;
+    CLUT_COLOR^.R := random($20) * 8;
+    CLUT_COLOR^.G := random($20) * 8;
+    CLUT_COLOR^.B := random($20) * 8;
+    CLUT_COLOR^.STP := 1;
+  end;
 
-  for Y := 1 to H do
-    for X := 1 to W do
+  CLUT_OFFSET := CLUT_NUM * TIM^.CLUT.wColorsCount * 2;
+
+  Move(TIM^.DATA^[cTIMHeadSize + cCLUTHeadSize + X * 2 + CLUT_OFFSET],
+                  ColorValue, 2);
+  CLUT_COLOR^ := ReadColor(ColorValue);
+
+  R := CLUT_COLOR^.R;
+  G := CLUT_COLOR^.G;
+  B := CLUT_COLOR^.B;
+  STP := CLUT_COLOR^.STP;
+
+  Rect := Grid^.CellRect(X, Y);
+
+  ClearCanvas(Grid^.Canvas.Handle, Rect);
+  Grid^.Canvas.Brush.Color := RGB(R, G, B);
+
+  Grid^.Canvas.FillRect(Rect);
+
+  if (R + G + B) = 0 then
+    ALPHA := STP * 255
+  else
+  begin
+    if STP = 0 then
+      ALPHA := 255
+    else
+      ALPHA := 128;
+  end;
+
+  if ALPHA in [0, 128] then
+  begin
+    Grid^.Canvas.Brush.Color := clWhite;
+    Rect.Height := Rect.Height div 2;
+    Grid^.Canvas.FillRect(Rect);
+  end;
+
+  Dispose(CLUT_COLOR);
+end;
+
+procedure DrawCLUT(TIM: PTIM; CLUT_NUM: Integer; Grid: PDrawGrid);
+var
+  X, Y, ROWS, COLS, COLORS: Integer;
+begin
+  COLS := Grid^.ColCount;
+  ROWS := GetTimColorsCount(TIM) div COLS + 1;
+  COLORS := GetTimColorsCount(TIM);
+  Grid^.RowCount := ROWS;
+
+
+  for Y := 1 to ROWS do
+    for X := 1 to COLS do
     begin
-      R := CLUT_DATA^[(Y - 1) * W + (X - 1)].R;
-      G := CLUT_DATA^[(Y - 1) * W + (X - 1)].G;
-      B := CLUT_DATA^[(Y - 1) * W + (X - 1)].B;
-      STP := CLUT_DATA^[(Y - 1) * W + (X - 1)].STP;
-      Grid^.Canvas.Brush.Color := RGB(R, G, B);
-      Rect := Grid^.CellRect(X - 1, Y - 1);
-      Grid^.Canvas.FillRect(Rect);
-
-      if (R + G + B) = 0 then
-        ALPHA := STP * 255
-      else
-      begin
-        if STP = 0 then
-          ALPHA := 255
-        else
-          ALPHA := 128;
-      end;
-
-      if ALPHA in [0, 128] then
-      begin
-        Grid^.Canvas.Brush.Color := clWhite;
-        Rect.Top := Rect.Height div 2;
-        Grid^.Canvas.FillRect(Rect);
-      end;
-
+      ClearCanvas(Grid^.Canvas.Handle, Grid^.CellRect(X - 1, Y - 1));
+      if ((Y - 1) * COLS + X > COLORS) or (Y > ROWS) then Break;
+      DrawClutCell(TIM, CLUT_NUM, Grid, X - 1, Y - 1);
     end;
-
-  Dispose(CLUT_DATA);
- // Grid^.Invalidate;
-
 end;
 
 end.

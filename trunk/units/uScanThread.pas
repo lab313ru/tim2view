@@ -61,33 +61,33 @@ begin
   pImageScan := ImageScan;
 
   pResult := fResult;
-  Node := pResult^.Root.NodeNew(cResultsInfoNode);
-  Node.WriteAttributeString(cResultsAttributeFile, pFileToScan);
-  Node.WriteAttributeBool(cResultsAttributeImageFile, ImageScan);
-  Node.WriteAttributeInteger(cResultsAttributeTimsCount, 0);
+  Node := pResult^.Root.NodeNew(cResInfoNode);
+  Node.WriteAttributeUnicodeString(cResAttrFile, pFileToScan);
+  Node.WriteAttributeBool(cResAttrImageFile, ImageScan);
+  Node.WriteAttributeInteger(cResAttrTimsCount, 0);
 end;
 
 procedure TScanThread.AddResult(TIM: PTIM);
 var
   Node, AddedNode: TXmlNode;
 begin
-  Node := pResult^.Root.NodeFindOrCreate(cResultsInfoNode);
-  Node.WriteAttributeInteger(cResultsAttributeTimsCount, TIM^.dwTimNumber);
+  Node := pResult^.Root.NodeFindOrCreate(cResInfoNode);
+  Node.WriteAttributeInteger(cResAttrTimsCount, TIM^.dwTimNumber);
 
-  Node := pResult^.Root.NodeFindOrCreate(cResultsTimsNode);
+  Node := pResult^.Root.NodeFindOrCreate(cResTimsNode);
 
-  AddedNode := Node.NodeNew(cResultsTimNode);
-  AddedNode.WriteAttributeString(cResultsTimAttributePos,
+  AddedNode := Node.NodeNew(cResTimNode);
+  AddedNode.WriteAttributeUnicodeString(cResTimAttrPos,
                                  IntToHex(TIM^.dwTimPosition, 8));
-  AddedNode.WriteAttributeString(cResultsTimAttributeSize,
+  AddedNode.WriteAttributeUnicodeString(cResTimAttrSize,
                                  IntToHex(TIM^.dwSIZE, 6));
-  AddedNode.WriteAttributeInteger(cResultsTimAttributeWidth,
+  AddedNode.WriteAttributeInteger(cResTimAttrWidth,
                                   GetTimRealWidth(TIM));
-  AddedNode.WriteAttributeInteger(cResultsTimAttributeHeight,
+  AddedNode.WriteAttributeInteger(cResTimAttrHeight,
                                   GetTimHeight(TIM));
-  AddedNode.WriteAttributeInteger(cResultsTimAttributeBitMode,
+  AddedNode.WriteAttributeInteger(cResTimAttrBitMode,
                                   BppToBitMode(TIM));
-  AddedNode.WriteAttributeBool(cResultsTimAttributeGood, TIMIsGood(TIM));
+  AddedNode.WriteAttributeBool(cResTimAttrGood, TIMIsGood(TIM));
 end;
 
 procedure TScanThread.Execute;

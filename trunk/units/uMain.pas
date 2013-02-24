@@ -48,11 +48,14 @@ type
     tblInfo: TStringGrid;
     tsImage: TTabSheet;
     pbImage: TPaintBox;
-    tsClut: TTabSheet;
-    grdCLUT: TDrawGrid;
     pnlList: TPanel;
     lvList: TListView;
     pnlTimInfo: TPanel;
+    pnlImageOptions: TPanel;
+    cbbCLUT: TComboBox;
+    cbbTransparenceMode: TComboBox;
+    grdCurrCLUT: TDrawGrid;
+    splImageClut: TSplitter;
     procedure mnScanFileClick(Sender: TObject);
     procedure btnStopScanClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -72,6 +75,12 @@ type
       Y: Integer);
     procedure mnExitClick(Sender: TObject);
     procedure cbbFilesChange(Sender: TObject);
+    procedure pbImagePaint(Sender: TObject);
+    procedure cbbCLUTChange(Sender: TObject);
+    procedure chkTransparenceClick(Sender: TObject);
+    procedure cbbTransparenceModeClick(Sender: TObject);
+    procedure grdCurrCLUTDrawCell(Sender: TObject; ACol, ARow: Integer;
+      Rect: TRect; State: TGridDrawState);
   private
     { Private declarations }
     //pResult: PNativeXml;
@@ -96,6 +105,8 @@ type
     function CurrentTIM: PTIM;
     function CurrentTIMName(Index: Integer): string;
     procedure DrawCurrentTIM;
+    procedure DrawCurrentCLUT;
+    procedure UpdateCLUTList;
   protected
     procedure WMDropFiles(var Msg: TWMDropFiles); message WM_DROPFILES;
   public
@@ -123,9 +134,22 @@ procedure TfrmMain.cbbFilesChange(Sender: TObject);
 var
   Node: TXmlNode;
 begin
-  Node := Results[cbbFiles.ItemIndex]^.Root.FindNode(cResultsInfoNode);
-  lvList.Items.Count := Node.ReadAttributeInteger(cResultsAttributeTimsCount);
+  Node := Results[cbbFiles.ItemIndex]^.Root.FindNode(cResInfoNode);
+  if Node = nil then Exit;
+
+  lvList.Items.Count := Node.ReadAttributeInteger(cResAttrTimsCount);
   lvList.Invalidate;
+end;
+
+procedure TfrmMain.cbbCLUTChange(Sender: TObject);
+begin
+  DrawCurrentTIM;
+  DrawCurrentCLUT;
+end;
+
+procedure TfrmMain.cbbTransparenceModeClick(Sender: TObject);
+begin
+  DrawCurrentTIM;
 end;
 
 function TfrmMain.CheckForFileOpened(const FileName: string): boolean;
@@ -140,6 +164,11 @@ begin
   mnSaveToPNG.Enabled := (pCurrentPNG^ <> nil);
   mnReplaceIn.Enabled := (lvList.SelCount = 1);
   mnSaveTIM.Enabled := (lvList.SelCount = 1);
+end;
+
+procedure TfrmMain.chkTransparenceClick(Sender: TObject);
+begin
+  DrawCurrentTIM;
 end;
 
 function TfrmMain.CurrentTIM: PTIM;
@@ -159,18 +188,24 @@ function TfrmMain.CurrentTimBitMode(Index: Integer): Byte;
 var
   Node: TXmlNode;
 begin
-  Node := Results[cbbFiles.ItemIndex]^.Root.FindNode(cResultsTimsNode);
+  result := 0;
+  Node := Results[cbbFiles.ItemIndex]^.Root.FindNode(cResTimsNode);
+  if Node = nil then Exit;
+
   Node := Node.Elements[Index];
-  result := Node.ReadAttributeInteger(cResultsTimAttributeBitMode);
+  result := Node.ReadAttributeInteger(cResTimAttrBitMode);
 end;
 
 function TfrmMain.CurrentTimHeight(Index: Integer): Word;
 var
   Node: TXmlNode;
 begin
-  Node := Results[cbbFiles.ItemIndex]^.Root.FindNode(cResultsTimsNode);
+  result := 0;
+  Node := Results[cbbFiles.ItemIndex]^.Root.FindNode(cResTimsNode);
+  if Node = nil then Exit;
+
   Node := Node.Elements[Index];
-  result := cHex2Int(Node.ReadAttributeString(cResultsTimAttributeHeight));
+  result := cHex2Int(Node.ReadAttributeUnicodeString(cResTimAttrHeight));
 end;
 
 
@@ -185,15 +220,34 @@ function TfrmMain.CurrentTimWidth(Index: Integer): Word;
 var
   Node: TXmlNode;
 begin
-  Node := Results[cbbFiles.ItemIndex]^.Root.FindNode(cResultsTimsNode);
+  result := 0;
+  Node := Results[cbbFiles.ItemIndex]^.Root.FindNode(cResTimsNode);
+  if Node = nil then Exit;
+
   Node := Node.Elements[Index];
-  result := cHex2Int(Node.ReadAttributeString(cResultsTimAttributeWidth));
+  result := cHex2Int(Node.ReadAttributeUnicodeString(cResTimAttrWidth));
+end;
+
+procedure TfrmMain.DrawCurrentCLUT;
+var
+  TIM: PTIM;
+begin
+  ClearGrid(@grdCurrCLUT);
+
+  TIM := CurrentTIM;
+  if TIM = nil then Exit;
+
+  if isTIMHasCLUT(TIM) then
+    DrawCLUT(TIM, cbbCLUT.ItemIndex, @grdCurrCLUT);
+
+  FreeTIM(TIM);
 end;
 
 procedure TfrmMain.DrawCurrentTIM;
 var
   TIM: PTIM;
 begin
+  ClearCanvas(pbImage.Canvas.Handle, pbImage.ClientRect);
   TIM := CurrentTIM;
   if TIM = nil then Exit;
 
@@ -203,8 +257,9 @@ begin
     pCurrentPNG^ := nil;
   end;
 
-  DrawTIM(TIM, @pbImage.Canvas, pbImage.ClientRect, pCurrentPNG);
-  //DrawCLUT(TIM, @grdCLUT);
+  DrawTIM(TIM, cbbCLUT.ItemIndex, @pbImage.Canvas, pbImage.ClientRect,
+          pCurrentPNG, cbbTransparenceMode.ItemIndex);
+
   FreeTIM(TIM);
 end;
 
@@ -212,34 +267,45 @@ function TfrmMain.CurrentFileIsImage: boolean;
 var
   Node: TXmlNode;
 begin
-  Node := Results[cbbFiles.ItemIndex]^.Root.FindNode(cResultsInfoNode);
-  Result := Node.ReadAttributeBool(cResultsAttributeImageFile);
+  result := False;
+  Node := Results[cbbFiles.ItemIndex]^.Root.FindNode(cResInfoNode);
+  if Node = nil then Exit;
+
+  Result := Node.ReadAttributeBool(cResAttrImageFile);
 end;
 
 function TfrmMain.CurrentFileName: string;
 var
   Node: TXmlNode;
 begin
-  Node := Results[cbbFiles.ItemIndex]^.Root.FindNode(cResultsInfoNode);
-  Result := Node.ReadAttributeString(cResultsAttributeFile);
+  Node := Results[cbbFiles.ItemIndex]^.Root.FindNode(cResInfoNode);
+  if Node = nil then Exit;
+
+  Result := Node.ReadAttributeUnicodeString(cResAttrFile);
 end;
 
 function TfrmMain.CurrentTimPos(Index: Integer): DWORD;
 var
   Node: TXmlNode;
 begin
-  Node := Results[cbbFiles.ItemIndex]^.Root.FindNode(cResultsTimsNode);
+  result := 0;
+  Node := Results[cbbFiles.ItemIndex]^.Root.FindNode(cResTimsNode);
+  if Node = nil then Exit;
+
   Node := Node.Elements[Index];
-  result := cHex2Int(Node.ReadAttributeString(cResultsTimAttributePos));
+  result := cHex2Int(Node.ReadAttributeUnicodeString(cResTimAttrPos));
 end;
 
 function TfrmMain.CurrentTimSize(Index: Integer): DWORD;
 var
   Node: TXmlNode;
 begin
-  Node := Results[cbbFiles.ItemIndex]^.Root.FindNode(cResultsTimsNode);
+  result := 0;
+  Node := Results[cbbFiles.ItemIndex]^.Root.FindNode(cResTimsNode);
+  if Node = nil then Exit;
+
   Node := Node.Elements[Index];
-  result := cHex2Int(Node.ReadAttributeString(cResultsTimAttributeSize));
+  result := cHex2Int(Node.ReadAttributeUnicodeString(cResTimAttrSize));
 end;
 
 procedure TfrmMain.FormClose(Sender: TObject; var Action: TCloseAction);
@@ -257,7 +323,7 @@ begin
   New(pCurrentPNG);
   pCurrentPNG^ := nil;
   pLastDir := GetStartDir;
-  Caption := cProgramName;
+  Caption := Format('%s v%s', [cProgramName, cProgramVersion]);
   DragAcceptFiles(Handle, True);
   CheckMainMenu;
 end;
@@ -274,6 +340,36 @@ begin
 
   for i := 1 to tblInfo.ColCount do
     tblInfo.ColWidths[i - 1] := w;
+
+  w := (grdCurrCLUT.Width - 20) div grdCurrCLUT.ColCount;
+
+  for i := 1 to grdCurrCLUT.ColCount do
+    grdCurrCLUT.ColWidths[i - 1] := w;
+end;
+
+procedure TfrmMain.grdCurrCLUTDrawCell(Sender: TObject; ACol, ARow: Integer;
+  Rect: TRect; State: TGridDrawState);
+var
+  TIM: PTIM;
+  ROWS, COLS: Integer;
+  COLORS: Word;
+begin
+  TIM := CurrentTIM;
+  if TIM = nil then Exit;
+
+  COLS := grdCurrCLUT.ColCount;
+  ROWS := GetTimColorsCount(TIM) div COLS + 1;
+  COLORS := GetTimColorsCount(TIM);
+
+  if ((ARow * COLS + ACol + 1) > COLORS) or ((ARow + 1) > ROWS) then
+  begin
+    FreeTIM(TIM);
+    Exit;
+  end;
+
+  DrawClutCell(TIM, cbbCLUT.ItemIndex, @grdCurrCLUT, ACol, ARow);
+
+  FreeTIM(TIM);
 end;
 
 procedure TfrmMain.ScanDirectory(const Directory: string);
@@ -319,10 +415,11 @@ var
 begin
   if (lvList.Selected = nil) then Exit;
 
-  lvList.Selected.Focused := True;
   OFFSET := CurrentTimPos(lvList.Selected.Index);
   SIZE := CurrentTimSize(lvList.Selected.Index);
+  UpdateCLUTList;
   DrawCurrentTIM;
+  DrawCurrentCLUT;
   pnlTimInfo.Caption := Format('Position: %8.x; Size: %d', [OFFSET, SIZE]);
   CheckMainMenu;
 end;
@@ -378,7 +475,18 @@ begin
   lvList.Items.EndUpdate;
   lblStatus.Caption := '';
   pnlTimInfo.Caption := '';
+  DrawCurrentTIM;
+  DrawCurrentCLUT;
+
+  cbbCLUT.Items.BeginUpdate;
+  if cbbCLUT.Items.Count > 0 then
+  cbbCLUT.Items.Delete(cbbCLUT.ItemIndex);
+  cbbCLUT.Items.EndUpdate;
+
+  cbbFiles.Items.BeginUpdate;
   cbbFiles.Items.Delete(cbbFiles.ItemIndex);
+  cbbFiles.Items.EndUpdate;
+
   CheckMainMenu;
 end;
 
@@ -458,8 +566,10 @@ var
   BIT_MODE: Byte;
   IMAGE_SCAN: Boolean;
 begin
-  Node := Res^.Root.FindNode(cResultsInfoNode);
-  COUNT := Node.ReadAttributeInteger(cResultsAttributeTimsCount);
+  Node := Res^.Root.FindNode(cResInfoNode);
+  if Node = nil then Exit;
+
+  COUNT := Node.ReadAttributeInteger(cResAttrTimsCount);
   lvList.Items.Count := COUNT;
 
   if not mnAutoExtract.Checked then Exit;
@@ -468,16 +578,16 @@ begin
   pbProgress.Max := COUNT;
   pbProgress.Position := 0;
 
-  fName := Node.ReadAttributeString(cResultsAttributeFile);
-  IMAGE_SCAN := Node.ReadAttributeBool(cResultsAttributeImageFile);
-  Node := Res^.Root.FindNode(cResultsTimsNode);
+  fName := Node.ReadAttributeUnicodeString(cResAttrFile);
+  IMAGE_SCAN := Node.ReadAttributeBool(cResAttrImageFile);
+  Node := Res^.Root.FindNode(cResTimsNode);
 
   for I := 1 to COUNT do
   begin
     TIM_NODE := Node.Elements[I - 1];
-    OFFSET := cHex2Int(TIM_NODE.ReadAttributeString(cResultsTimAttributePos));
-    SIZE := cHex2Int(TIM_NODE.ReadAttributeString(cResultsTimAttributeSize));
-    BIT_MODE := TIM_NODE.ReadAttributeInteger(cResultsTimAttributeBitMode);
+    OFFSET := cHex2Int(TIM_NODE.ReadAttributeUnicodeString(cResTimAttrPos));
+    SIZE := cHex2Int(TIM_NODE.ReadAttributeUnicodeString(cResTimAttrSize));
+    BIT_MODE := TIM_NODE.ReadAttributeInteger(cResTimAttrBitMode);
 
     TIM_NAME := Format(cAutoExtractionTimFormat,
                        [ExtractFileNameWOext(fName), I, BIT_MODE]);
@@ -498,12 +608,18 @@ begin
   pbProgress.Position := 0;
 end;
 
+procedure TfrmMain.pbImagePaint(Sender: TObject);
+begin
+  DrawCurrentTIM;
+end;
+
 procedure TfrmMain.ScanFile(const FileName: string);
 var
   CurrentResult: PNativeXML;
 begin
   btnStopScan.Enabled := True;
   cbbFiles.Enabled := False;
+  lvList.Enabled := False;
 
   if CheckForFileOpened(FileName) then
   begin
@@ -515,14 +631,13 @@ begin
 
   SetLength(Results, Length(Results) + 1);
   cbbFiles.Items.Add(ExtractFileName(FileName));
-  cbbFiles.ItemIndex := cbbFiles.Items.Count - 1;
 
   pbProgress.Max := GetFileSizeAPI(FileName);
   pbProgress.Position := 0;
 
   New(Results[cbbFiles.Items.Count - 1]);
   CurrentResult := Results[cbbFiles.Items.Count - 1];
-  CurrentResult^ := TNativeXML.CreateName(cResultsRootName);
+  CurrentResult^ := TNativeXML.CreateName(cResRootName);
   pScanThread^ := TScanThread.Create(FileName, CurrentResult,
                                      GetImageScan(FileName));
   pScanThread^.FreeOnTerminate := True;
@@ -534,11 +649,12 @@ end;
 
 procedure TfrmMain.ScanFinished(Sender: TObject);
 begin
+  cbbFiles.ItemIndex := cbbFiles.Items.Count - 1;
   ParseResult(Results[cbbFiles.Items.Count - 1]);
 
   lblStatus.Caption := '';
   cbbFiles.Enabled := True;
-
+  lvList.Enabled := True;
   btnStopScan.Enabled := False;
   CheckMainMenu;
 end;
@@ -549,6 +665,28 @@ begin
     ScanFile(Path)
   else
     ScanDirectory(Path);
+end;
+
+procedure TfrmMain.UpdateCLUTList;
+var
+  TIM: PTIM;
+  I, CLUTS: Word;
+begin
+  TIM := CurrentTIM;
+  if TIM = nil then Exit;
+
+  CLUTS := GetTimClutsCount(TIM);
+
+  cbbCLUT.Items.BeginUpdate;
+  cbbCLUT.Clear;
+
+  for I := 1 to CLUTS do
+    cbbCLUT.Items.Add(Format('CLUT [%d/%d]', [I, CLUTS]));
+
+
+  cbbCLUT.ItemIndex := 0;
+  cbbCLUT.Items.EndUpdate;
+  FreeTIM(TIM);
 end;
 
 procedure TfrmMain.WMDropFiles(var Msg: TWMDropFiles);

@@ -2175,6 +2175,9 @@ function sdUtf8ToWideBuffer(const Utf8Buf; var WideBuf; ByteCount: integer): int
 
 implementation
 
+uses
+  System.Types;
+
 type
   TAnsiCharArray = array[0..32767] of AnsiChar;
 

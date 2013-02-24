@@ -89,6 +89,7 @@ object frmMain: TfrmMain
       Left = 233
       Top = 0
       Height = 482
+      ResizeStyle = rsUpdate
       ExplicitLeft = 201
       ExplicitHeight = 481
     end
@@ -100,8 +101,6 @@ object frmMain: TfrmMain
       ActivePage = tsImage
       Align = alClient
       TabOrder = 0
-      ExplicitWidth = 494
-      ExplicitHeight = 493
       object tsInfo: TTabSheet
         Caption = 'INFO'
         ExplicitWidth = 486
@@ -137,35 +136,85 @@ object frmMain: TfrmMain
           Left = 0
           Top = 0
           Width = 494
-          Height = 454
-          Align = alClient
+          Height = 273
+          Align = alTop
           Color = clWhite
           ParentColor = False
-          ExplicitLeft = 144
-          ExplicitTop = 168
-          ExplicitWidth = 105
-          ExplicitHeight = 105
+          OnPaint = pbImagePaint
         end
-      end
-      object tsClut: TTabSheet
-        Caption = 'CLUT'
-        ImageIndex = 2
-        object grdCLUT: TDrawGrid
+        object splImageClut: TSplitter
           Left = 0
-          Top = 0
+          Top = 273
           Width = 494
-          Height = 454
+          Height = 3
+          Cursor = crVSplit
+          Align = alTop
+          Beveled = True
+          ResizeStyle = rsUpdate
+          ExplicitTop = 147
+        end
+        object pnlImageOptions: TPanel
+          Left = 0
+          Top = 424
+          Width = 494
+          Height = 30
+          Align = alBottom
+          BevelOuter = bvLowered
+          TabOrder = 0
+          object cbbCLUT: TComboBox
+            AlignWithMargins = True
+            Left = 4
+            Top = 4
+            Width = 152
+            Height = 21
+            Align = alLeft
+            AutoDropDown = True
+            AutoCloseUp = True
+            Style = csDropDownList
+            TabOrder = 0
+            OnChange = cbbCLUTChange
+            ExplicitLeft = 1
+            ExplicitTop = 1
+          end
+          object cbbTransparenceMode: TComboBox
+            AlignWithMargins = True
+            Left = 162
+            Top = 4
+            Width = 145
+            Height = 21
+            Align = alLeft
+            Style = csDropDownList
+            ItemIndex = 3
+            TabOrder = 1
+            Text = 'No Transparence'
+            OnClick = cbbTransparenceModeClick
+            Items.Strings = (
+              'Full transparence'
+              'Black Transparence'
+              'Semi Transparence'
+              'No Transparence')
+          end
+        end
+        object grdCurrCLUT: TDrawGrid
+          Left = 0
+          Top = 276
+          Width = 494
+          Height = 148
           Align = alClient
-          ColCount = 1
-          DefaultColWidth = 10
-          DefaultRowHeight = 10
+          ColCount = 32
+          DefaultColWidth = 14
+          DefaultRowHeight = 14
           DoubleBuffered = True
           FixedCols = 0
           RowCount = 1
           FixedRows = 0
           Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine]
           ParentDoubleBuffered = False
-          TabOrder = 0
+          ScrollBars = ssNone
+          TabOrder = 1
+          OnDrawCell = grdCurrCLUTDrawCell
+          ExplicitTop = 289
+          ExplicitHeight = 135
         end
       end
     end
@@ -209,7 +258,8 @@ object frmMain: TfrmMain
         OnClick = lvListClick
         OnData = lvListData
         OnKeyDown = lvListKeyDown
-        ExplicitHeight = 449
+        ExplicitLeft = 1
+        ExplicitTop = -6
       end
       object pnlTimInfo: TPanel
         Left = 0

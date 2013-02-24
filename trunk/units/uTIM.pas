@@ -83,6 +83,7 @@ type
     G: byte;
     B: byte;
   end;
+  PCLUT_COLOR = ^TCLUT_COLOR;
   TCLUT_COLORS = array[0..cCLUTColorsMax * cCLUTCountMax - 1] of TCLUT_COLOR;
   PCLUT_COLORS = ^TCLUT_COLORS;
 
@@ -118,6 +119,8 @@ procedure SaveTimToFile(const FileName: string; TIM: PTIM);
 function CreateTIM: PTIM;
 procedure FreeTIM(TIM: PTIM);
 function BppToBitMode(TIM: PTIM): byte;
+function GetTimColorsCount(TIM: PTIM): Word;
+function GetTimClutsCount(TIM: PTIM): Word;
 
 implementation
 
@@ -463,6 +466,16 @@ end;
 function GetTimRealWidth(TIM: PTIM): Word;
 begin
   Result := IWidthToRWidth(TIM);
+end;
+
+function GetTimColorsCount(TIM: PTIM): Word;
+begin
+  Result := TIM^.CLUT^.wColorsCount;
+end;
+
+function GetTimClutsCount(TIM: PTIM): Word;
+begin
+  Result := TIM^.CLUT^.wClutsCount;
 end;
 
 end.
