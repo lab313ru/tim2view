@@ -50,10 +50,6 @@ object frmMain: TfrmMain
         TabOrder = 0
         object tsInfo: TTabSheet
           Caption = 'INFO'
-          ExplicitLeft = 0
-          ExplicitTop = 0
-          ExplicitWidth = 0
-          ExplicitHeight = 0
           object tbInfo: TStringGrid
             Left = 0
             Top = 0
@@ -85,7 +81,6 @@ object frmMain: TfrmMain
             Align = alClient
             Color = clWhite
             ParentColor = False
-            OnPaint = pnlImagePaint
             ExplicitLeft = 144
             ExplicitTop = 168
             ExplicitWidth = 105
@@ -95,10 +90,6 @@ object frmMain: TfrmMain
         object tsClut: TTabSheet
           Caption = 'CLUT'
           ImageIndex = 2
-          ExplicitLeft = 0
-          ExplicitTop = 0
-          ExplicitWidth = 0
-          ExplicitHeight = 0
           object grdCLUT: TDrawGrid
             Left = 0
             Top = 0
@@ -106,15 +97,14 @@ object frmMain: TfrmMain
             Height = 465
             Align = alClient
             ColCount = 1
-            DefaultColWidth = 20
-            DefaultRowHeight = 20
-            DoubleBuffered = False
+            DefaultColWidth = 10
+            DefaultRowHeight = 10
+            DoubleBuffered = True
             FixedCols = 0
             RowCount = 1
             FixedRows = 0
             Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine]
             ParentDoubleBuffered = False
-            ScrollBars = ssNone
             TabOrder = 0
           end
         end
@@ -148,6 +138,7 @@ object frmMain: TfrmMain
             end>
           DoubleBuffered = True
           GridLines = True
+          HideSelection = False
           OwnerData = True
           ReadOnly = True
           RowSelect = True

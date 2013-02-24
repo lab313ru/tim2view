@@ -71,7 +71,6 @@ type
     procedure lblStatusClick(Sender: TObject);
     procedure lblStatusMouseMove(Sender: TObject; Shift: TShiftState; X,
       Y: Integer);
-    procedure pnlImagePaint(Sender: TObject);
     procedure mnExitClick(Sender: TObject);
   private
     { Private declarations }
@@ -79,6 +78,7 @@ type
     Results: array[0..cMaxFilesToOpen - 1] of PNativeXML;
     pScanThread: PScanThread;
     pCurrentPNG: PPNGImage;
+    pLastDir: string;
     procedure ParseResult(Res: PNativeXML);
     procedure ScanFinished(Sender: TObject);
     function CheckForFileOpened(const FileName: string): boolean;
@@ -108,7 +108,7 @@ var
 implementation
 
 uses
-  uCDIMAGE;
+  uCDIMAGE, BrowseForFolderU;
 
 {$R *.dfm}
 
@@ -247,6 +247,7 @@ begin
   New(pScanThread);
   New(pCurrentPNG);
   pCurrentPNG^ := nil;
+  pLastDir := GetStartDir;
   Caption := cProgramName;
   DragAcceptFiles(Handle, True);
   CheckMainMenu;
@@ -313,6 +314,7 @@ var
 begin
   if (lvList.Selected = nil) then Exit;
 
+  lvList.Selected.Focused := True;
   OFFSET := CurrentTimPos(lvList.Selected.Index);
   SIZE := CurrentTimSize(lvList.Selected.Index);
   DrawCurrentTIM;
@@ -419,10 +421,15 @@ begin
 end;
 
 procedure TfrmMain.mnScanDirClick(Sender: TObject);
-{var
-  SelectedDir: string; }
+var
+  SelectedDir: string;
 begin
-  //empty for now. looking for a good browse for folder
+  SelectedDir := BrowseForFolder(Handle, sSelectDirCaption, pLastDir);
+  if DirectoryExists(SelectedDir) then
+  begin
+    ScanPath(SelectedDir);
+    pLastDir := SelectedDir;
+  end;
 end;
 
 procedure TfrmMain.mnScanFileClick(Sender: TObject);
@@ -486,11 +493,6 @@ begin
   end;
 
   pbProgress.Position := 0;
-end;
-
-procedure TfrmMain.pnlImagePaint(Sender: TObject);
-begin
-  DrawCurrentTIM;
 end;
 
 procedure TfrmMain.ScanFile(const FileName: string);

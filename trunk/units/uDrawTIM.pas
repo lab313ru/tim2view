@@ -240,8 +240,6 @@ begin
   for Y := 1 to H do
     for X := 1 to W do
     begin
-      Grid^.ColWidths[X - 1] := (Grid^.Width div W) * W;
-      Grid^.RowHeights[Y - 1] := Grid^.ColWidths[X - 1];
       R := CLUT_DATA^[(Y - 1) * W + (X - 1)].R;
       G := CLUT_DATA^[(Y - 1) * W + (X - 1)].G;
       B := CLUT_DATA^[(Y - 1) * W + (X - 1)].B;
@@ -270,7 +268,7 @@ begin
     end;
 
   Dispose(CLUT_DATA);
-  Grid^.Invalidate;
+ // Grid^.Invalidate;
 
 end;
 
