@@ -152,7 +152,7 @@ end;
 
 function ConvertCLUTColor(COLOR: TCLUT_COLOR): Word;
 begin
-  Result := (COLOR.STP shr 15) or ((COLOR.B div 8) shl 10) or
+  Result := (COLOR.STP shl 15) or ((COLOR.B div 8) shl 10) or
             ((COLOR.G div 8) shl 5) or (COLOR.R div 8);
 end;
 
