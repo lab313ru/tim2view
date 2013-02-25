@@ -36,7 +36,8 @@ const
   cTIMHeadSize = 8;
   cRandomPaletteSize = $100;
   cTIMMaxSize = cTIMHeadSize + cCLUTColorsMax * cCLUTCountMax * 2 +
-                cCLUTHeadSize + cIMAGEWidthMax * cIMAGEHeightMax * 2 + cIMAGEHeadSize;
+                cCLUTHeadSize + cIMAGEWidthMax * cIMAGEHeightMax * 2 +
+                cIMAGEHeadSize;
 
 type
   TTIMHeader = packed record //TIM Header (8 bytes)

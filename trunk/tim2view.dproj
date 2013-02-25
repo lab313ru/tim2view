@@ -125,7 +125,10 @@
         <DCCReference Include="Units\uScanThread.pas"/>
         <DCCReference Include="units\uTIM.pas"/>
         <DCCReference Include="units\uDrawTIM.pas"/>
-        <DCCReference Include="units\BrowseForFolderU.pas"/>
+        <DCCReference Include="units\BrowseForFolderU.pas">
+            <Form>,
+  uTIMClass in &apos;units\uTIMClass.pas&apos;</Form>
+        </DCCReference>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>

@@ -17,7 +17,8 @@ uses
   uScanThread in 'Units\uScanThread.pas',
   uTIM in 'units\uTIM.pas',
   uDrawTIM in 'units\uDrawTIM.pas',
-  BrowseForFolderU in 'units\BrowseForFolderU.pas';
+  BrowseForFolderU in 'units\BrowseForFolderU.pas'{,
+  uTIMClass in 'units\uTIMClass.pas'};
 
 {$R *.res}
 
