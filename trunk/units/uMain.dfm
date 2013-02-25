@@ -1,7 +1,7 @@
 object frmMain: TfrmMain
   Left = 0
   Top = 0
-  Caption = 'frmMain'
+  ActiveControl = cbbFiles
   ClientHeight = 532
   ClientWidth = 738
   Color = clBtnFace
@@ -12,9 +12,10 @@ object frmMain: TfrmMain
   Font.Style = []
   Menu = mmMain
   OldCreateOrder = False
+  Position = poScreenCenter
+  ScreenSnap = True
   OnClose = FormClose
   OnCreate = FormCreate
-  OnResize = FormResize
   PixelsPerInch = 96
   TextHeight = 13
   object pnlStatus: TPanel
@@ -24,7 +25,7 @@ object frmMain: TfrmMain
     Height = 29
     Align = alBottom
     BevelOuter = bvLowered
-    TabOrder = 0
+    TabOrder = 2
     object lblStatus: TLabel
       Left = 76
       Top = 1
@@ -33,8 +34,6 @@ object frmMain: TfrmMain
       Align = alClient
       Alignment = taRightJustify
       Layout = tlCenter
-      OnClick = lblStatusClick
-      OnMouseMove = lblStatusMouseMove
       ExplicitLeft = 234
       ExplicitWidth = 3
       ExplicitHeight = 13
@@ -46,7 +45,7 @@ object frmMain: TfrmMain
       Height = 27
       Align = alRight
       Smooth = True
-      TabOrder = 0
+      TabOrder = 1
     end
     object btnStopScan: TButton
       Left = 1
@@ -56,7 +55,7 @@ object frmMain: TfrmMain
       Align = alLeft
       Caption = 'Stop Scan'
       Enabled = False
-      TabOrder = 1
+      TabOrder = 0
       OnClick = btnStopScanClick
     end
   end
@@ -70,7 +69,7 @@ object frmMain: TfrmMain
     AutoCloseUp = True
     Style = csDropDownList
     DropDownCount = 30
-    TabOrder = 1
+    TabOrder = 0
     OnChange = cbbFilesChange
   end
   object pnlMain: TPanel
@@ -80,11 +79,7 @@ object frmMain: TfrmMain
     Height = 482
     Align = alClient
     BevelOuter = bvNone
-    TabOrder = 2
-    ExplicitLeft = 4
-    ExplicitTop = 6
-    ExplicitWidth = 730
-    ExplicitHeight = 493
+    TabOrder = 1
     object splMain: TSplitter
       Left = 233
       Top = 0
@@ -93,131 +88,6 @@ object frmMain: TfrmMain
       ExplicitLeft = 201
       ExplicitHeight = 481
     end
-    object pgcMain: TPageControl
-      Left = 236
-      Top = 0
-      Width = 502
-      Height = 482
-      ActivePage = tsImage
-      Align = alClient
-      TabOrder = 0
-      object tsInfo: TTabSheet
-        Caption = 'INFO'
-        ExplicitWidth = 486
-        ExplicitHeight = 444
-        object tblInfo: TStringGrid
-          Left = 0
-          Top = 0
-          Width = 494
-          Height = 454
-          Align = alClient
-          ColCount = 3
-          DefaultColWidth = 50
-          DefaultRowHeight = 16
-          FixedCols = 0
-          RowCount = 26
-          Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goColSizing, goRowSelect]
-          ScrollBars = ssVertical
-          TabOrder = 0
-          ExplicitWidth = 486
-          ExplicitHeight = 444
-          ColWidths = (
-            210
-            108
-            154)
-        end
-      end
-      object tsImage: TTabSheet
-        Caption = 'IMAGE'
-        ImageIndex = 1
-        ExplicitWidth = 486
-        ExplicitHeight = 444
-        object pbImage: TPaintBox
-          Left = 0
-          Top = 0
-          Width = 494
-          Height = 273
-          Align = alTop
-          Color = clWhite
-          ParentColor = False
-          OnPaint = pbImagePaint
-        end
-        object splImageClut: TSplitter
-          Left = 0
-          Top = 273
-          Width = 494
-          Height = 3
-          Cursor = crVSplit
-          Align = alTop
-          Beveled = True
-          ResizeStyle = rsUpdate
-          ExplicitTop = 147
-        end
-        object pnlImageOptions: TPanel
-          Left = 0
-          Top = 424
-          Width = 494
-          Height = 30
-          Align = alBottom
-          BevelOuter = bvLowered
-          TabOrder = 0
-          object cbbCLUT: TComboBox
-            AlignWithMargins = True
-            Left = 4
-            Top = 4
-            Width = 152
-            Height = 21
-            Align = alLeft
-            AutoDropDown = True
-            AutoCloseUp = True
-            Style = csDropDownList
-            TabOrder = 0
-            OnChange = cbbCLUTChange
-            ExplicitLeft = 1
-            ExplicitTop = 1
-          end
-          object cbbTransparenceMode: TComboBox
-            AlignWithMargins = True
-            Left = 162
-            Top = 4
-            Width = 145
-            Height = 21
-            Align = alLeft
-            Style = csDropDownList
-            ItemIndex = 3
-            TabOrder = 1
-            Text = 'No Transparence'
-            OnClick = cbbTransparenceModeClick
-            Items.Strings = (
-              'Full transparence'
-              'Black Transparence'
-              'Semi Transparence'
-              'No Transparence')
-          end
-        end
-        object grdCurrCLUT: TDrawGrid
-          Left = 0
-          Top = 276
-          Width = 494
-          Height = 148
-          Align = alClient
-          ColCount = 32
-          DefaultColWidth = 14
-          DefaultRowHeight = 14
-          DoubleBuffered = True
-          FixedCols = 0
-          RowCount = 1
-          FixedRows = 0
-          Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine]
-          ParentDoubleBuffered = False
-          ScrollBars = ssNone
-          TabOrder = 1
-          OnDrawCell = grdCurrCLUTDrawCell
-          ExplicitTop = 289
-          ExplicitHeight = 135
-        end
-      end
-    end
     object pnlList: TPanel
       Left = 0
       Top = 0
@@ -225,13 +95,31 @@ object frmMain: TfrmMain
       Height = 482
       Align = alLeft
       BevelOuter = bvNone
-      TabOrder = 1
-      ExplicitHeight = 472
+      TabOrder = 0
+      object lblTimInformation: TLabel
+        AlignWithMargins = True
+        Left = 3
+        Top = 466
+        Width = 227
+        Height = 13
+        Align = alBottom
+        Alignment = taCenter
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clHotLight
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Style = [fsUnderline]
+        ParentFont = False
+        Layout = tlCenter
+        OnClick = lblTimInformationClick
+        OnMouseMove = lblTimInformationMouseMove
+        ExplicitWidth = 3
+      end
       object lvList: TListView
         Left = 0
         Top = 0
         Width = 233
-        Height = 459
+        Height = 463
         Align = alClient
         Columns = <
           item
@@ -258,19 +146,110 @@ object frmMain: TfrmMain
         OnClick = lvListClick
         OnData = lvListData
         OnKeyDown = lvListKeyDown
-        ExplicitLeft = 1
-        ExplicitTop = -6
       end
-      object pnlTimInfo: TPanel
-        Left = 0
-        Top = 459
-        Width = 233
-        Height = 23
+    end
+    object pnlImage: TPanel
+      Left = 236
+      Top = 0
+      Width = 502
+      Height = 482
+      Align = alClient
+      BevelOuter = bvLowered
+      TabOrder = 1
+      object pbImage: TPaintBox
+        Left = 1
+        Top = 1
+        Width = 500
+        Height = 296
+        Align = alTop
+        Anchors = [akLeft, akTop, akRight, akBottom]
+        Color = clWhite
+        ParentColor = False
+        OnPaint = pbImagePaint
+      end
+      object splImageClut: TSplitter
+        Left = 1
+        Top = 297
+        Width = 500
+        Height = 3
+        Cursor = crVSplit
+        Align = alTop
+        Beveled = True
+        ResizeStyle = rsUpdate
+        ExplicitTop = 274
+      end
+      object grdCurrCLUT: TDrawGrid
+        Left = 1
+        Top = 300
+        Width = 500
+        Height = 151
+        Align = alClient
+        ColCount = 1
+        DefaultColWidth = 14
+        DefaultRowHeight = 14
+        DoubleBuffered = True
+        Enabled = False
+        FixedCols = 0
+        RowCount = 1
+        FixedRows = 0
+        Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goDrawFocusSelected]
+        ParentDoubleBuffered = False
+        ScrollBars = ssNone
+        TabOrder = 0
+        OnDblClick = grdCurrCLUTDblClick
+        OnDrawCell = grdCurrCLUTDrawCell
+      end
+      object pnlImageOptions: TPanel
+        Left = 1
+        Top = 451
+        Width = 500
+        Height = 30
         Align = alBottom
-        BevelOuter = bvSpace
-        Locked = True
+        BevelOuter = bvLowered
         TabOrder = 1
-        ExplicitTop = 449
+        object cbbCLUT: TComboBox
+          AlignWithMargins = True
+          Left = 4
+          Top = 4
+          Width = 152
+          Height = 21
+          Align = alLeft
+          AutoDropDown = True
+          AutoCloseUp = True
+          Style = csDropDownList
+          TabOrder = 0
+          OnChange = cbbCLUTChange
+        end
+        object cbbTransparenceMode: TComboBox
+          AlignWithMargins = True
+          Left = 162
+          Top = 4
+          Width = 145
+          Height = 21
+          Align = alLeft
+          Style = csDropDownList
+          ItemIndex = 0
+          TabOrder = 1
+          Text = 'Full transparence'
+          OnClick = cbbTransparenceModeClick
+          Items.Strings = (
+            'Full transparence'
+            'Black Transparence'
+            'Semi Transparence'
+            'No Transparence')
+        end
+        object pnlCLUTColor: TPanel
+          Left = 314
+          Top = 1
+          Width = 185
+          Height = 28
+          Align = alRight
+          BevelOuter = bvLowered
+          TabOrder = 2
+          ExplicitLeft = 328
+          ExplicitTop = 8
+          ExplicitHeight = 41
+        end
       end
     end
   end
@@ -279,12 +258,12 @@ object frmMain: TfrmMain
     Filter = 'All Files (*.*)|*.*'
     Options = [ofHideReadOnly, ofNoChangeDir, ofAllowMultiSelect, ofFileMustExist, ofNoNetworkButton, ofEnableSizing, ofForceShowHidden]
     Title = 'Please, select File...'
-    Left = 652
-    Top = 478
+    Left = 668
+    Top = 502
   end
   object mmMain: TMainMenu
-    Left = 592
-    Top = 480
+    Left = 608
+    Top = 504
     object mnFile: TMenuItem
       Caption = '&File'
       object mnScanFile: TMenuItem
@@ -368,23 +347,28 @@ object frmMain: TfrmMain
     end
   end
   object xpMain: TXPManifest
-    Left = 624
-    Top = 480
+    Left = 640
+    Top = 504
   end
   object dlgSavePNG: TSavePictureDialog
     DefaultExt = 'png'
     Filter = 'Portable Network Graphics (*.png)|*.png'
     Options = [ofHideReadOnly, ofNoChangeDir, ofNoNetworkButton, ofEnableSizing]
     Title = 'Please, select filename for PNG...'
-    Left = 688
-    Top = 480
+    Left = 704
+    Top = 504
   end
   object dlgSaveTIM: TSaveDialog
     DefaultExt = 'tim'
     Filter = 'PSX TIM Files (*.tim)|*.tim|All Files (*.*)|*.*'
     Options = [ofOverwritePrompt, ofHideReadOnly, ofNoChangeDir, ofNoNetworkButton, ofEnableSizing]
     Title = 'Please, select where to save TIM file...'
-    Left = 560
-    Top = 480
+    Left = 576
+    Top = 504
+  end
+  object dlgColor: TColorDialog
+    Options = [cdFullOpen]
+    Left = 544
+    Top = 504
   end
 end

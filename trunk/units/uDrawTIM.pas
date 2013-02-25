@@ -24,24 +24,14 @@ procedure ClearGrid(Grid: PDrawGrid);
 implementation
 
 uses
-  Windows;
-
-function ReadColor(ColorValue: Word): TCLUT_COLOR;
-begin
-  Result.R := (ColorValue and $1F) * 8;
-  Result.G := ((ColorValue and $3E0) shr 5) * 8;
-  Result.B := ((ColorValue and $7C00) shr 10) * 8;
-  Result.STP := ((ColorValue and $8000) shr 15);
-end;
+  Windows, uCommon;
 
 function PrepareCLUT(TIM: PTIM; CLUT_NUM: Integer): PCLUT_COLORS;
 var
-  ColorValue: Word;
   I: Integer;
-  CLUT_OFFSET: Integer;
 begin
   Result := nil;
-  if (not isTIMHasCLUT(TIM)) and
+  if (not TIMHasCLUT(TIM)) and
      (not (TIM^.HEAD^.bBPP in [cTIM4NC, cTIM8NC]))
   then
     Exit;
@@ -52,23 +42,13 @@ begin
   begin
     Randomize;
     for I := 1 to cRandomPaletteSize do
-    begin
-      Result^[I - 1].R := random($20) * 8;
-      Result^[I - 1].G := random($20) * 8;
-      Result^[I - 1].B := random($20) * 8;
-      Result^[I - 1].STP := 1;
-    end;
+      Result^[I - 1] := GetCLUTColor(TIM, CLUT_NUM, I - 1);
+
     Exit;
   end;
 
-  CLUT_OFFSET := CLUT_NUM * TIM^.CLUT.wColorsCount * 2;
-
-  for I := 1 to GetTIMCLUTSize(TIM) do
-  begin
-    Move(TIM^.DATA^[cTIMHeadSize + cCLUTHeadSize + (I - 1) * 2 + CLUT_OFFSET],
-                    ColorValue, 2);
-    Result^[I - 1] := ReadColor(ColorValue);
-  end;
+  for I := 1 to GetTimColorsCount(TIM) do
+    Result^[I - 1] := GetCLUTColor(TIM, CLUT_NUM, I - 1);
 end;
 
 function PrepareIMAGE(TIM: PTIM): PIMAGE_INDEXES;
@@ -165,7 +145,7 @@ begin
         cTIM16C, cTIM16NC, cTIMMix:
         begin
           Move(IMAGE_DATA^[IMAGE_DATA_POS], CW, 2);
-          COLOR := ReadColor(CW);
+          COLOR := ConvertTIMColor(CW);
 
           R := COLOR.R;
           G := COLOR.G;
@@ -192,19 +172,17 @@ begin
       else
       begin
         if (R + G + B) = 0 then
-          ALPHA := STP * 255
+          ALPHA := 0
         else
         begin
           if (STP = 0) then
             ALPHA := 255
           else
             ALPHA := 128;
-        end;
 
-        if ((not Transparent) and (ALPHA = 0)) or
-           ((not SemiTransparent) and (ALPHA = 128))
-        then
-          ALPHA := 255;
+          if (not SemiTransparent) and (ALPHA = 128) then
+            ALPHA := 255;
+        end;
       end;
 
       PNG^.AlphaScanline[Y - 1]^[X - 1] := ALPHA;
@@ -264,29 +242,16 @@ end;
 procedure DrawClutCell(TIM: PTIM; CLUT_NUM: Integer; Grid: PDrawGrid;
                        X, Y: Integer);
 var
-  ColorValue: Word;
   CLUT_COLOR: PCLUT_COLOR;
   R, G, B, STP, ALPHA: Byte;
   Rect: TRect;
-  CLUT_OFFSET: Integer;
+  COLS: Integer;
 begin
   New(CLUT_COLOR);
 
-  if (TIM^.HEAD^.bBPP in [cTIM4NC, cTIM8NC]) then
-  begin
-    Randomize;
-    CLUT_COLOR^.R := random($20) * 8;
-    CLUT_COLOR^.G := random($20) * 8;
-    CLUT_COLOR^.B := random($20) * 8;
-    CLUT_COLOR^.STP := 1;
-  end;
-
-  CLUT_OFFSET := CLUT_NUM * TIM^.CLUT.wColorsCount * 2;
-
-  Move(TIM^.DATA^[cTIMHeadSize + cCLUTHeadSize + X * 2 + CLUT_OFFSET],
-                  ColorValue, 2);
-  CLUT_COLOR^ := ReadColor(ColorValue);
-
+  COLS := Min(GetTimColorsCount(TIM), cCLUTGridColsCount);
+  CLUT_COLOR^ := GetCLUTColor(TIM, CLUT_NUM,
+                              Y * COLS + X);
   R := CLUT_COLOR^.R;
   G := CLUT_COLOR^.G;
   B := CLUT_COLOR^.B;
@@ -300,7 +265,7 @@ begin
   Grid^.Canvas.FillRect(Rect);
 
   if (R + G + B) = 0 then
-    ALPHA := STP * 255
+    ALPHA := 0
   else
   begin
     if STP = 0 then
@@ -312,7 +277,11 @@ begin
   if ALPHA in [0, 128] then
   begin
     Grid^.Canvas.Brush.Color := clWhite;
-    Rect.Height := Rect.Height div 2;
+    if ALPHA = 0 then
+      Rect.Height := Rect.Height div 2
+    else
+      Rect.Width := Rect.Width div 2;
+
     Grid^.Canvas.FillRect(Rect);
   end;
 
@@ -323,17 +292,17 @@ procedure DrawCLUT(TIM: PTIM; CLUT_NUM: Integer; Grid: PDrawGrid);
 var
   X, Y, ROWS, COLS, COLORS: Integer;
 begin
-  COLS := Grid^.ColCount;
-  ROWS := GetTimColorsCount(TIM) div COLS + 1;
   COLORS := GetTimColorsCount(TIM);
-  Grid^.RowCount := ROWS;
+  COLS := Min(COLORS, cCLUTGridColsCount);
+  Grid^.ColCount := COLS;
+  ROWS := COLORS div COLS;
 
+  Grid^.RowCount := ROWS;
 
   for Y := 1 to ROWS do
     for X := 1 to COLS do
     begin
       ClearCanvas(Grid^.Canvas.Handle, Grid^.CellRect(X - 1, Y - 1));
-      if ((Y - 1) * COLS + X > COLORS) or (Y > ROWS) then Break;
       DrawClutCell(TIM, CLUT_NUM, Grid, X - 1, Y - 1);
     end;
 end;

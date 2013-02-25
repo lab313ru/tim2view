@@ -43,23 +43,21 @@ type
     cbbFiles: TComboBox;
     pnlMain: TPanel;
     splMain: TSplitter;
-    pgcMain: TPageControl;
-    tsInfo: TTabSheet;
-    tblInfo: TStringGrid;
-    tsImage: TTabSheet;
     pbImage: TPaintBox;
     pnlList: TPanel;
     lvList: TListView;
-    pnlTimInfo: TPanel;
     pnlImageOptions: TPanel;
     cbbCLUT: TComboBox;
     cbbTransparenceMode: TComboBox;
     grdCurrCLUT: TDrawGrid;
+    lblTimInformation: TLabel;
+    pnlImage: TPanel;
     splImageClut: TSplitter;
+    dlgColor: TColorDialog;
+    pnlCLUTColor: TPanel;
     procedure mnScanFileClick(Sender: TObject);
     procedure btnStopScanClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
-    procedure FormResize(Sender: TObject);
     procedure lvListData(Sender: TObject; Item: TListItem);
     procedure mnCloseFileClick(Sender: TObject);
     procedure lvListClick(Sender: TObject);
@@ -70,9 +68,6 @@ type
     procedure mnReplaceInClick(Sender: TObject);
     procedure mnSaveTIMClick(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
-    procedure lblStatusClick(Sender: TObject);
-    procedure lblStatusMouseMove(Sender: TObject; Shift: TShiftState; X,
-      Y: Integer);
     procedure mnExitClick(Sender: TObject);
     procedure cbbFilesChange(Sender: TObject);
     procedure pbImagePaint(Sender: TObject);
@@ -81,6 +76,10 @@ type
     procedure cbbTransparenceModeClick(Sender: TObject);
     procedure grdCurrCLUTDrawCell(Sender: TObject; ACol, ARow: Integer;
       Rect: TRect; State: TGridDrawState);
+    procedure lblTimInformationMouseMove(Sender: TObject; Shift: TShiftState; X,
+      Y: Integer);
+    procedure lblTimInformationClick(Sender: TObject);
+    procedure grdCurrCLUTDblClick(Sender: TObject);
   private
     { Private declarations }
     //pResult: PNativeXml;
@@ -91,7 +90,7 @@ type
     procedure ParseResult(Res: PNativeXML);
     procedure ScanFinished(Sender: TObject);
     function CheckForFileOpened(const FileName: string): boolean;
-    procedure CheckMainMenu;
+    procedure CheckButtonsAndMainMenu;
     procedure ScanPath(const Path: string);
     procedure ScanFile(const FileName: string);
     procedure ScanDirectory(const Directory: string);
@@ -106,7 +105,8 @@ type
     function CurrentTIMName(Index: Integer): string;
     procedure DrawCurrentTIM;
     procedure DrawCurrentCLUT;
-    procedure UpdateCLUTList;
+    procedure UpdateCLUTInfo;
+    procedure SetCLUTListToNoCLUT;
   protected
     procedure WMDropFiles(var Msg: TWMDropFiles); message WM_DROPFILES;
   public
@@ -157,7 +157,7 @@ begin
   Result := (cbbFiles.Items.IndexOf(ExtractFileName(FileName)) <> -1);
 end;
 
-procedure TfrmMain.CheckMainMenu;
+procedure TfrmMain.CheckButtonsAndMainMenu;
 begin
   mnCloseFile.Enabled := (cbbFiles.Items.Count <> 0);
   mnCloseAllFiles.Enabled := (cbbFiles.Items.Count <> 0);
@@ -205,7 +205,7 @@ begin
   if Node = nil then Exit;
 
   Node := Node.Elements[Index];
-  result := cHex2Int(Node.ReadAttributeUnicodeString(cResTimAttrHeight));
+  result := Node.ReadAttributeInteger(cResTimAttrHeight);
 end;
 
 
@@ -225,7 +225,7 @@ begin
   if Node = nil then Exit;
 
   Node := Node.Elements[Index];
-  result := cHex2Int(Node.ReadAttributeUnicodeString(cResTimAttrWidth));
+  result := Node.ReadAttributeInteger(cResTimAttrWidth);
 end;
 
 procedure TfrmMain.DrawCurrentCLUT;
@@ -235,10 +235,22 @@ begin
   ClearGrid(@grdCurrCLUT);
 
   TIM := CurrentTIM;
-  if TIM = nil then Exit;
+  if TIM = nil then
+  begin
+    grdCurrCLUT.ColCount := 1;
+    grdCurrCLUT.RowCount := 1;
+    Exit;
+  end;
 
-  if isTIMHasCLUT(TIM) then
-    DrawCLUT(TIM, cbbCLUT.ItemIndex, @grdCurrCLUT);
+  grdCurrCLUT.Enabled := TIMHasCLUT(TIM);
+
+  if TIMHasCLUT(TIM) then
+    DrawCLUT(TIM, cbbCLUT.ItemIndex, @grdCurrCLUT)
+  else
+  begin
+    grdCurrCLUT.ColCount := 1;
+    grdCurrCLUT.RowCount := 1;
+  end;
 
   FreeTIM(TIM);
 end;
@@ -246,6 +258,7 @@ end;
 procedure TfrmMain.DrawCurrentTIM;
 var
   TIM: PTIM;
+  Index: Integer;
 begin
   ClearCanvas(pbImage.Canvas.Handle, pbImage.ClientRect);
   TIM := CurrentTIM;
@@ -257,7 +270,12 @@ begin
     pCurrentPNG^ := nil;
   end;
 
-  DrawTIM(TIM, cbbCLUT.ItemIndex, @pbImage.Canvas, pbImage.ClientRect,
+  if cbbCLUT.Text = sThisTimHasNoClut then
+    Index := -1
+  else
+    Index := cbbCLUT.ItemIndex;
+
+  DrawTIM(TIM, Index, @pbImage.Canvas, pbImage.ClientRect,
           pCurrentPNG, cbbTransparenceMode.ItemIndex);
 
   FreeTIM(TIM);
@@ -323,45 +341,83 @@ begin
   New(pCurrentPNG);
   pCurrentPNG^ := nil;
   pLastDir := GetStartDir;
+  SetCLUTListToNoCLUT;
   Caption := Format('%s v%s', [cProgramName, cProgramVersion]);
   DragAcceptFiles(Handle, True);
-  CheckMainMenu;
+  CheckButtonsAndMainMenu;
 end;
 
-procedure TfrmMain.FormResize(Sender: TObject);
+procedure TfrmMain.grdCurrCLUTDblClick(Sender: TObject);
 var
-  w, i, x: integer;
+  TIM: PTIM;
+  I, SELECTED_CELL, W, DIALOG_COLOR, CLUT_NUM: Integer;
+  R, G, B: Byte;
+  CLUT_COLOR: TCLUT_COLOR;
 begin
-  x := 0;
-  if (GetWindowlong(tblInfo.Handle, GWL_STYLE) and WS_VSCROLL) <> 0 then
-    x := GetSystemMetrics(SM_CXVSCROLL);
+  TIM := CurrentTIM;
+  if TIM = nil then Exit;
 
-  w := (tblInfo.Width - X - 5) div tblInfo.ColCount;
+  SELECTED_CELL := grdCurrCLUT.Row * grdCurrCLUT.ColCount + grdCurrCLUT.Col;
+  W := GetTimColorsCount(TIM);
 
-  for i := 1 to tblInfo.ColCount do
-    tblInfo.ColWidths[i - 1] := w;
+  if (SELECTED_CELL + 1) > W then
+  begin
+    FreeTIM(TIM);
+    Exit;
+  end;
 
-  w := (grdCurrCLUT.Width - 20) div grdCurrCLUT.ColCount;
+  CLUT_NUM := cbbCLUT.ItemIndex;
+  dlgColor.CustomColors.Clear;
 
-  for i := 1 to grdCurrCLUT.ColCount do
-    grdCurrCLUT.ColWidths[i - 1] := w;
+  for I := 1 to 16 do
+  begin
+    CLUT_COLOR := GetCLUTColor(TIM, CLUT_NUM, I - 1);
+    R := CLUT_COLOR.R;
+    G := CLUT_COLOR.G;
+    B := CLUT_COLOR.B;
+    dlgColor.CustomColors.Add(Format('Color%s=%.2x%.2x%.2x',
+                                     [Chr(Ord('A') + (I - 1)), R, G, B]));
+  end;
+
+  CLUT_COLOR := GetCLUTColor(TIM, CLUT_NUM, SELECTED_CELL);
+  R := CLUT_COLOR.R;
+  G := CLUT_COLOR.G;
+  B := CLUT_COLOR.B;
+  dlgColor.Color := RGB(R, G, B);
+
+  if not dlgColor.Execute then
+  begin
+    FreeTIM(TIM);
+    Exit;
+  end;
+
+  DIALOG_COLOR := dlgColor.Color;
+
+  CLUT_COLOR.R := ((GetRValue(DIALOG_COLOR) div 8) and $1F) * 8;
+  CLUT_COLOR.G := ((GetGValue(DIALOG_COLOR) div 8) and $1F) * 8;
+  CLUT_COLOR.B := ((GetBValue(DIALOG_COLOR) div 8) and $1F) * 8;
+
+  WriteCLUTColor(TIM, CLUT_NUM, SELECTED_CELL, CLUT_COLOR);
+
+  ReplaceTimInFileFromMemory(CurrentFileName, TIM,
+                             CurrentTimPos(lvList.Selected.Index),
+                             CurrentFileIsImage);
+
+  FreeTIM(TIM);
+
+  DrawCurrentTIM;
+  DrawCurrentCLUT;
 end;
 
 procedure TfrmMain.grdCurrCLUTDrawCell(Sender: TObject; ACol, ARow: Integer;
   Rect: TRect; State: TGridDrawState);
 var
   TIM: PTIM;
-  ROWS, COLS: Integer;
-  COLORS: Word;
 begin
   TIM := CurrentTIM;
   if TIM = nil then Exit;
 
-  COLS := grdCurrCLUT.ColCount;
-  ROWS := GetTimColorsCount(TIM) div COLS + 1;
-  COLORS := GetTimColorsCount(TIM);
-
-  if ((ARow * COLS + ACol + 1) > COLORS) or ((ARow + 1) > ROWS) then
+  if not TIMHasCLUT(TIM) then
   begin
     FreeTIM(TIM);
     Exit;
@@ -394,19 +450,101 @@ begin
   FindClose( sRec );
 end;
 
-procedure TfrmMain.lblStatusClick(Sender: TObject);
+procedure TfrmMain.lblTimInformationClick(Sender: TObject);
+const
+  Tab = #$09;
+  ROW = #13#10;
+var
+  Info, IsGoodTIM: string;
+  Index: Integer;
+  TIM: PTIM;
 begin
-  if lblStatus.Caption <> '' then
-    Text2Clipboard(lblStatus.Caption);
+  if lblTimInformation.Caption <> '' then
+    begin
+      Index := lvList.Selected.Index;
+      TIM := CurrentTIM;
+
+      if TIMIsGood(TIM) then
+        IsGoodTIM := 'YES'
+      else
+        IsGoodTIM := 'NO';
+
+
+      Info := Format(
+                     '"%s" Information' + ROW +
+                     'Number:' + Tab + '%d' + ROW +
+                     'Position:' + Tab + '0x%x' + ROW +
+                     'BitMode:' + Tab + '%d' + ROW +
+                     'Good:' + Tab + '%s' + ROW + ROW +
+
+                     'HEADER INFO' + ROW +
+                     'Version:' + Tab + '%d' + ROW +
+                     'BPP:' + Tab + '%d' + ROW + ROW,
+                     [
+                      CurrentTIMName(Index),
+                      Index,
+                      CurrentTimPos(Index),
+                      BppToBitMode(TIM),
+                      IsGoodTIM,
+
+                      GetTimVersion(TIM),
+                      GetTimBPP(TIM)
+                     ]);
+
+      if TIMHasCLUT(TIM) then
+        Info := Format(Info +
+                       'CLUT INFO' + ROW +
+                       'Size (Header):' + Tab + '%d' + ROW +
+                       'Size (Real):' + Tab + '%d' + ROW +
+                       'VRAM X Pos:' + Tab + '%d' + ROW +
+                       'VRAM Y Pos:' + Tab + '%d' + ROW +
+                       'CLUTs Count:' + Tab + '%d' + ROW +
+                       'Colors in 1 CLUT:' + Tab + '%d' + ROW + ROW,
+                       [
+                        GetTimClutSizeHeader(TIM),
+                        GetTimClutSize(TIM),
+                        GetTimClutVRAMX(TIM),
+                        GetTimClutVRAMY(TIM),
+                        GetTIMClutsCount(TIM),
+                        GetTimColorsCount(TIM)
+                       ]);
+
+      Info := Format(Info +
+                     'IMAGE INFO' + ROW +
+                     'Size (Header):' + Tab + '%d' + ROW +
+                     'Size (Real):' + Tab + '%d' + ROW +
+                     'VRAM X Pos:' + Tab + '%d' + ROW +
+                     'VRAM Y Pos:' + Tab + '%d' + ROW +
+                     'Width (Header):' + Tab + '%d' + ROW +
+                     'Width (Real):' + Tab + '%d' + ROW +
+                     'Height (Real):' + Tab + '%d',
+                     [
+                      GetTimImageSizeHeader(TIM),
+                      GetTimImageSize(TIM),
+                      GetTimImageVRAMX(TIM),
+                      GetTimImageVRAMY(TIM),
+                      GetTimWidth(TIM),
+                      GetTimRealWidth(TIM),
+                      GetTimHeight(TIM)
+                     ]);
+
+      case MessageBox(Handle, PWideChar(Info + ROW + ROW +
+           'If you want to copy this info to clipboard press "YES" button.'),
+           'Information', MB_OKCANCEL + MB_ICONINFORMATION + MB_TOPMOST) of
+        IDOK: Text2Clipboard(Info);
+      end;
+
+      FreeTIM(TIM);
+    end;
 end;
 
-procedure TfrmMain.lblStatusMouseMove(Sender: TObject; Shift: TShiftState; X,
-  Y: Integer);
+procedure TfrmMain.lblTimInformationMouseMove(Sender: TObject;
+  Shift: TShiftState; X, Y: Integer);
 begin
-  if lblStatus.Caption <> '' then
-    lblStatus.Cursor := crHandPoint
+  if lblTimInformation.Caption <> '' then
+    lblTimInformation.Cursor := crHandPoint
   else
-    lblStatus.Cursor := crDefault;
+    lblTimInformation.Cursor := crDefault;
 end;
 
 procedure TfrmMain.lvListClick(Sender: TObject);
@@ -417,11 +555,13 @@ begin
 
   OFFSET := CurrentTimPos(lvList.Selected.Index);
   SIZE := CurrentTimSize(lvList.Selected.Index);
-  UpdateCLUTList;
+  UpdateCLUTInfo;
   DrawCurrentTIM;
   DrawCurrentCLUT;
-  pnlTimInfo.Caption := Format('Position: %8.x; Size: %d', [OFFSET, SIZE]);
-  CheckMainMenu;
+  lblTimInformation.Caption := Format(
+                                      'Position: 0x%x;' + #9 + 'Size: %db',
+                                      [OFFSET, SIZE]);
+  CheckButtonsAndMainMenu;
 end;
 
 procedure TfrmMain.lvListData(Sender: TObject; Item: TListItem);
@@ -474,20 +614,22 @@ begin
   lvList.Items.Count := 0;
   lvList.Items.EndUpdate;
   lblStatus.Caption := '';
-  pnlTimInfo.Caption := '';
+  lblTimInformation.Caption := '';
   DrawCurrentTIM;
   DrawCurrentCLUT;
 
   cbbCLUT.Items.BeginUpdate;
-  if cbbCLUT.Items.Count > 0 then
+  if (cbbCLUT.Items.Count > 0) then
   cbbCLUT.Items.Delete(cbbCLUT.ItemIndex);
   cbbCLUT.Items.EndUpdate;
+
+  SetCLUTListToNoCLUT;
 
   cbbFiles.Items.BeginUpdate;
   cbbFiles.Items.Delete(cbbFiles.ItemIndex);
   cbbFiles.Items.EndUpdate;
 
-  CheckMainMenu;
+  CheckButtonsAndMainMenu;
 end;
 
 procedure TfrmMain.mnExitClick(Sender: TObject);
@@ -656,7 +798,7 @@ begin
   cbbFiles.Enabled := True;
   lvList.Enabled := True;
   btnStopScan.Enabled := False;
-  CheckMainMenu;
+  CheckButtonsAndMainMenu;
 end;
 
 procedure TfrmMain.ScanPath(const Path: string);
@@ -667,7 +809,16 @@ begin
     ScanDirectory(Path);
 end;
 
-procedure TfrmMain.UpdateCLUTList;
+procedure TfrmMain.SetCLUTListToNoCLUT;
+begin
+  cbbCLUT.Items.BeginUpdate;
+  cbbCLUT.Items.Clear;
+  cbbCLUT.Items.Add(sThisTimHasNoCLUT);
+  cbbCLUT.Items.EndUpdate;
+  cbbCLUT.ItemIndex := 0;
+end;
+
+procedure TfrmMain.UpdateCLUTInfo;
 var
   TIM: PTIM;
   I, CLUTS: Word;
@@ -676,16 +827,20 @@ begin
   if TIM = nil then Exit;
 
   CLUTS := GetTimClutsCount(TIM);
-
-  cbbCLUT.Items.BeginUpdate;
   cbbCLUT.Clear;
 
   for I := 1 to CLUTS do
+  begin
+    cbbCLUT.Items.BeginUpdate;
     cbbCLUT.Items.Add(Format('CLUT [%d/%d]', [I, CLUTS]));
-
+    cbbCLUT.Items.EndUpdate;
+  end;
 
   cbbCLUT.ItemIndex := 0;
-  cbbCLUT.Items.EndUpdate;
+
+  if CLUTS = 0 then
+  SetCLUTListToNoCLUT;
+
   FreeTIM(TIM);
 end;
 

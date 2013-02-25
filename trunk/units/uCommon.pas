@@ -25,12 +25,14 @@ const
   cResTimAttrBitMode = 'BITMODE';
   cResTimAttrGood = 'GOODTIM';
   cAutoExtractionTimFormat = '%s_%.6d_%.2db' + '.tim';
+  cCLUTGridColsCount = 32;
 
   sStatusBarScanningFile = 'Scanning File...';
   sStatusBarTimsExtracting = 'TIM''s Extracting...';
   sStatusBarParsingResult = 'Parsing Result...';
   sScanResultGood = 'Scan completed!';
   sSelectDirCaption = 'Please, select directory for scan...';
+  sThisTimHasNoCLUT = 'This TIM has no CLUT';
 
 type
   PNativeXML = ^TNativeXML;
@@ -44,34 +46,25 @@ function GetFileSizeAPI(const FileName: string): Int64;
 function CheckFileExists(const FileName: string): boolean;
 function cHex2Int( const Value : string) : Integer;
 function ExtractFileNameWOext( const Path : string ) : string;
-function Text2Clipboard( const S: string ): Boolean;
+procedure Text2Clipboard( const S: string);
+function Min(A, B: Integer): Integer;
 
 implementation
 
 uses
-  uCDIMAGE, System.SysUtils, System.Classes;
+  uCDIMAGE, System.SysUtils, System.Classes, Clipbrd;
 
-function Text2Clipboard( const S: string ): Boolean;
-var gbl: THandle;
-    str: PChar;
+function Min(A, B: Integer): Integer;
 begin
-  Result := False;
-  if not OpenClipboard( 0 ) then Exit; {>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>}
-  EmptyClipboard;
-  if S <> '' then
-  begin
-    gbl := GlobalAlloc( GMEM_DDESHARE, Length( S ) + 1 );
-    if gbl <> 0 then
-    begin
-      str := GlobalLock( gbl );
-      Move( S[ 1 ], str^, Length( S ) + 1 );
-      GlobalUnlock( gbl );
-      Result := SetClipboardData( CF_TEXT, gbl ) <> 0;
-    end;
-  end
-    else
-      Result := True;
-  CloseClipboard;
+  if A < B then
+    Result := A
+  else
+    Result := B;
+end;
+
+procedure Text2Clipboard( const S: string);
+begin
+  Clipboard.AsText := S;
 end;
 
 function ExtractFileNameWOext( const Path : string ) : string;

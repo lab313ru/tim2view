@@ -3,7 +3,7 @@ unit uCDIMAGE;
 interface
 
 uses
-  Windows;
+  Windows, uTIM;
 
 const
   cSectorHeaderSize = 12;
@@ -31,13 +31,15 @@ type
   PCDSector = ^TCDSector;
 
 function GetImageScan(const FileName: string): Boolean;
-function ReplaceTimInFile(const FileName, TimToInsert: string; InsertTo:
-                          DWORD; ImageScan: Boolean): boolean;
+function ReplaceTimInFile(const FileName, TimToInsert: string;
+                          InsertTo: DWORD; ImageScan: Boolean): boolean;
+procedure ReplaceTimInFileFromMemory(const FileName: string; TIM: PTIM;
+                                     InsertTo: DWORD; ImageScan: Boolean);
 
 implementation
 
 uses
-  uCommon, uTIM, ecc, edc, System.SysUtils, System.Classes;
+  uCommon, ecc, edc, System.SysUtils, System.Classes;
 
 function bin2bcd(P: Integer): Byte;
 begin
@@ -82,8 +84,9 @@ begin
   FreeMemory(pFile);
 end;
 
-function ReplaceTimInFile(const FileName, TimToInsert: string; InsertTo:
-  DWORD; ImageScan: Boolean): boolean;
+procedure ReplaceTimInFileFromMemory(const FileName: string;
+                                    TIM: PTIM; InsertTo: DWORD;
+                                    ImageScan: Boolean);
 type
   TSecAddrAndMode = array[0..cSectorAddressSize + cSectorModeSize] of byte;
 var
@@ -92,18 +95,11 @@ var
   TimSectorNumber, TimStartSectorPos: DWORD;
   Sector: TCDSector;
   ECC: DWORD;
-  P, TIM_FULL_SECTORS, SIZE: DWORD;
-  TIM: PTIM;
+  P, TIM_FULL_SECTORS: DWORD;
   SecAddrAndMode: TSecAddrAndMode;
 begin
-  result := false;
-
-  SIZE := GetFileSizeAPI(TimToInsert);
-  P := 0;
-  TIM := LoadTimFromFile(TimToInsert, P, False, SIZE);
-  if TIM = nil then Exit;
-
-  sImageStream := TFileStream.Create(FileName, fmOpenReadWrite or fmShareDenyWrite);
+  sImageStream := TFileStream.Create(FileName, fmOpenReadWrite or
+                                               fmShareDenyWrite);
 
   if not ImageScan then
   begin
@@ -199,17 +195,26 @@ begin
     end;
   end;
 
-  Dispose(TIM^.HEAD);
-  TIM^.HEAD := nil;
-  Dispose(TIM^.CLUT);
-  TIM^.CLUT := nil;
-  Dispose(TIM^.IMAGE);
-  TIM^.IMAGE := nil;
-  Dispose(TIM^.DATA);
-  TIM^.DATA := nil;
-  Dispose(TIM);
-
   sImageStream.Free;
+end;
+
+function ReplaceTimInFile(const FileName, TimToInsert: string;
+                          InsertTo: DWORD; ImageScan: Boolean): boolean;
+
+var
+  SIZE, P: DWORD;
+  TIM: PTIM;
+begin
+  result := false;
+
+  SIZE := GetFileSizeAPI(TimToInsert);
+  P := 0;
+  TIM := LoadTimFromFile(TimToInsert, P, False, SIZE);
+  if TIM = nil then Exit;
+
+  ReplaceTimInFileFromMemory(FileName, TIM, InsertTo, ImageScan);
+
+  FreeTIM(TIM);
   result := True;
 end;
 
