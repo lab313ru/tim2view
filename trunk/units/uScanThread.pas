@@ -77,16 +77,11 @@ begin
   Node := pResult^.Root.NodeFindOrCreate(cResTimsNode);
 
   AddedNode := Node.NodeNew(cResTimNode);
-  AddedNode.WriteAttributeUnicodeString(cResTimAttrPos,
-                                 IntToHex(TIM^.dwTimPosition, 8));
-  AddedNode.WriteAttributeUnicodeString(cResTimAttrSize,
-                                 IntToHex(TIM^.dwSIZE, 6));
-  AddedNode.WriteAttributeInteger(cResTimAttrWidth,
-                                  GetTimRealWidth(TIM));
-  AddedNode.WriteAttributeInteger(cResTimAttrHeight,
-                                  GetTimHeight(TIM));
-  AddedNode.WriteAttributeInteger(cResTimAttrBitMode,
-                                  BppToBitMode(TIM));
+  AddedNode.WriteAttributeInteger(cResTimAttrPos, TIM^.dwTimPosition);
+  AddedNode.WriteAttributeInteger(cResTimAttrSize, TIM^.dwSIZE);
+  AddedNode.WriteAttributeInteger(cResTimAttrWidth, GetTimRealWidth(TIM));
+  AddedNode.WriteAttributeInteger(cResTimAttrHeight, GetTimHeight(TIM));
+  AddedNode.WriteAttributeInteger(cResTimAttrBitMode, BppToBitMode(TIM));
   AddedNode.WriteAttributeBool(cResTimAttrGood, TIMIsGood(TIM));
 end;
 

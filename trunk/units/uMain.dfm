@@ -1,9 +1,9 @@
 object frmMain: TfrmMain
   Left = 0
   Top = 0
-  ActiveControl = cbbFiles
-  ClientHeight = 532
-  ClientWidth = 738
+  Width = 754
+  Height = 591
+  AutoScroll = True
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -16,33 +16,32 @@ object frmMain: TfrmMain
   ScreenSnap = True
   OnClose = FormClose
   OnCreate = FormCreate
+  OnKeyDown = FormKeyDown
   PixelsPerInch = 96
   TextHeight = 13
   object pnlStatus: TPanel
     Left = 0
-    Top = 503
+    Top = 502
     Width = 738
-    Height = 29
+    Height = 30
     Align = alBottom
     BevelOuter = bvLowered
     TabOrder = 2
     object lblStatus: TLabel
       Left = 76
       Top = 1
-      Width = 161
-      Height = 27
+      Width = 157
+      Height = 28
       Align = alClient
       Alignment = taRightJustify
       Layout = tlCenter
-      ExplicitLeft = 234
-      ExplicitWidth = 3
-      ExplicitHeight = 13
+      ExplicitWidth = 154
     end
     object pbProgress: TProgressBar
-      Left = 237
+      Left = 233
       Top = 1
-      Width = 500
-      Height = 27
+      Width = 504
+      Height = 28
       Align = alRight
       Smooth = True
       TabOrder = 1
@@ -51,12 +50,13 @@ object frmMain: TfrmMain
       Left = 1
       Top = 1
       Width = 75
-      Height = 27
+      Height = 28
       Align = alLeft
       Caption = 'Stop Scan'
       Enabled = False
       TabOrder = 0
       OnClick = btnStopScanClick
+      ExplicitHeight = 27
     end
   end
   object cbbFiles: TComboBox
@@ -76,30 +76,31 @@ object frmMain: TfrmMain
     Left = 0
     Top = 21
     Width = 738
-    Height = 482
+    Height = 481
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 1
+    ExplicitHeight = 482
     object splMain: TSplitter
       Left = 233
       Top = 0
-      Height = 482
+      Height = 481
       ResizeStyle = rsUpdate
       ExplicitLeft = 201
-      ExplicitHeight = 481
     end
     object pnlList: TPanel
       Left = 0
       Top = 0
       Width = 233
-      Height = 482
+      Height = 481
       Align = alLeft
       BevelOuter = bvNone
       TabOrder = 0
+      ExplicitHeight = 482
       object lblTimInformation: TLabel
         AlignWithMargins = True
         Left = 3
-        Top = 466
+        Top = 465
         Width = 227
         Height = 13
         Align = alBottom
@@ -108,18 +109,21 @@ object frmMain: TfrmMain
         Font.Color = clHotLight
         Font.Height = -11
         Font.Name = 'Tahoma'
-        Font.Style = [fsUnderline]
+        Font.Style = []
         ParentFont = False
         Layout = tlCenter
         OnClick = lblTimInformationClick
         OnMouseMove = lblTimInformationMouseMove
+        OnMouseEnter = lblTimInformationMouseEnter
+        OnMouseLeave = lblTimInformationMouseLeave
+        ExplicitTop = 466
         ExplicitWidth = 3
       end
       object lvList: TListView
         Left = 0
         Top = 0
         Width = 233
-        Height = 463
+        Height = 462
         Align = alClient
         Columns = <
           item
@@ -146,30 +150,33 @@ object frmMain: TfrmMain
         OnClick = lvListClick
         OnData = lvListData
         OnKeyDown = lvListKeyDown
+        ExplicitHeight = 463
       end
     end
     object pnlImage: TPanel
       Left = 236
       Top = 0
       Width = 502
-      Height = 482
+      Height = 481
       Align = alClient
       BevelOuter = bvLowered
       TabOrder = 1
+      ExplicitHeight = 482
       object pbImage: TPaintBox
         Left = 1
-        Top = 1
+        Top = 4
         Width = 500
         Height = 296
-        Align = alTop
-        Anchors = [akLeft, akTop, akRight, akBottom]
+        Align = alClient
         Color = clWhite
         ParentColor = False
         OnPaint = pbImagePaint
+        ExplicitLeft = 3
+        ExplicitTop = -2
       end
       object splImageClut: TSplitter
         Left = 1
-        Top = 297
+        Top = 1
         Width = 500
         Height = 3
         Cursor = crVSplit
@@ -180,10 +187,10 @@ object frmMain: TfrmMain
       end
       object grdCurrCLUT: TDrawGrid
         Left = 1
-        Top = 300
+        Top = 330
         Width = 500
-        Height = 151
-        Align = alClient
+        Height = 150
+        Align = alBottom
         ColCount = 1
         DefaultColWidth = 14
         DefaultRowHeight = 14
@@ -198,15 +205,18 @@ object frmMain: TfrmMain
         TabOrder = 0
         OnDblClick = grdCurrCLUTDblClick
         OnDrawCell = grdCurrCLUTDrawCell
+        ExplicitLeft = 0
+        ExplicitTop = 372
       end
       object pnlImageOptions: TPanel
         Left = 1
-        Top = 451
+        Top = 300
         Width = 500
         Height = 30
         Align = alBottom
         BevelOuter = bvLowered
         TabOrder = 1
+        ExplicitTop = 451
         object cbbCLUT: TComboBox
           AlignWithMargins = True
           Left = 4
@@ -246,9 +256,6 @@ object frmMain: TfrmMain
           Align = alRight
           BevelOuter = bvLowered
           TabOrder = 2
-          ExplicitLeft = 328
-          ExplicitTop = 8
-          ExplicitHeight = 41
         end
       end
     end
@@ -321,6 +328,22 @@ object frmMain: TfrmMain
       object mnAutoExtract: TMenuItem
         AutoCheck = True
         Caption = '&Auto Extraction'
+      end
+      object mnViewMode: TMenuItem
+        Caption = '&View Mode'
+        object mnSimpleMode: TMenuItem
+          AutoCheck = True
+          Caption = '&Simple Mode'
+          Checked = True
+          RadioItem = True
+          OnClick = mnSimpleModeClick
+        end
+        object mnAdvancedMode: TMenuItem
+          AutoCheck = True
+          Caption = '&Advanced Mode'
+          RadioItem = True
+          OnClick = mnAdvancedModeClick
+        end
       end
     end
     object mnHelp: TMenuItem

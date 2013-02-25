@@ -55,6 +55,9 @@ type
     splImageClut: TSplitter;
     dlgColor: TColorDialog;
     pnlCLUTColor: TPanel;
+    mnViewMode: TMenuItem;
+    mnSimpleMode: TMenuItem;
+    mnAdvancedMode: TMenuItem;
     procedure mnScanFileClick(Sender: TObject);
     procedure btnStopScanClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -80,6 +83,11 @@ type
       Y: Integer);
     procedure lblTimInformationClick(Sender: TObject);
     procedure grdCurrCLUTDblClick(Sender: TObject);
+    procedure lblTimInformationMouseEnter(Sender: TObject);
+    procedure lblTimInformationMouseLeave(Sender: TObject);
+    procedure mnSimpleModeClick(Sender: TObject);
+    procedure mnAdvancedModeClick(Sender: TObject);
+    procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
   private
     { Private declarations }
     //pResult: PNativeXml;
@@ -164,6 +172,23 @@ begin
   mnSaveToPNG.Enabled := (pCurrentPNG^ <> nil);
   mnReplaceIn.Enabled := (lvList.SelCount = 1);
   mnSaveTIM.Enabled := (lvList.SelCount = 1);
+
+  if mnSimpleMode.Checked then
+  begin
+    pnlList.Width := 0;
+    grdCurrCLUT.Height := 0;
+    pnlImageOptions.Height := 0;
+    pnlStatus.Height := 0;
+    cbbFiles.Height := 0;
+  end
+  else
+  begin
+    pnlList.Width := 233;
+    grdCurrCLUT.Height := 150;
+    pnlImageOptions.Height := 30;
+    pnlStatus.Height := 30;
+    cbbFiles.Height := 21;
+  end;
 end;
 
 procedure TfrmMain.chkTransparenceClick(Sender: TObject);
@@ -311,7 +336,7 @@ begin
   if Node = nil then Exit;
 
   Node := Node.Elements[Index];
-  result := cHex2Int(Node.ReadAttributeUnicodeString(cResTimAttrPos));
+  result := Node.ReadAttributeInteger(cResTimAttrPos);
 end;
 
 function TfrmMain.CurrentTimSize(Index: Integer): DWORD;
@@ -323,7 +348,7 @@ begin
   if Node = nil then Exit;
 
   Node := Node.Elements[Index];
-  result := cHex2Int(Node.ReadAttributeUnicodeString(cResTimAttrSize));
+  result := Node.ReadAttributeInteger(cResTimAttrSize);
 end;
 
 procedure TfrmMain.FormClose(Sender: TObject; var Action: TCloseAction);
@@ -345,6 +370,13 @@ begin
   Caption := Format('%s v%s', [cProgramName, cProgramVersion]);
   DragAcceptFiles(Handle, True);
   CheckButtonsAndMainMenu;
+end;
+
+procedure TfrmMain.FormKeyDown(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+begin
+  if mnSimpleMode.Checked then
+    lvListKeyDown(Sender, Key, Shift);
 end;
 
 procedure TfrmMain.grdCurrCLUTDblClick(Sender: TObject);
@@ -538,6 +570,16 @@ begin
     end;
 end;
 
+procedure TfrmMain.lblTimInformationMouseEnter(Sender: TObject);
+begin
+  lblTimInformation.Font.Style := [fsUnderline];
+end;
+
+procedure TfrmMain.lblTimInformationMouseLeave(Sender: TObject);
+begin
+  lblTimInformation.Font.Style := [];
+end;
+
 procedure TfrmMain.lblTimInformationMouseMove(Sender: TObject;
   Shift: TShiftState; X, Y: Integer);
 begin
@@ -557,7 +599,8 @@ begin
   SIZE := CurrentTimSize(lvList.Selected.Index);
   UpdateCLUTInfo;
   DrawCurrentTIM;
-  DrawCurrentCLUT;
+  if not mnSimpleMode.Checked then
+    DrawCurrentCLUT;
   lblTimInformation.Caption := Format(
                                       'Position: 0x%x;' + #9 + 'Size: %db',
                                       [OFFSET, SIZE]);
@@ -581,19 +624,31 @@ procedure TfrmMain.lvListKeyDown(Sender: TObject; var Key: Word;
 begin
   if (lvList.Selected = nil) then Exit;
 
-
-  if (Key = VK_DOWN) and ((lvList.Selected.Index + 1)<>lvList.Items.Count) then
+  if (Key = VK_DOWN) then
   begin
-    lvList.Items[lvList.Selected.Index + 1].Selected := True;
+    if ((lvList.Selected.Index + 1) <> lvList.Items.Count) then
+      lvList.Items[lvList.Selected.Index + 1].Selected := True
+    else
+      lvList.Items[0].Selected := True;
+
     lvListClick(Self);
     Exit;
   end;
 
-  if (Key = VK_UP) and (lvList.Selected.Index <> 0) then
+  if (Key = VK_UP) then
   begin
-    lvList.Items[lvList.Selected.Index - 1].Selected := True;
+    if (lvList.Selected.Index <> 0) then
+      lvList.Items[lvList.Selected.Index - 1].Selected := True
+    else
+      lvList.Items[lvList.Items.Count - 1].Selected := True;
+
     lvListClick(Self);
   end;
+end;
+
+procedure TfrmMain.mnAdvancedModeClick(Sender: TObject);
+begin
+  CheckButtonsAndMainMenu;
 end;
 
 procedure TfrmMain.mnCloseAllFilesClick(Sender: TObject);
@@ -694,7 +749,12 @@ begin
     Exit;
 
   for I := 1 to dlgOpenFile.Files.Count do
-  ScanPath(dlgOpenFile.Files.Strings[I - 1]);
+    ScanPath(dlgOpenFile.Files.Strings[I - 1]);
+end;
+
+procedure TfrmMain.mnSimpleModeClick(Sender: TObject);
+begin
+  CheckButtonsAndMainMenu;
 end;
 
 procedure TfrmMain.ParseResult(Res: PNativeXML);
@@ -727,8 +787,8 @@ begin
   for I := 1 to COUNT do
   begin
     TIM_NODE := Node.Elements[I - 1];
-    OFFSET := cHex2Int(TIM_NODE.ReadAttributeUnicodeString(cResTimAttrPos));
-    SIZE := cHex2Int(TIM_NODE.ReadAttributeUnicodeString(cResTimAttrSize));
+    OFFSET := TIM_NODE.ReadAttributeInteger(cResTimAttrPos);
+    SIZE := TIM_NODE.ReadAttributeInteger(cResTimAttrSize);
     BIT_MODE := TIM_NODE.ReadAttributeInteger(cResTimAttrBitMode);
 
     TIM_NAME := Format(cAutoExtractionTimFormat,
@@ -761,13 +821,17 @@ var
 begin
   btnStopScan.Enabled := True;
   cbbFiles.Enabled := False;
-  lvList.Enabled := False;
+  pnlList.Enabled := False;
+
+  if mnSimpleMode.Checked then
+    pnlStatus.Height := 30;
 
   if CheckForFileOpened(FileName) then
   begin
     cbbFiles.ItemIndex := cbbFiles.Items.IndexOf(ExtractFileName(FileName));
     btnStopScan.Enabled := False;
     cbbFiles.Enabled := True;
+    CheckButtonsAndMainMenu;
     Exit;
   end;
 
@@ -792,13 +856,18 @@ end;
 procedure TfrmMain.ScanFinished(Sender: TObject);
 begin
   cbbFiles.ItemIndex := cbbFiles.Items.Count - 1;
-  ParseResult(Results[cbbFiles.Items.Count - 1]);
+  ParseResult(Results[cbbFiles.ItemIndex]);
 
   lblStatus.Caption := '';
   cbbFiles.Enabled := True;
-  lvList.Enabled := True;
+  pnlList.Enabled := True;
   btnStopScan.Enabled := False;
   CheckButtonsAndMainMenu;
+
+  lvList.Items[0].Selected := True;
+  lvList.Items[0].Focused := True;
+  lvList.SetFocus;
+  lvListClick(Self);
 end;
 
 procedure TfrmMain.ScanPath(const Path: string);
