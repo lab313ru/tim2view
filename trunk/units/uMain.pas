@@ -43,7 +43,6 @@ type
     cbbFiles: TComboBox;
     pnlMain: TPanel;
     splMain: TSplitter;
-    pbImage: TPaintBox;
     pnlList: TPanel;
     lvList: TListView;
     pnlImageOptions: TPanel;
@@ -58,6 +57,7 @@ type
     mnViewMode: TMenuItem;
     mnSimpleMode: TMenuItem;
     mnAdvancedMode: TMenuItem;
+    imgTIM: TImage;
     procedure mnScanFileClick(Sender: TObject);
     procedure btnStopScanClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -87,7 +87,6 @@ type
     procedure lblTimInformationMouseLeave(Sender: TObject);
     procedure mnSimpleModeClick(Sender: TObject);
     procedure mnAdvancedModeClick(Sender: TObject);
-    procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
   private
     { Private declarations }
     //pResult: PNativeXml;
@@ -115,6 +114,8 @@ type
     procedure DrawCurrentCLUT;
     procedure UpdateCLUTInfo;
     procedure SetCLUTListToNoCLUT;
+    procedure GotoNextFile;
+    procedure GotoPreviousFile;
   protected
     procedure WMDropFiles(var Msg: TWMDropFiles); message WM_DROPFILES;
   public
@@ -172,6 +173,7 @@ begin
   mnSaveToPNG.Enabled := (pCurrentPNG^ <> nil);
   mnReplaceIn.Enabled := (lvList.SelCount = 1);
   mnSaveTIM.Enabled := (lvList.SelCount = 1);
+  mnScanDir.Enabled := (not mnSimpleMode.Checked);
 
   if mnSimpleMode.Checked then
   begin
@@ -285,7 +287,8 @@ var
   TIM: PTIM;
   Index: Integer;
 begin
-  ClearCanvas(pbImage.Canvas.Handle, pbImage.ClientRect);
+  imgTIM.Picture := nil;
+
   TIM := CurrentTIM;
   if TIM = nil then Exit;
 
@@ -300,8 +303,9 @@ begin
   else
     Index := cbbCLUT.ItemIndex;
 
-  DrawTIM(TIM, Index, @pbImage.Canvas, pbImage.ClientRect,
-          pCurrentPNG, cbbTransparenceMode.ItemIndex);
+  TimToPNG(TIM, Index, pCurrentPNG, cbbTransparenceMode.ItemIndex);
+  pCurrentPNG.AssignTo(imgTIM.Picture.Bitmap);
+  //DrawPNG(pCurrentPNG, C, imgTIM.ClientRect);
 
   FreeTIM(TIM);
 end;
@@ -372,11 +376,24 @@ begin
   CheckButtonsAndMainMenu;
 end;
 
-procedure TfrmMain.FormKeyDown(Sender: TObject; var Key: Word;
-  Shift: TShiftState);
+procedure TfrmMain.GotoNextFile;
 begin
-  if mnSimpleMode.Checked then
-    lvListKeyDown(Sender, Key, Shift);
+  if (cbbFiles.ItemIndex + 1) <> cbbFiles.Items.Count then
+    cbbFiles.ItemIndex := cbbFiles.ItemIndex + 1
+  else
+    cbbFiles.ItemIndex := 0;
+
+  cbbFilesChange(Self);
+end;
+
+procedure TfrmMain.GotoPreviousFile;
+begin
+  if cbbFiles.ItemIndex > 0 then
+    cbbFiles.ItemIndex := cbbFiles.ItemIndex - 1
+  else
+    cbbFiles.ItemIndex := cbbFiles.Items.Count - 1;
+
+  cbbFilesChange(Self);
 end;
 
 procedure TfrmMain.grdCurrCLUTDblClick(Sender: TObject);
@@ -624,26 +641,38 @@ procedure TfrmMain.lvListKeyDown(Sender: TObject; var Key: Word;
 begin
   if (lvList.Selected = nil) then Exit;
 
+  if mnSimpleMode.Checked then
+  begin
+    if Key = VK_RIGHT then
+      Key := VK_DOWN
+    else
+    if Key = VK_LEFT then
+      Key := VK_UP;
+  end;
+
   if (Key = VK_DOWN) then
   begin
     if ((lvList.Selected.Index + 1) <> lvList.Items.Count) then
       lvList.Items[lvList.Selected.Index + 1].Selected := True
     else
+    begin
+      GotoNextFile;
       lvList.Items[0].Selected := True;
-
-    lvListClick(Self);
-    Exit;
-  end;
-
+    end;
+  end
+  else
   if (Key = VK_UP) then
   begin
-    if (lvList.Selected.Index <> 0) then
+    if (lvList.Selected.Index > 0) then
       lvList.Items[lvList.Selected.Index - 1].Selected := True
     else
+    begin
+      GotoPreviousFile;
       lvList.Items[lvList.Items.Count - 1].Selected := True;
-
-    lvListClick(Self);
+    end;
   end;
+
+  lvListClick(Self);
 end;
 
 procedure TfrmMain.mnAdvancedModeClick(Sender: TObject);

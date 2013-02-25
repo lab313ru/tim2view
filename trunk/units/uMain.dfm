@@ -16,7 +16,6 @@ object frmMain: TfrmMain
   ScreenSnap = True
   OnClose = FormClose
   OnCreate = FormCreate
-  OnKeyDown = FormKeyDown
   PixelsPerInch = 96
   TextHeight = 13
   object pnlStatus: TPanel
@@ -162,18 +161,6 @@ object frmMain: TfrmMain
       BevelOuter = bvLowered
       TabOrder = 1
       ExplicitHeight = 482
-      object pbImage: TPaintBox
-        Left = 1
-        Top = 4
-        Width = 500
-        Height = 296
-        Align = alClient
-        Color = clWhite
-        ParentColor = False
-        OnPaint = pbImagePaint
-        ExplicitLeft = 3
-        ExplicitTop = -2
-      end
       object splImageClut: TSplitter
         Left = 1
         Top = 1
@@ -184,6 +171,20 @@ object frmMain: TfrmMain
         Beveled = True
         ResizeStyle = rsUpdate
         ExplicitTop = 274
+      end
+      object imgTIM: TImage
+        Left = 1
+        Top = 4
+        Width = 500
+        Height = 296
+        Align = alClient
+        Center = True
+        IncrementalDisplay = True
+        Proportional = True
+        ExplicitLeft = 152
+        ExplicitTop = 112
+        ExplicitWidth = 105
+        ExplicitHeight = 105
       end
       object grdCurrCLUT: TDrawGrid
         Left = 1
