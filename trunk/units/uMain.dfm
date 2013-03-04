@@ -34,7 +34,9 @@ object frmMain: TfrmMain
       Align = alClient
       Alignment = taRightJustify
       Layout = tlCenter
-      ExplicitWidth = 154
+      ExplicitLeft = 230
+      ExplicitWidth = 3
+      ExplicitHeight = 13
     end
     object pbProgress: TProgressBar
       Left = 233
@@ -55,7 +57,6 @@ object frmMain: TfrmMain
       Enabled = False
       TabOrder = 0
       OnClick = btnStopScanClick
-      ExplicitHeight = 27
     end
   end
   object cbbFiles: TComboBox
@@ -79,7 +80,6 @@ object frmMain: TfrmMain
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 1
-    ExplicitHeight = 482
     object splMain: TSplitter
       Left = 233
       Top = 0
@@ -95,7 +95,6 @@ object frmMain: TfrmMain
       Align = alLeft
       BevelOuter = bvNone
       TabOrder = 0
-      ExplicitHeight = 482
       object lblTimInformation: TLabel
         AlignWithMargins = True
         Left = 3
@@ -115,7 +114,6 @@ object frmMain: TfrmMain
         OnMouseMove = lblTimInformationMouseMove
         OnMouseEnter = lblTimInformationMouseEnter
         OnMouseLeave = lblTimInformationMouseLeave
-        ExplicitTop = 466
         ExplicitWidth = 3
       end
       object lvList: TListView
@@ -149,7 +147,6 @@ object frmMain: TfrmMain
         OnClick = lvListClick
         OnData = lvListData
         OnKeyDown = lvListKeyDown
-        ExplicitHeight = 463
       end
     end
     object pnlImage: TPanel
@@ -160,7 +157,6 @@ object frmMain: TfrmMain
       Align = alClient
       BevelOuter = bvLowered
       TabOrder = 1
-      ExplicitHeight = 482
       object splImageClut: TSplitter
         Left = 1
         Top = 1
@@ -206,8 +202,6 @@ object frmMain: TfrmMain
         TabOrder = 0
         OnDblClick = grdCurrCLUTDblClick
         OnDrawCell = grdCurrCLUTDrawCell
-        ExplicitLeft = 0
-        ExplicitTop = 372
       end
       object pnlImageOptions: TPanel
         Left = 1
@@ -217,7 +211,6 @@ object frmMain: TfrmMain
         Align = alBottom
         BevelOuter = bvLowered
         TabOrder = 1
-        ExplicitTop = 451
         object cbbCLUT: TComboBox
           AlignWithMargins = True
           Left = 4
@@ -335,13 +328,13 @@ object frmMain: TfrmMain
         object mnSimpleMode: TMenuItem
           AutoCheck = True
           Caption = '&Simple Mode'
-          Checked = True
           RadioItem = True
           OnClick = mnSimpleModeClick
         end
         object mnAdvancedMode: TMenuItem
           AutoCheck = True
           Caption = '&Advanced Mode'
+          Checked = True
           RadioItem = True
           OnClick = mnAdvancedModeClick
         end

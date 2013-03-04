@@ -1,36 +1,48 @@
-﻿	<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-		<PropertyGroup>
-			<ProjectGuid>{65E8D254-2E79-48BF-928F-1646A6A8A952}</ProjectGuid>
-		</PropertyGroup>
-		<ItemGroup>
-			<Projects Include="tim2view.dproj">
-				<Dependencies/>
-			</Projects>
-		</ItemGroup>
-		<ProjectExtensions>
-			<Borland.Personality>Default.Personality.12</Borland.Personality>
-			<Borland.ProjectType/>
-			<BorlandProject>
-				<Default.Personality/>
-			</BorlandProject>
-		</ProjectExtensions>
-		<Target Name="tim2view">
-			<MSBuild Projects="tim2view.dproj"/>
-		</Target>
-		<Target Name="tim2view:Clean">
-			<MSBuild Projects="tim2view.dproj" Targets="Clean"/>
-		</Target>
-		<Target Name="tim2view:Make">
-			<MSBuild Projects="tim2view.dproj" Targets="Make"/>
-		</Target>
-		<Target Name="Build">
-			<CallTarget Targets="tim2view"/>
-		</Target>
-		<Target Name="Clean">
-			<CallTarget Targets="tim2view:Clean"/>
-		</Target>
-		<Target Name="Make">
-			<CallTarget Targets="tim2view:Make"/>
-		</Target>
-		<Import Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')" Project="$(BDS)\Bin\CodeGear.Group.Targets"/>
-	</Project>
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <ProjectGuid>{65E8D254-2E79-48BF-928F-1646A6A8A952}</ProjectGuid>
+    </PropertyGroup>
+    <ItemGroup>
+        <Projects Include="tim2view.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="TIMClassTest.dproj">
+            <Dependencies/>
+        </Projects>
+    </ItemGroup>
+    <ProjectExtensions>
+        <Borland.Personality>Default.Personality.12</Borland.Personality>
+        <Borland.ProjectType/>
+        <BorlandProject>
+            <Default.Personality/>
+        </BorlandProject>
+    </ProjectExtensions>
+    <Target Name="tim2view">
+        <MSBuild Projects="tim2view.dproj"/>
+    </Target>
+    <Target Name="tim2view:Clean">
+        <MSBuild Projects="tim2view.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="tim2view:Make">
+        <MSBuild Projects="tim2view.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="TIMClassTest">
+        <MSBuild Projects="TIMClassTest.dproj"/>
+    </Target>
+    <Target Name="TIMClassTest:Clean">
+        <MSBuild Projects="TIMClassTest.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="TIMClassTest:Make">
+        <MSBuild Projects="TIMClassTest.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="Build">
+        <CallTarget Targets="tim2view;TIMClassTest"/>
+    </Target>
+    <Target Name="Clean">
+        <CallTarget Targets="tim2view:Clean;TIMClassTest:Clean"/>
+    </Target>
+    <Target Name="Make">
+        <CallTarget Targets="tim2view:Make;TIMClassTest:Make"/>
+    </Target>
+    <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
+</Project>
