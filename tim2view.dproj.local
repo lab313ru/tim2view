@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BorlandProject>
+	<Transactions>
+    <Transaction>1899.12.30 00:00:00.000.267,D:\Tim2View\units\uTIMClass.pas=</Transaction>
+    <Transaction>2014.02.18 01:41:36.622,=D:\TimView2\units\EventWaitThread.pas</Transaction>
+    <Transaction>2014.02.18 02:21:20.250,D:\TimView2\units\BrowseForFolderU.pas=</Transaction>
+    <Transaction>2014.02.18 02:21:57.121,=D:\TimView2\units\uEventWaitThread.pas</Transaction>
+    <Transaction>2014.02.18 02:22:03.673,=D:\TimView2\units\uBrowseForFolder.pas</Transaction>
+  </Transactions>
+</BorlandProject>
