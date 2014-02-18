@@ -53,7 +53,7 @@ function PrepareIMAGE(TIM: PTIM): PIMAGE_INDEXES;
 var
   I, OFFSET: Integer;
   RW: Word;
-  P24: DWORD;
+  P24: Integer;
 begin
   New(Result);
   OFFSET := cTIMHeadSize + GetTIMCLUTSize(TIM) + cIMAGEHeadSize;
@@ -104,7 +104,7 @@ var
   X, Y, INDEX, IMAGE_DATA_POS: Integer;
   R, G, B, STP, ALPHA: Byte;
   COLOR: TCLUT_COLOR;
-  CL: DWORD;
+  CL: Integer;
   Transparent, SemiTransparent: boolean;
 begin
   RW := GetTimRealWidth(TIM);

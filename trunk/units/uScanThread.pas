@@ -3,35 +3,33 @@ unit uScanThread;
 interface
 
 uses
-  Classes, Windows, uCommon, uTIM;
+  Classes, Windows, uCommon, uTIM, uScanResult;
 
 type
-  PScanThread = ^TScanThread;
-
   TScanThread = class(Classes.TThread)
   private
     { Private declarations }
+    pScanFile: string;
+    pIsImage: boolean;
+    pScanResult: TScanResult;
     pTims: Integer;
-    pFileToScan: string;
-    pImageScan: boolean;
-    pResult: PNativeXml;
-    pFileSize: DWORD;
-    pFilePos: DWORD;
+    pFileSize: Integer;
+    pFilePos: Integer;
     pStatusText: string;
-    pClearBufferPosition: DWORD;
-    pClearBufferSize: DWORD;
-    pSectorBufferSize: DWORD;
+    pClearBufferPosition: Integer;
+    pClearBufferSize: Integer;
+    pSectorBufferSize: Integer;
     pSrcFileStream: TFileStream;
     pStopScan: boolean;
     procedure SetStatusText;
+    procedure StartScan;
     procedure UpdateProgressBar;
     procedure AddResult(TIM: PTIM);
     procedure ClearSectorBuffer(SectorBuffer, ClearBuffer: PBytesArray);
   protected
     procedure Execute; override;
   public
-    constructor Create(const FileToScan: string; fResult: pointer;
-      ImageScan: boolean);
+    constructor Create(const FileToScan: string; ImageScan: boolean);
     property Terminated;
     property StopScan: boolean write pStopScan;
   end;
@@ -39,7 +37,7 @@ type
 implementation
 
 uses
-  uMain, uCDIMAGE, System.SysUtils, NativeXml;
+  uMain, uCDIMAGE, System.SysUtils;
 
 const
   cClearBufferSize = ((cTIMMaxSize div cSectorDataSize) + 1) *
@@ -48,46 +46,34 @@ const
 
   { TScanThread }
 
-constructor TScanThread.Create(const FileToScan: string; fResult: pointer;
-  ImageScan: boolean);
-var
-  Node: TXmlNode;
+constructor TScanThread.Create(const FileToScan: string; ImageScan: boolean);
 begin
   inherited Create(True);
   FreeOnTerminate := True;
   pClearBufferPosition := 0;
   pFilePos := 0;
   pTims := 0;
-  pFileToScan := FileToScan;
-  pFileSize := GetFileSizeAPI(pFileToScan);
+  pFileSize := GetFileSizeAPI(FileToScan);
   pStatusText := '';
   pStopScan := False;
-  pImageScan := ImageScan;
 
-  pResult := fResult;
-  Node := pResult^.Root.NodeNew(cResInfoNode);
-  Node.WriteAttributeUnicodeString(cResAttrFile, pFileToScan);
-  Node.WriteAttributeBool(cResAttrImageFile, ImageScan);
-  Node.WriteAttributeInteger(cResAttrTimsCount, 0);
+  pScanFile := FileToScan;
+  pIsImage := ImageScan;
 end;
 
 procedure TScanThread.AddResult(TIM: PTIM);
 var
-  Node, AddedNode: TXmlNode;
+  ScanTim: TScanTim;
 begin
-  Node := pResult^.Root.NodeFindOrCreate(cResInfoNode);
-  Node.WriteAttributeInteger(cResAttrTimsCount, TIM^.dwTimNumber);
+  ScanTim.Position := TIM^.dwTimPosition;
+  ScanTim.Size := TIM^.dwSIZE;
+  ScanTim.Width := GetTimRealWidth(TIM);
+  ScanTim.Height := GetTimHeight(TIM);
+  ScanTim.Bitmode := BppToBitMode(TIM);
+  ScanTim.Good := TIMIsGood(TIM);
 
-  Node := pResult^.Root.NodeFindOrCreate(cResTimsNode);
-
-  AddedNode := Node.NodeNew(cResTimNode);
-  AddedNode.WriteAttributeInteger(cResTimAttrPos, TIM^.dwTimPosition);
-  AddedNode.WriteAttributeInteger(cResTimAttrSize, TIM^.dwSIZE);
-  AddedNode.WriteAttributeInteger(cResTimAttrWidth, GetTimRealWidth(TIM));
-  AddedNode.WriteAttributeInteger(cResTimAttrHeight, GetTimHeight(TIM));
-  AddedNode.WriteAttributeInteger(cResTimAttrBitMode, BppToBitMode(TIM));
-  AddedNode.WriteAttributeBool(cResTimAttrGood, TIMIsGood(TIM));
-
+  pScanResult.Count := TIM^.dwTimNumber;
+  pScanResult.ScanTim[pScanResult.Count - 1] := ScanTim;
   Inc(pTims);
 end;
 
@@ -96,13 +82,15 @@ var
   SectorBuffer, ClearBuffer: PBytesArray;
   TIM: PTIM;
   pScanFinished: boolean;
-  pRealBufSize, pTimPosition, pTIMNumber: DWORD;
+  pRealBufSize, pTimPosition, pTIMNumber: Integer;
 begin
-  pSrcFileStream := TFileStream.Create(pFileToScan, fmOpenRead or
+  Synchronize(StartScan);
+
+  pSrcFileStream := TFileStream.Create(pScanResult.ScanFile, fmOpenRead or
     fmShareDenyWrite);
   pSrcFileStream.Position := 0;
 
-  if pImageScan then
+  if pScanResult.IsImage then
     pSectorBufferSize := cSectorBufferSize
   else
     pSectorBufferSize := cClearBufferSize;
@@ -127,15 +115,14 @@ begin
   repeat
     if LoadTimFromBuf(ClearBuffer, TIM, pClearBufferPosition) then
     begin
-      if pImageScan then
+      if pScanResult.IsImage then
         pTimPosition := pFilePos - pRealBufSize +
           ((pClearBufferPosition - 1) div cSectorDataSize) * cSectorSize +
           ((pClearBufferPosition - 1) mod cSectorDataSize) + cSectorInfoSize
       else
         pTimPosition := pFilePos - pRealBufSize + (pClearBufferPosition - 1);
 
-      if pTimPosition >= pFileSize then
-        Break;
+      if pTimPosition >= pFileSize then Break;
 
       TIM^.dwTimPosition := pTimPosition;
       Inc(pTIMNumber);
@@ -145,13 +132,11 @@ begin
 
     if pClearBufferPosition = (pClearBufferSize div 2) then
     begin
-      if pScanFinished then
-        Break;
+      if pScanFinished then Break;
 
       pScanFinished := (pFilePos = pFileSize);
       pClearBufferPosition := 0;
-      Move(SectorBuffer^[pSectorBufferSize div 2], SectorBuffer^[0],
-        pSectorBufferSize div 2);
+      Move(SectorBuffer^[pSectorBufferSize div 2], SectorBuffer^[0], pSectorBufferSize div 2);
 
       if pScanFinished then
       begin
@@ -161,8 +146,7 @@ begin
       end
       else
       begin
-        pRealBufSize := pSrcFileStream.
-          Read(SectorBuffer^[pSectorBufferSize div 2], pSectorBufferSize div 2);
+        pRealBufSize := pSrcFileStream.Read(SectorBuffer^[pSectorBufferSize div 2], pSectorBufferSize div 2);
         Inc(pFilePos, pRealBufSize);
         pRealBufSize := pRealBufSize + (pSectorBufferSize div 2);
       end;
@@ -191,6 +175,22 @@ begin
   frmMain.lblStatus.Caption := pStatusText;
 end;
 
+procedure TScanThread.StartScan;
+begin
+  frmMain.btnStopScan.Enabled := True;
+  frmMain.cbbFiles.Enabled := False;
+  frmMain.pnlList.Enabled := False;
+  frmMain.actExtractList.Enabled := False;
+
+  frmMain.pbProgress.Max := GetFileSizeAPI(pScanFile);
+  frmMain.pbProgress.Position := 0;
+
+  frmMain.ScanResult.Add(TScanResult.Create);
+  pScanResult := frmMain.ScanResult.Last;
+  pScanResult.ScanFile := pScanFile;
+  pScanResult.IsImage := pIsImage;
+end;
+
 procedure TScanThread.UpdateProgressBar;
 begin
   frmMain.pbProgress.Position := pFilePos;
@@ -199,10 +199,10 @@ end;
 
 procedure TScanThread.ClearSectorBuffer(SectorBuffer, ClearBuffer: PBytesArray);
 var
-  i: DWORD;
+  i: Integer;
 begin
   FillChar(ClearBuffer^[0], pClearBufferSize, 0);
-  if not pImageScan then
+  if not pScanResult.IsImage then
   begin
     Move(SectorBuffer^[0], ClearBuffer^[0], pClearBufferSize);
     Exit;

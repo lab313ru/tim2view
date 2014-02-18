@@ -3,39 +3,24 @@ unit uCommon;
 interface
 
 uses
-  NativeXML, Windows;
+  Windows;
 
 const
   cProgramName = 'Tim2View by [Lab 313]';
   cProgramVersion = '2.0';
-  cMaxFileSize = $2EAEED80;
   cExtractedTimsDir = 'TIMS';
-  cResRootName = 'TVSCANRESULT';
-  cResInfoNode = 'INFO';
-  cResAttrFile = 'FILENAME';
-  cResAttrVersion = 'VERSION';
-  cResAttrImageFile = 'CDIMAGE';
-  cResAttrTimsCount = 'TIMSCOUNT';
-  cResTimsNode = 'TIMS';
-  cResTimNode = 'TIM';
-  cResTimAttrPos = 'POSITION';
-  cResTimAttrSize = 'SIZE';
-  cResTimAttrWidth = 'WIDTH';
-  cResTimAttrHeight = 'HEIGHT';
-  cResTimAttrBitMode = 'BITMODE';
-  cResTimAttrGood = 'GOODTIM';
+  cMaxFileSize = $2EAEED80;
+
   cAutoExtractionTimFormat = '%s_%.6d_%.2db' + '.tim';
   cCLUTGridColsCount = 32;
 
   sStatusBarScanningFile = 'Scanning File...';
-  sStatusBarTimsExtracting = 'TIM''s Extracting...';
+  sStatusBarTimsExtracting = 'TIMs Extracting...';
+  sStatusBarTimsExtracted = 'Exctracted Successfully!';
   sStatusBarParsingResult = 'Parsing Result...';
   sScanResultGood = 'Scan completed!';
   sSelectDirCaption = 'Please, select directory for scan...';
   sThisTimHasNoCLUT = 'This TIM has no CLUT';
-
-type
-  PNativeXML = ^TNativeXML;
 
 type
   TBytesArray = array [0 .. cMaxFileSize - 1] of byte;
@@ -48,15 +33,24 @@ function CheckFileExists(const FileName: string): boolean;
 function ExtractFileNameWOext(const Path: string): string;
 procedure Text2Clipboard(const S: string);
 function Min(A, B: Integer): Integer;
+function Max(A, B: Integer): Integer;
 
 implementation
 
 uses
-  uCDIMAGE, System.SysUtils, System.Classes, Clipbrd;
+  System.SysUtils, Clipbrd;
 
 function Min(A, B: Integer): Integer;
 begin
   if A < B then
+    Result := A
+  else
+    Result := B;
+end;
+
+function Max(A, B: Integer): Integer;
+begin
+  if A >= B then
     Result := A
   else
     Result := B;
