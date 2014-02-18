@@ -14,7 +14,8 @@ uses
   uTIM in 'units\uTIM.pas',
   uDrawTIM in 'units\uDrawTIM.pas',
   uEventWaitThread in 'units\uEventWaitThread.pas',
-  uBrowseForFolder in 'units\uBrowseForFolder.pas';
+  uBrowseForFolder in 'units\uBrowseForFolder.pas',
+  uScanResult in 'units\uScanResult.pas';
 
 {$R *.res}
 
@@ -56,8 +57,8 @@ begin
 
     Application.Initialize;
     Application.MainFormOnTaskbar := True;
-    Application.CreateForm(TfrmMainT2V, frmMain);
-    Application.Run;
+    Application.CreateForm(TfrmMain, frmMain);
+  Application.Run;
 
     CloseHandle(ServerMailSlot);
     CloseHandle(CommandEvent);

@@ -44,7 +44,7 @@ type
     bVersion: byte; // Any? (1 byte)
     bReserved1: byte; // Reserved byte 1 (1 byte)
     bReserved2: byte; // Reserved byte 2 (1 byte)
-    bBPP: DWORD; // Bit per Pixel  (4 bytes)
+    bBPP: Integer; // Bit per Pixel  (4 bytes)
     // variants:
     // [$08, $09, $0A, $0B, $02, $03, $00, $01]
   end;
@@ -53,7 +53,7 @@ type
 
 type
   TCLUTHeader = packed record // CLUT header (12+ bytes)
-    dwSize: DWORD; // Length of CLUT (4 bytes)
+    dwSize: Integer; // Length of CLUT (4 bytes)
     wVRAMX: word; // Palette coordinates in VRAM (by X) (2 bytes)
     wVRAMY: word; // Palette coordinates in VRAM (by Y) (2 bytes)
     wColorsCount: word; // Number of CLUT Colors (2 bytes)
@@ -64,7 +64,7 @@ type
 
 type
   TIMAGEHeader = packed record // IMAGE Block Header (12+ bytes)
-    dwSize: DWORD; // Length of Image Block (4 bytes)
+    dwSize: Integer; // Length of Image Block (4 bytes)
     wVRAMX: word; // Image Block Coordinates in VRAM (by X) (2 bytes)
     wVRAMY: word; // Image Block Coordinates in VRAM (by Y) (2 bytes)
     wWidth: word; // Image Width (not Real) (2 bytes)
@@ -93,17 +93,17 @@ type
 
 type
   TIMAGE_INDEXES = array [0 .. cIMAGEWidthMax * cIMAGEHeightMax * 4 -
-    1] of DWORD;
+    1] of Integer;
   PIMAGE_INDEXES = ^TIMAGE_INDEXES;
 
 type
   TTIM = record
-    dwTimNumber: DWORD;
-    dwTimPosition: DWORD;
+    dwTimNumber: Integer;
+    dwTimPosition: Integer;
     HEAD: PTIMHeader;
     CLUT: PCLUTHeader;
     IMAGE: PIMAGEHeader;
-    dwSize: DWORD;
+    dwSize: Integer;
     DATA: PTIMDataArray;
     bGOOD: Boolean;
   end;
@@ -111,16 +111,16 @@ type
   PTIM = ^TTIM;
 
 function TIMHasCLUT(TIM: PTIM): Boolean;
-function GetTIMCLUTSize(TIM: PTIM): DWORD;
-function GetTIMSize(TIM: PTIM): DWORD;
+function GetTIMCLUTSize(TIM: PTIM): Integer;
+function GetTIMSize(TIM: PTIM): Integer;
 function GetTimWidth(TIM: PTIM): word;
 function GetTimRealWidth(TIM: PTIM): word;
 function GetTimHeight(TIM: PTIM): word;
 function TIMIsGood(TIM: PTIM): Boolean;
 function LoadTimFromBuf(BUFFER: pointer; var TIM: PTIM;
-  var Position: DWORD): Boolean;
-function LoadTimFromFile(const FileName: string; var Position: DWORD;
-  ImageScan: Boolean; dwSize: DWORD): PTIM;
+  var Position: Integer): Boolean;
+function LoadTimFromFile(const FileName: string; var Position: Integer;
+  ImageScan: Boolean; dwSize: Integer): PTIM;
 procedure SaveTimToFile(const FileName: string; TIM: PTIM);
 function CreateTIM: PTIM;
 procedure FreeTIM(TIM: PTIM);
@@ -128,14 +128,14 @@ function BppToBitMode(TIM: PTIM): byte;
 function GetTimColorsCount(TIM: PTIM): word;
 function GetTimClutsCount(TIM: PTIM): word;
 function GetTimVersion(TIM: PTIM): byte;
-function GetTimBPP(TIM: PTIM): DWORD;
-function GetTimClutSizeHeader(TIM: PTIM): DWORD;
+function GetTimBPP(TIM: PTIM): Integer;
+function GetTimClutSizeHeader(TIM: PTIM): Integer;
 function GetTimClutVRAMX(TIM: PTIM): word;
 function GetTimClutVRAMY(TIM: PTIM): word;
-function GetTimImageSizeHeader(TIM: PTIM): DWORD;
+function GetTimImageSizeHeader(TIM: PTIM): Integer;
 function GetTimImageVRAMX(TIM: PTIM): word;
 function GetTimImageVRAMY(TIM: PTIM): word;
-function GetTIMIMAGESize(TIM: PTIM): DWORD;
+function GetTIMIMAGESize(TIM: PTIM): Integer;
 function GetCLUTColor(TIM: PTIM; CLUT_NUM, COLOR_NUM: Integer): TCLUT_COLOR;
 procedure WriteCLUTColor(TIM: PTIM; CLUT_NUM, COLOR_NUM: Integer;
   COLOR: TCLUT_COLOR);
@@ -201,7 +201,7 @@ begin
   Result := TIM^.IMAGE^.wHeight;
 end;
 
-function GetTIMCLUTSize(TIM: PTIM): DWORD;
+function GetTIMCLUTSize(TIM: PTIM): Integer;
 begin
   Result := 0;
 
@@ -211,12 +211,12 @@ begin
     cCLUTHeadSize;
 end;
 
-function GetTIMIMAGESize(TIM: PTIM): DWORD;
+function GetTIMIMAGESize(TIM: PTIM): Integer;
 begin
   Result := TIM^.IMAGE^.wWidth * TIM^.IMAGE^.wHeight * 2 + cIMAGEHeadSize;
 end;
 
-function GetTIMSize(TIM: PTIM): DWORD;
+function GetTIMSize(TIM: PTIM): Integer;
 begin
   Result := GetTIMCLUTSize(TIM) + GetTIMIMAGESize(TIM) + cTIMHeadSize;
 end;
@@ -320,10 +320,10 @@ begin
 end;
 
 function LoadTimFromBuf(BUFFER: pointer; var TIM: PTIM;
-  var Position: DWORD): Boolean;
+  var Position: Integer): Boolean;
 var
-  P: DWORD;
-  TIM_POS: DWORD;
+  P: Integer;
+  TIM_POS: Integer;
 begin
   Result := False;
 
@@ -362,15 +362,15 @@ begin
   Result := True;
 end;
 
-function LoadTimFromCDFile(const FileName: string; var Position: DWORD;
-  SIZE: DWORD): PTIM;
+function LoadTimFromCDFile(const FileName: string; var Position: Integer;
+  SIZE: Integer): PTIM;
 var
-  TimOffsetInSector, FirstPartSize, LastPartSize: DWORD;
-  TimSectorNumber, TimStartSectorPos: DWORD;
+  TimOffsetInSector, FirstPartSize, LastPartSize: Integer;
+  TimSectorNumber, TimStartSectorPos: Integer;
   TIM_BUF: PTIMDataArray;
   sImageStream: TFileStream;
   Sector: TCDSector;
-  P, TIM_FULL_SECTORS: DWORD;
+  P, TIM_FULL_SECTORS: Integer;
 begin
   sImageStream := TFileStream.Create(FileName, fmOpenRead or fmShareDenyWrite);
 
@@ -424,11 +424,11 @@ begin
   Dispose(TIM_BUF);
 end;
 
-function LoadTimFromStream(Stream: TStream; var Position: DWORD;
-  dwSize: DWORD): PTIM;
+function LoadTimFromStream(Stream: TStream; var Position: Integer;
+  dwSize: Integer): PTIM;
 var
   BUF: PTIMDataArray;
-  P: DWORD;
+  P: Integer;
 begin
   Result := nil;
 
@@ -448,8 +448,8 @@ begin
   Dispose(BUF);
 end;
 
-function LoadTimFromFile(const FileName: string; var Position: DWORD;
-  ImageScan: Boolean; dwSize: DWORD): PTIM;
+function LoadTimFromFile(const FileName: string; var Position: Integer;
+  ImageScan: Boolean; dwSize: Integer): PTIM;
 var
   sTIM: TFileStream;
 begin
@@ -560,12 +560,12 @@ begin
   Result := TIM^.CLUT^.wClutsCount;
 end;
 
-function GetTimBPP(TIM: PTIM): DWORD;
+function GetTimBPP(TIM: PTIM): Integer;
 begin
   Result := TIM^.HEAD^.bBPP;
 end;
 
-function GetTimClutSizeHeader(TIM: PTIM): DWORD;
+function GetTimClutSizeHeader(TIM: PTIM): Integer;
 begin
   Result := TIM^.CLUT^.dwSize;
 end;
@@ -580,7 +580,7 @@ begin
   Result := TIM^.CLUT^.wVRAMY;
 end;
 
-function GetTimImageSizeHeader(TIM: PTIM): DWORD;
+function GetTimImageSizeHeader(TIM: PTIM): Integer;
 begin
   Result := TIM^.IMAGE^.dwSize;
 end;

@@ -32,10 +32,10 @@ type
   PCDSector = ^TCDSector;
 
 function GetImageScan(const FileName: string): Boolean;
-function ReplaceTimInFile(const FileName, TimToInsert: string; InsertTo: DWORD;
+function ReplaceTimInFile(const FileName, TimToInsert: string; InsertTo: Integer;
   ImageScan: Boolean): Boolean;
 procedure ReplaceTimInFileFromMemory(const FileName: string; TIM: PTIM;
-  InsertTo: DWORD; ImageScan: Boolean);
+  InsertTo: Integer; ImageScan: Boolean);
 
 implementation
 
@@ -87,16 +87,16 @@ begin
 end;
 
 procedure ReplaceTimInFileFromMemory(const FileName: string; TIM: PTIM;
-  InsertTo: DWORD; ImageScan: Boolean);
+  InsertTo: Integer; ImageScan: Boolean);
 type
   TSecAddrAndMode = array [0 .. cSectorAddressSize + cSectorModeSize - 1] of byte;
 var
   sImageStream: TFileStream;
-  TimOffsetInSector, FirstPartSize, LastPartSize: DWORD;
-  TimSectorNumber, TimStartSectorPos: DWORD;
+  TimOffsetInSector, FirstPartSize, LastPartSize: Integer;
+  TimSectorNumber, TimStartSectorPos: Integer;
   Sector: TCDSector;
   ecc: DWORD;
-  P, TIM_FULL_SECTORS: DWORD;
+  P, TIM_FULL_SECTORS: Integer;
   SecAddrAndMode: TSecAddrAndMode;
 begin
   sImageStream := TFileStream.Create(FileName, fmOpenReadWrite or
@@ -202,11 +202,11 @@ begin
   sImageStream.free;
 end;
 
-function ReplaceTimInFile(const FileName, TimToInsert: string; InsertTo: DWORD;
+function ReplaceTimInFile(const FileName, TimToInsert: string; InsertTo: Integer;
   ImageScan: Boolean): Boolean;
 
 var
-  SIZE, P: DWORD;
+  SIZE, P: Integer;
   TIM: PTIM;
 begin
   Result := False;

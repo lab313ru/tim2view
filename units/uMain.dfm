@@ -1,4 +1,4 @@
-object frmMainT2V: TfrmMainT2V
+object frmMain: TfrmMain
   Left = 0
   Top = 0
   Width = 754
@@ -44,6 +44,7 @@ object frmMainT2V: TfrmMainT2V
       Width = 504
       Height = 28
       Align = alRight
+      Anchors = [akLeft, akTop, akRight, akBottom]
       Smooth = True
       TabOrder = 1
     end
@@ -69,6 +70,7 @@ object frmMainT2V: TfrmMainT2V
     AutoCloseUp = True
     Style = csDropDownList
     DropDownCount = 30
+    Enabled = False
     TabOrder = 0
     OnChange = cbbFilesChange
   end
@@ -127,7 +129,7 @@ object frmMainT2V: TfrmMainT2V
         ViewStyle = vsReport
         OnClick = lvListClick
         OnData = lvListData
-        OnKeyDown = lvListKeyDown
+        OnSelectItem = lvListSelectItem
       end
     end
     object pnlImage: TPanel
@@ -149,21 +151,23 @@ object frmMainT2V: TfrmMainT2V
         ResizeStyle = rsUpdate
         ExplicitTop = 274
       end
-      object imgTIM: TImage
-        Left = 1
-        Top = 4
-        Width = 500
-        Height = 296
+      object pbTim: TImage
+        AlignWithMargins = True
+        Left = 4
+        Top = 7
+        Width = 494
+        Height = 290
         Align = alClient
         Center = True
         IncrementalDisplay = True
         Proportional = True
-        ExplicitLeft = 152
-        ExplicitTop = 112
+        Transparent = True
+        ExplicitLeft = 168
+        ExplicitTop = 80
         ExplicitWidth = 105
         ExplicitHeight = 105
       end
-      object grdCurrCLUT: TDrawGrid
+      object grdCurrClut: TDrawGrid
         Left = 1
         Top = 330
         Width = 500
@@ -181,8 +185,8 @@ object frmMainT2V: TfrmMainT2V
         ParentDoubleBuffered = False
         ScrollBars = ssNone
         TabOrder = 0
-        OnDblClick = grdCurrCLUTDblClick
-        OnDrawCell = grdCurrCLUTDrawCell
+        OnDblClick = grdCurrClutDblClick
+        OnDrawCell = grdCurrClutDrawCell
       end
       object pnlImageOptions: TPanel
         Left = 1
@@ -216,7 +220,7 @@ object frmMainT2V: TfrmMainT2V
           ItemIndex = 0
           TabOrder = 1
           Text = 'Full transparence'
-          OnClick = cbbTransparenceModeClick
+          OnChange = cbbTransparenceModeChange
           Items.Strings = (
             'Full transparence'
             'Black Transparence'
@@ -241,14 +245,16 @@ object frmMainT2V: TfrmMainT2V
             '8 BPP'
             '16 BPP'
             '24 BPP')
+          ExplicitTop = 3
         end
         object chkStretch: TCheckBox
-          Left = 404
-          Top = 1
-          Width = 97
-          Height = 28
+          AlignWithMargins = True
+          Left = 407
+          Top = 4
+          Width = 89
+          Height = 22
           Action = actStretch
-          Align = alLeft
+          Align = alClient
           TabOrder = 3
         end
       end
@@ -306,33 +312,6 @@ object frmMainT2V: TfrmMainT2V
     end
     object mnConfig: TMenuItem
       Caption = '&Options'
-      object mnAutoExtract: TMenuItem
-        AutoCheck = True
-        Caption = '&Auto Extraction'
-      end
-      object Stretch1: TMenuItem
-        Action = actStretch
-        AutoCheck = True
-      end
-      object mnViewMode: TMenuItem
-        Caption = '&View Mode'
-        object mnSimpleMode: TMenuItem
-          AutoCheck = True
-          Caption = '&Simple Mode'
-          RadioItem = True
-          OnClick = mnSimpleModeClick
-        end
-        object mnAdvancedMode: TMenuItem
-          AutoCheck = True
-          Caption = '&Advanced Mode'
-          Checked = True
-          RadioItem = True
-          OnClick = mnAdvancedModeClick
-        end
-      end
-      object N5: TMenuItem
-        Caption = '-'
-      end
       object mnAssociate: TMenuItem
         Action = actAssocTims
       end
@@ -427,7 +406,6 @@ object frmMainT2V: TfrmMainT2V
     end
     object actAbout: TAction
       Caption = 'About...'
-      ShortCut = 112
       OnExecute = actAboutExecute
     end
     object actStretch: TAction
@@ -444,10 +422,22 @@ object frmMainT2V: TfrmMainT2V
       Caption = 'Open TIMs with T2V'
       OnExecute = actAssocTimsExecute
     end
+    object actExtractList: TAction
+      Caption = 'Extract TIMs'
+      Enabled = False
+      ShortCut = 112
+      OnExecute = actExtractListExecute
+    end
   end
   object pmList: TPopupMenu
     Left = 640
     Top = 502
+    object ExtractTIMs1: TMenuItem
+      Action = actExtractList
+    end
+    object N6: TMenuItem
+      Caption = '-'
+    end
     object ExtractTIM1: TMenuItem
       Action = actExtractTim
     end
