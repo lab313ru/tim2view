@@ -20,7 +20,7 @@ const
   sStatusBarParsingResult = 'Parsing Result...';
   sScanResultGood = 'Scan completed!';
   sSelectDirCaption = 'Please, select directory for scan...';
-  sThisTimHasNoCLUT = 'This TIM has no CLUT';
+  sThisTimHasNoCLUT = 'No CLUT';
 
 type
   TBytesArray = array [0 .. cMaxFileSize - 1] of byte;
@@ -34,11 +34,20 @@ function ExtractJustName(const Path: string): string;
 procedure Text2Clipboard(const S: string);
 function Min(A, B: Integer): Integer;
 function Max(A, B: Integer): Integer;
+function GetCoreCount: Integer;
 
 implementation
 
 uses
   System.SysUtils, Clipbrd;
+
+function GetCoreCount: Integer;
+var
+  SystemInfo: SYSTEM_INFO;
+begin
+  GetSystemInfo(&SystemInfo);
+  Result := SystemInfo.dwNumberOfProcessors;
+end;
 
 function Min(A, B: Integer): Integer;
 begin

@@ -42,7 +42,8 @@ begin
       else
         path := '';
 
-      WriteFile(ClientMailSlot, path[1], Length(path) * SizeOf(Char), BytesWritten, nil);
+      if path <> '' then
+        WriteFile(ClientMailSlot, path[1], Length(path) * SizeOf(Char), BytesWritten, nil);
 
       CommandEvent := OpenEvent(EVENT_MODIFY_STATE, False, cEventNname);
       SetEvent(CommandEvent);
