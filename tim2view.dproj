@@ -83,8 +83,8 @@
         <DCC_SUSPICIOUS_TYPECAST>false</DCC_SUSPICIOUS_TYPECAST>
         <DCC_MapFile>3</DCC_MapFile>
         <DCC_Optimize>true</DCC_Optimize>
-        <VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=1.0.0.492;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
-        <VerInfo_Build>492</VerInfo_Build>
+        <VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=1.0.0.504;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
+        <VerInfo_Build>504</VerInfo_Build>
         <Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
         <DCC_IOChecking>false</DCC_IOChecking>
         <DCC_IntegerOverflowCheck>true</DCC_IntegerOverflowCheck>

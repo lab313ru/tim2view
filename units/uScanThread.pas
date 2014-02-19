@@ -9,10 +9,7 @@ type
   TScanThread = class(Classes.TThread)
   private
     { Private declarations }
-    pScanFile: string;
-    pIsImage: boolean;
     pScanResult: TScanResult;
-    pTims: Integer;
     pFileSize: Integer;
     pFilePos: Integer;
     pStatusText: string;
@@ -23,6 +20,7 @@ type
     pStopScan: boolean;
     procedure SetStatusText;
     procedure StartScan;
+    procedure FinishScan;
     procedure UpdateProgressBar;
     procedure AddResult(TIM: PTIM);
     procedure ClearSectorBuffer(SectorBuffer, ClearBuffer: PBytesArray);
@@ -30,7 +28,7 @@ type
     procedure Execute; override;
   public
     constructor Create(const FileToScan: string; ImageScan: boolean);
-    property Terminated;
+    //property Started: boolean read pStarted write pStarted;
     property StopScan: boolean write pStopScan;
   end;
 
@@ -52,13 +50,13 @@ begin
   FreeOnTerminate := True;
   pClearBufferPosition := 0;
   pFilePos := 0;
-  pTims := 0;
   pFileSize := GetFileSizeAPI(FileToScan);
   pStatusText := '';
   pStopScan := False;
 
-  pScanFile := FileToScan;
-  pIsImage := ImageScan;
+  pScanResult := TScanResult.Create;
+  pScanResult.ScanFile := FileToScan;
+  pScanResult.IsImage := ImageScan;
 end;
 
 procedure TScanThread.AddResult(TIM: PTIM);
@@ -74,7 +72,6 @@ begin
 
   pScanResult.Count := TIM^.dwTimNumber;
   pScanResult.ScanTim[pScanResult.Count - 1] := ScanTim;
-  Inc(pTims);
 end;
 
 procedure TScanThread.Execute;
@@ -160,14 +157,21 @@ begin
   FreeMemory(SectorBuffer);
   FreeMemory(ClearBuffer);
 
-  Synchronize(UpdateProgressBar);
-
   pSrcFileStream.Free;
   pFilePos := 0;
-
-  Synchronize(UpdateProgressBar);
   pStatusText := '';
-  Synchronize(SetStatusText);
+
+  Synchronize(FinishScan);
+end;
+
+procedure TScanThread.FinishScan;
+begin
+  UpdateProgressBar;
+  SetStatusText;
+
+  if pScanResult.Count = 0 then Exit;
+  frmMain.ScanResult.Add(pScanResult);
+  frmMain.cbbFiles.Items.Add(pScanResult.ScanFile);
 end;
 
 procedure TScanThread.SetStatusText;
@@ -179,22 +183,17 @@ procedure TScanThread.StartScan;
 begin
   frmMain.btnStopScan.Enabled := True;
   frmMain.cbbFiles.Enabled := False;
-  frmMain.pnlList.Enabled := False;
+  frmMain.lvList.Enabled := False;
   frmMain.actExtractList.Enabled := False;
 
-  frmMain.pbProgress.Max := GetFileSizeAPI(pScanFile);
+  frmMain.pbProgress.Max := GetFileSizeAPI(pScanResult.ScanFile);
   frmMain.pbProgress.Position := 0;
-
-  frmMain.ScanResult.Add(TScanResult.Create);
-  pScanResult := frmMain.ScanResult.Last;
-  pScanResult.ScanFile := pScanFile;
-  pScanResult.IsImage := pIsImage;
 end;
 
 procedure TScanThread.UpdateProgressBar;
 begin
   frmMain.pbProgress.Position := pFilePos;
-  frmMain.lvList.Column[0].Caption := Format('# / %d', [pTims]);
+  frmMain.lvList.Column[0].Caption := Format('# / %d', [pScanResult.Count]);
 end;
 
 procedure TScanThread.ClearSectorBuffer(SectorBuffer, ClearBuffer: PBytesArray);

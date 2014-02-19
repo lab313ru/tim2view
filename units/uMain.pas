@@ -118,6 +118,7 @@ type
     LastDir: string;
     WaitThread: TEventWaitThread;
 
+    function ScanRes: TScanResult;
     procedure SetListCount(Count: Integer);
     procedure ScanFinished(Sender: TObject);
     function CheckForFileOpened(const FileName: string): boolean;
@@ -125,16 +126,11 @@ type
     procedure ScanPath(const Path: string);
     procedure ScanFile(const FileName: string);
     procedure ScanDirectory(const Directory: string);
-    function CurrentFileName: string;
-    function CurrentTimPos(Index: Integer): Integer;
-    function CurrentTimSize(Index: Integer): Integer;
-    function CurrentTimBitMode(Index: Integer): Byte;
-    function CurrentTimWidth(Index: Integer): Word;
-    function CurrentTimHeight(Index: Integer): Word;
-    function CurrentFileIsImage: boolean;
-    function CurrentTIM(NewBitMode: Integer = $FF): PTIM;
-    function CurrentTIMName(Index: Integer): string;
-    procedure DrawCurrentTIM;
+    function ListIdx: Integer;
+    function TimIdx(Index: Integer): TScanTim;
+    function SelTim(NewBitMode: Integer = $FF): PTIM;
+    function SelTimName: string;
+    procedure DrawSelTim;
     procedure DrawCurrentCLUT;
     procedure UpdateCLUTInfo;
     procedure SetCLUTListToNoCLUT;
@@ -271,7 +267,7 @@ end;
 
 procedure TfrmMain.actCloseFileExecute(Sender: TObject);
 begin
-  ScanResult[cbbFiles.ItemIndex].Free;
+  ScanRes.Free;
   ScanResult.Delete(cbbFiles.ItemIndex);
   lvList.Items.BeginUpdate;
   lvList.Items.Count := 0;
@@ -280,7 +276,7 @@ begin
   actTimInfo.Enabled := False;
   actTimInfo.Caption := 'TIM Info';
   lvList.Column[0].Caption := '# / 0';
-  DrawCurrentTIM;
+  DrawSelTim;
   DrawCurrentCLUT;
 
   cbbCLUT.Items.BeginUpdate;
@@ -293,9 +289,13 @@ begin
   cbbFiles.Items.Delete(cbbFiles.ItemIndex);
   cbbFiles.Items.EndUpdate;
 
-  cbbFiles.Enabled := cbbFiles.Items.Count <> 0;
-
   CheckButtonsAndMainMenu;
+
+  if cbbFiles.Enabled then
+  begin
+    cbbFiles.ItemIndex := cbbFiles.Items.Count - 1;
+    cbbFilesChange(Self);
+  end;
 end;
 
 procedure TfrmMain.actCloseFilesExecute(Sender: TObject);
@@ -322,17 +322,17 @@ var
 begin
   lblStatus.Caption := sStatusBarTimsExtracting;
 
-  FName := ScanResult[cbbFiles.ItemIndex].ScanFile;
-  IsImage := ScanResult[cbbFiles.ItemIndex].IsImage;
+  FName := ScanRes.ScanFile;
+  IsImage := ScanRes.IsImage;
 
-  for I := 1 to ScanResult[cbbFiles.ItemIndex].Count do
+  for I := 1 to ScanRes.Count do
   begin
-    ScanTim := ScanResult[cbbFiles.ItemIndex].ScanTim[I - 1];
+    ScanTim := TimIdx(I - 1);
     OFFSET := ScanTim.Position;
     SIZE := ScanTim.Size;
     BIT_MODE := ScanTim.BitMode;
 
-    TIM_NAME := Format(cAutoExtractionTimFormat, [ExtractFileNameWOext(FName), I, BIT_MODE]);
+    TIM_NAME := Format(cAutoExtractionTimFormat, [ExtractJustName(FName), I, BIT_MODE]);
 
     Path := IncludeTrailingPathDelimiter(GetStartDir + cExtractedTimsDir);
     CreateDir(Path);
@@ -351,11 +351,11 @@ procedure TfrmMain.actExtractTimExecute(Sender: TObject);
 var
   TIM: PTIM;
 begin
-  dlgSaveTIM.FileName := CurrentTIMName(lvList.Selected.Index);
+  dlgSaveTIM.FileName := SelTimName;
 
   if not dlgSaveTIM.Execute then Exit;
 
-  TIM := CurrentTIM;
+  TIM := SelTim;
   SaveTimToFile(dlgSaveTIM.FileName, TIM);
   FreeTIM(TIM);
 end;
@@ -376,7 +376,7 @@ begin
 
   if GetFileSizeAPI(dlgOpenFile.FileName) > cTIMMaxSize then Exit;
 
-  ReplaceTimInFile(CurrentFileName, dlgOpenFile.FileName, CurrentTimPos(lvList.Selected.Index), CurrentFileIsImage);
+  ReplaceTimInFile(ScanRes.ScanFile, dlgOpenFile.FileName, TimIdx(ListIdx).Position, ScanRes.IsImage);
   lvListClick(Self);
   MessageBeep(MB_ICONINFORMATION);
 end;
@@ -405,14 +405,14 @@ end;
 
 procedure TfrmMain.actStretchExecute(Sender: TObject);
 begin
-  DrawCurrentTIM;
+  DrawSelTim;
 end;
 
 procedure TfrmMain.actTim2PngExecute(Sender: TObject);
 var
   FName: string;
 begin
-  FName := CurrentTIMName(lvList.Selected.Index);
+  FName := SelTimName;
   FName := ChangeFileExt(FName, '.png');
   dlgSavePNG.FileName := FName;
 
@@ -432,8 +432,8 @@ var
 begin
   if actTimInfo.Enabled then
   begin
-    Index := lvList.Selected.Index;
-    TIM := CurrentTIM;
+    Index := ListIdx;
+    TIM := SelTim;
 
     if TIMIsGood(TIM) then
       IsGoodTIM := 'YES'
@@ -445,7 +445,7 @@ begin
       + Tab + '%s' + Row + Row +
 
       'HEADER INFO' + Row + 'Version:' + Tab + '%d' + Row + 'BPP:' + Tab + '%d'
-      + Row + Row, [CurrentTIMName(Index), Index + 1, CurrentTimPos(Index),
+      + Row + Row, [SelTimName, Index + 1, TimIdx(Index).Position,
       BppToBitMode(TIM), IsGoodTIM,
 
       GetTimVersion(TIM), GetTimBPP(TIM)]);
@@ -487,77 +487,81 @@ end;
 
 procedure TfrmMain.cbbFilesChange(Sender: TObject);
 begin
-  lvList.Items.Count := ScanResult[cbbFiles.ItemIndex].Count;
+  lvList.Items.Count := ScanRes.Count;
   lvList.Column[0].Caption := Format('# / %d', [lvList.Items.Count]);
   lvList.Invalidate;
 
-  lvListClick(Self);
+  lvList.Items[0].Selected := True;
+  lvList.Items[0].Focused := True;
+  lvList.SetFocus;
 end;
 
 procedure TfrmMain.cbbTransparenceModeChange(Sender: TObject);
 begin
-  DrawCurrentTIM;
+  DrawSelTim;
 end;
 
 procedure TfrmMain.cbbBitModeChange(Sender: TObject);
 begin
-  DrawCurrentTIM;
+  DrawSelTim;
 end;
 
 procedure TfrmMain.cbbCLUTChange(Sender: TObject);
 begin
-  DrawCurrentTIM;
+  DrawSelTim;
   DrawCurrentCLUT;
 end;
 
 function TfrmMain.CheckForFileOpened(const FileName: string): boolean;
+var
+  I: Integer;
 begin
-  Result := (cbbFiles.Items.IndexOf(ExtractFileName(FileName)) <> -1);
+  Result := False;
+
+  for I := 1 to ScanResult.Count do
+    if ExtractFileName(ScanResult[I - 1].ScanFile) = ExtractFileName(FileName) then
+    begin
+      Result := True;
+      Exit;
+    end;
 end;
 
 procedure TfrmMain.CheckButtonsAndMainMenu;
 begin
-  actCloseFile.Enabled := (cbbFiles.Items.Count <> 0);
-  actCloseFiles.Enabled := (cbbFiles.Items.Count <> 0);
-  actTim2Png.Enabled := (PNG^ <> nil);
+  cbbFiles.Enabled := (cbbFiles.Items.Count <> 0);
+
+  lvList.Enabled := cbbFiles.Enabled;
+  actExtractList.Enabled := cbbFiles.Enabled;
+  actCloseFile.Enabled := cbbFiles.Enabled;
+  actCloseFiles.Enabled := cbbFiles.Enabled;
   actReplaceTim.Enabled := (lvList.SelCount = 1);
-  actExtractTim.Enabled := (lvList.SelCount = 1);
+  actTim2Png.Enabled := (PNG^ <> nil) and actReplaceTim.Enabled;
+  actExtractTim.Enabled := actReplaceTim.Enabled;
+
+  cbbCLUT.Enabled := actReplaceTim.Enabled;
+  cbbTransparenceMode.Enabled := actReplaceTim.Enabled;
+  cbbBitMode.Enabled := actReplaceTim.Enabled;
+  chkStretch.Enabled := actReplaceTim.Enabled;
 end;
 
-function TfrmMain.CurrentTIM(NewBitMode: Integer = $FF): PTIM;
+function TfrmMain.SelTIM(NewBitMode: Integer = $FF): PTIM;
 var
-  OFFSET, SIZE: Integer;
+  P: Integer;
 begin
   Result := nil;
 
   if lvList.Selected = nil then Exit;
 
-  OFFSET := CurrentTimPos(lvList.Selected.Index);
-  SIZE := CurrentTimSize(lvList.Selected.Index);
-  Result := LoadTimFromFile(CurrentFileName, OFFSET, CurrentFileIsImage, SIZE);
+  P := TimIdx(ListIdx).Position;
+  Result := LoadTimFromFile(ScanRes.ScanFile, P, ScanRes.IsImage, TimIdx(ListIdx).Size);
 
   if NewBitMode = $FF then Exit;
   Result^.HEAD^.bBPP := NewBitMode;
 end;
 
-function TfrmMain.CurrentTimBitMode(Index: Integer): Byte;
+function TfrmMain.SelTimName: string;
 begin
-  Result := ScanResult[cbbFiles.ItemIndex].ScanTim[Index].BitMode;
-end;
-
-function TfrmMain.CurrentTimHeight(Index: Integer): Word;
-begin
-  Result := ScanResult[cbbFiles.ItemIndex].ScanTim[Index].Height;
-end;
-
-function TfrmMain.CurrentTIMName(Index: Integer): string;
-begin
-  Result := Format(cAutoExtractionTimFormat, [ExtractFileNameWOext(CurrentFileName), Index + 1, CurrentTimBitMode(Index)]);
-end;
-
-function TfrmMain.CurrentTimWidth(Index: Integer): Word;
-begin
-  Result := ScanResult[cbbFiles.ItemIndex].ScanTim[Index].Width;
+  Result := Format(cAutoExtractionTimFormat, [ExtractJustName(ScanRes.ScanFile), ListIdx + 1, TimIdx(ListIdx).BitMode]);
 end;
 
 procedure TfrmMain.DrawCurrentCLUT;
@@ -566,7 +570,7 @@ var
 begin
   ClearGrid(@grdCurrCLUT);
 
-  TIM := CurrentTIM;
+  TIM := SelTim;
   if TIM = nil then
   begin
     grdCurrCLUT.ColCount := 1;
@@ -587,7 +591,7 @@ begin
   FreeTIM(TIM);
 end;
 
-procedure TfrmMain.DrawCurrentTIM;
+procedure TfrmMain.DrawSelTim;
 var
   TIM: PTIM;
   Index: Integer;
@@ -604,7 +608,7 @@ begin
     mode := $FF;
   end;
 
-  TIM := CurrentTIM(mode);
+  TIM := SelTim(mode);
   if TIM = nil then Exit;
 
   if PNG^ <> nil then
@@ -626,24 +630,9 @@ begin
   pbTim.Invalidate;
 end;
 
-function TfrmMain.CurrentFileIsImage: boolean;
+function TfrmMain.ScanRes: TScanResult;
 begin
-  Result := ScanResult[cbbFiles.ItemIndex].IsImage;
-end;
-
-function TfrmMain.CurrentFileName: string;
-begin
-  Result := ScanResult[cbbFiles.ItemIndex].ScanFile;
-end;
-
-function TfrmMain.CurrentTimPos(Index: Integer): Integer;
-begin
-  Result := ScanResult[cbbFiles.ItemIndex].ScanTim[Index].Position;
-end;
-
-function TfrmMain.CurrentTimSize(Index: Integer): Integer;
-begin
-  Result := ScanResult[cbbFiles.ItemIndex].ScanTim[Index].Size;
+  Result := ScanResult[cbbFiles.ItemIndex];
 end;
 
 procedure TfrmMain.FormClose(Sender: TObject; var Action: TCloseAction);
@@ -657,7 +646,15 @@ begin
 end;
 
 procedure TfrmMain.FormCreate(Sender: TObject);
+var
+  hGridRect: TGridRect;
 begin
+  hGridRect.Top := -1;
+  hGridRect.Left := -1;
+  hGridRect.Right := -1;
+  hGridRect.Bottom := -1;
+  grdCurrClut.Selection := hGridRect;
+
   ScanThreads := TList<TScanThread>.Create;
   ScanResult := TList<TScanResult>.Create;
   New(PNG);
@@ -681,7 +678,7 @@ var
   R, G, B: Byte;
   CLUT_COLOR: TCLUT_COLOR;
 begin
-  TIM := CurrentTIM;
+  TIM := SelTim;
   if TIM = nil then Exit;
 
   SELECTED_CELL := grdCurrCLUT.Row * grdCurrCLUT.ColCount + grdCurrCLUT.Col;
@@ -725,11 +722,11 @@ begin
 
   WriteCLUTColor(TIM, CLUT_NUM, SELECTED_CELL, CLUT_COLOR);
 
-  ReplaceTimInFileFromMemory(CurrentFileName, TIM, CurrentTimPos(lvList.Selected.Index), CurrentFileIsImage);
+  ReplaceTimInFileFromMemory(ScanRes.ScanFile, TIM, TimIdx(ListIdx).Position, ScanRes.IsImage);
 
   FreeTIM(TIM);
 
-  DrawCurrentTIM;
+  DrawSelTim;
   DrawCurrentCLUT;
 end;
 
@@ -738,7 +735,7 @@ procedure TfrmMain.grdCurrClutDrawCell(Sender: TObject; ACol, ARow: Integer;
 var
   TIM: PTIM;
 begin
-  TIM := CurrentTIM;
+  TIM := SelTim;
   if TIM = nil then Exit;
 
   if not TIMHasCLUT(TIM) then
@@ -750,6 +747,11 @@ begin
   DrawClutCell(TIM, cbbCLUT.ItemIndex, @grdCurrCLUT, ACol, ARow);
 
   FreeTIM(TIM);
+end;
+
+function TfrmMain.ListIdx: Integer;
+begin
+  Result := lvList.Selected.Index;
 end;
 
 procedure TfrmMain.ScanDirectory(const Directory: string);
@@ -775,33 +777,34 @@ begin
 end;
 
 procedure TfrmMain.lvListClick(Sender: TObject);
-var
-  OFFSET, SIZE: Integer;
 begin
   if (lvList.Selected = nil) then Exit;
   if (lvList.Items.Count = 0) then Exit;
 
   cbbBitMode.ItemIndex := 0;
 
-  OFFSET := CurrentTimPos(lvList.Selected.Index);
-  SIZE := CurrentTimSize(lvList.Selected.Index);
   UpdateCLUTInfo;
-  DrawCurrentTIM;
+  DrawSelTim;
   DrawCurrentCLUT;
 
-  actTimInfo.Caption := Format('[OFFSET: 0x%x | SIZE: 0x%x]', [OFFSET, SIZE]);
+  actTimInfo.Caption := Format('[OFFSET: 0x%x | SIZE: 0x%x]', [TimIdx(ListIdx).Position, TimIdx(ListIdx).Size]);
   actTimInfo.Enabled := True;
+
   CheckButtonsAndMainMenu;
 end;
 
 procedure TfrmMain.lvListData(Sender: TObject; Item: TListItem);
+var
+  W, H: Word;
 begin
   if cbbFiles.ItemIndex = -1 then Exit;
-  if ScanResult[cbbFiles.ItemIndex] = nil then Exit;
+
+  W := TimIdx(Item.Index).Width;
+  H := TimIdx(Item.Index).Height;
 
   Item.Caption := Format('%.6d', [Item.Index + 1]);
-  Item.SubItems.Add(Format('%dx%d', [CurrentTimWidth(Item.Index), CurrentTimHeight(Item.Index)]));
-  Item.SubItems.Add(Format('%d', [CurrentTimBitMode(Item.Index)]));
+  Item.SubItems.Add(Format('%dx%d', [W, H]));
+  Item.SubItems.Add(Format('%d', [TimIdx(Item.Index).BitMode]));
 end;
 
 procedure TfrmMain.lvListSelectItem(Sender: TObject; Item: TListItem;
@@ -817,13 +820,17 @@ begin
   lvList.Column[0].Caption := Format('# / %d', [Count]);
 end;
 
+function TfrmMain.TimIdx(Index: Integer): TScanTim;
+begin
+  Result := ScanRes.ScanTim[Index];
+end;
+
 procedure TfrmMain.ScanFile(const FileName: string);
 begin
   if CheckForFileOpened(FileName) then
   begin
-    cbbFiles.ItemIndex := cbbFiles.Items.IndexOf(ExtractFileName(FileName));
+    cbbFiles.ItemIndex := cbbFiles.Items.IndexOf(FileName);
     btnStopScan.Enabled := False;
-    cbbFiles.Enabled := True;
     CheckButtonsAndMainMenu;
     Exit;
   end;
@@ -833,36 +840,26 @@ begin
   ScanThreads.Last.Priority := tpNormal;
   ScanThreads.Last.OnTerminate := ScanFinished;
 
-  if not ScanThreads.First.Started then
-    ScanThreads.First.Start;
+  ScanThreads.Last.Start;
 end;
 
 procedure TfrmMain.ScanFinished(Sender: TObject);
 begin
-  ScanThreads.Delete(0);
+  ScanThreads.Remove(Sender as TScanThread);
 
-  if ScanResult.Last.Count > 0 then
-    cbbFiles.Items.Add(ScanResult.Last.ScanFile)
-  else
-    ScanResult.Delete(ScanResult.Count - 1);
+  if ScanThreads.Count <> 0 then Exit;
 
-  if ScanThreads.Count > 0 then
+  if ScanResult.Count <> 0 then SetListCount(ScanResult.Last.Count);
+
+  CheckButtonsAndMainMenu;
+
+  if cbbFiles.Enabled then
   begin
-    ScanThreads.First.Start;
-    Exit;
+    cbbFiles.ItemIndex := cbbFiles.Items.Count - 1;
+    cbbFilesChange(Self);
   end;
 
-  SetListCount(ScanResult.Last.Count);
-  cbbFiles.ItemIndex := cbbFiles.Items.Count - 1;
-  lblStatus.Caption := '';
-  cbbFiles.Enabled := True;
-  pnlList.Enabled := True;
-  actExtractList.Enabled := True;
   btnStopScan.Enabled := False;
-
-  lvList.Items[0].Selected := True;
-  lvList.Items[0].Focused := True;
-  lvList.SetFocus;
 end;
 
 procedure TfrmMain.ScanPath(const Path: string);
@@ -889,7 +886,7 @@ var
   TIM: PTIM;
   I, CLUTS: Word;
 begin
-  TIM := CurrentTIM;
+  TIM := SelTim;
   if TIM = nil then Exit;
 
   CLUTS := GetTIMClutsCount(TIM);
