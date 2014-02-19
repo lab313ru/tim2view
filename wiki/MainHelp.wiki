@@ -2,12 +2,8 @@
 
 = Introduction =
 
-Первоначально, программа *Tim2View* называлась *TimView+*. 
+*T2V* умеет работать с образами дисков (_ISO/BIN/IMG/MDF_). Программа автоматически распознает секторы диска, что позволяет корректно вставлять *_TIM_*-Файлы назад. (За код пересчета *_ECC/EDC_* благодарности *HoRRoR*'у).
 
+Поддерживается *Drag-n-Drop* в окно программы. Если *T2V* ассоциирован с *_.tim_*-расширением, при открытии файлов каждый новый файл будет открываться в том же экземпляре программы.
 
-= Details =
-
-Add your content here.  Format your content with:
-  * Text in *bold* or _italic_
-  * Headings, paragraphs, and lists
-  * Automatic links to other wiki pages
+Поддержки *_TM2_* на данный момент нет, но все впереди!
