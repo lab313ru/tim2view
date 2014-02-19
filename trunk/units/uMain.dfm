@@ -20,8 +20,8 @@ object frmMain: TfrmMain
   TextHeight = 13
   object pnlStatus: TPanel
     Left = 0
-    Top = 502
-    Width = 738
+    Top = 515
+    Width = 746
     Height = 30
     Align = alBottom
     BevelOuter = bvLowered
@@ -29,17 +29,17 @@ object frmMain: TfrmMain
     object lblStatus: TLabel
       Left = 76
       Top = 1
-      Width = 157
+      Width = 165
       Height = 28
       Align = alClient
       Alignment = taRightJustify
       Layout = tlCenter
-      ExplicitLeft = 230
+      ExplicitLeft = 238
       ExplicitWidth = 3
       ExplicitHeight = 13
     end
     object pbProgress: TProgressBar
-      Left = 233
+      Left = 241
       Top = 1
       Width = 504
       Height = 28
@@ -63,7 +63,7 @@ object frmMain: TfrmMain
   object cbbFiles: TComboBox
     Left = 0
     Top = 0
-    Width = 738
+    Width = 746
     Height = 21
     Align = alTop
     AutoDropDown = True
@@ -77,23 +77,24 @@ object frmMain: TfrmMain
   object pnlMain: TPanel
     Left = 0
     Top = 21
-    Width = 738
-    Height = 481
+    Width = 746
+    Height = 494
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 1
     object splMain: TSplitter
       Left = 233
       Top = 0
-      Height = 481
+      Height = 494
       ResizeStyle = rsUpdate
       ExplicitLeft = 201
+      ExplicitHeight = 481
     end
     object pnlList: TPanel
       Left = 0
       Top = 0
       Width = 233
-      Height = 481
+      Height = 494
       Align = alLeft
       BevelOuter = bvNone
       TabOrder = 0
@@ -101,7 +102,7 @@ object frmMain: TfrmMain
         Left = 0
         Top = 0
         Width = 233
-        Height = 481
+        Height = 494
         Align = alClient
         Columns = <
           item
@@ -118,6 +119,7 @@ object frmMain: TfrmMain
           end>
         ColumnClick = False
         DoubleBuffered = True
+        Enabled = False
         GridLines = True
         HideSelection = False
         OwnerData = True
@@ -130,33 +132,36 @@ object frmMain: TfrmMain
         OnClick = lvListClick
         OnData = lvListData
         OnSelectItem = lvListSelectItem
+        ExplicitLeft = -2
+        ExplicitTop = -5
       end
     end
     object pnlImage: TPanel
       Left = 236
       Top = 0
-      Width = 502
-      Height = 481
+      Width = 510
+      Height = 494
       Align = alClient
       BevelOuter = bvLowered
       TabOrder = 1
       object splImageClut: TSplitter
         Left = 1
         Top = 1
-        Width = 500
+        Width = 508
         Height = 3
         Cursor = crVSplit
         Align = alTop
         Beveled = True
         ResizeStyle = rsUpdate
         ExplicitTop = 274
+        ExplicitWidth = 500
       end
       object pbTim: TImage
         AlignWithMargins = True
         Left = 4
         Top = 7
-        Width = 494
-        Height = 290
+        Width = 502
+        Height = 303
         Align = alClient
         Center = True
         IncrementalDisplay = True
@@ -169,8 +174,8 @@ object frmMain: TfrmMain
       end
       object grdCurrClut: TDrawGrid
         Left = 1
-        Top = 330
-        Width = 500
+        Top = 343
+        Width = 508
         Height = 150
         Align = alBottom
         ColCount = 1
@@ -190,8 +195,8 @@ object frmMain: TfrmMain
       end
       object pnlImageOptions: TPanel
         Left = 1
-        Top = 300
-        Width = 500
+        Top = 313
+        Width = 508
         Height = 30
         Align = alBottom
         BevelOuter = bvLowered
@@ -206,6 +211,7 @@ object frmMain: TfrmMain
           AutoDropDown = True
           AutoCloseUp = True
           Style = csDropDownList
+          Enabled = False
           TabOrder = 0
           OnChange = cbbCLUTChange
         end
@@ -217,6 +223,7 @@ object frmMain: TfrmMain
           Height = 21
           Align = alLeft
           Style = csDropDownList
+          Enabled = False
           ItemIndex = 0
           TabOrder = 1
           Text = 'Full transparence'
@@ -235,6 +242,7 @@ object frmMain: TfrmMain
           Height = 21
           Align = alLeft
           Style = csDropDownList
+          Enabled = False
           ItemIndex = 0
           TabOrder = 2
           Text = 'Real'
@@ -245,16 +253,16 @@ object frmMain: TfrmMain
             '8 BPP'
             '16 BPP'
             '24 BPP')
-          ExplicitTop = 3
         end
         object chkStretch: TCheckBox
           AlignWithMargins = True
           Left = 407
           Top = 4
-          Width = 89
+          Width = 97
           Height = 22
           Action = actStretch
           Align = alClient
+          Enabled = False
           TabOrder = 3
         end
       end

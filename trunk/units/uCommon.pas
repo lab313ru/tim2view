@@ -30,7 +30,7 @@ function GetStartDir: string;
 function GetFileSizeAPI(const FileName: string): Int64;
 function CheckFileExists(const FileName: string): boolean;
 // function cHex2Int( const Value : string) : Integer;
-function ExtractFileNameWOext(const Path: string): string;
+function ExtractJustName(const Path: string): string;
 procedure Text2Clipboard(const S: string);
 function Min(A, B: Integer): Integer;
 function Max(A, B: Integer): Integer;
@@ -61,7 +61,7 @@ begin
   Clipboard.AsText := S;
 end;
 
-function ExtractFileNameWOext(const Path: string): string;
+function ExtractJustName(const Path: string): string;
 begin
   Result := ExtractFileName(Path);
   Result := Copy(Result, 1, Length(Result) - Length(ExtractFileExt(Result)));
