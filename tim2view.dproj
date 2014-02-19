@@ -83,8 +83,8 @@
         <DCC_SUSPICIOUS_TYPECAST>false</DCC_SUSPICIOUS_TYPECAST>
         <DCC_MapFile>3</DCC_MapFile>
         <DCC_Optimize>true</DCC_Optimize>
-        <VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=1.0.0.504;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
-        <VerInfo_Build>504</VerInfo_Build>
+        <VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=1.0.0.523;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
+        <VerInfo_Build>523</VerInfo_Build>
         <Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
         <DCC_IOChecking>false</DCC_IOChecking>
         <DCC_IntegerOverflowCheck>true</DCC_IntegerOverflowCheck>
@@ -102,6 +102,9 @@
         <DCC_DebugInformation>0</DCC_DebugInformation>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
+        <DCC_DebugInformation>true</DCC_DebugInformation>
+        <DCC_LocalDebugSymbols>true</DCC_LocalDebugSymbols>
+        <DCC_Define>madExcept;LeakChecking;$(DCC_Define)</DCC_Define>
         <DCC_MapFile>3</DCC_MapFile>
         <VerInfo_Locale>1033</VerInfo_Locale>
         <DCC_IOChecking>false</DCC_IOChecking>

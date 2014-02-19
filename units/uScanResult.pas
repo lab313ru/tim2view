@@ -52,7 +52,8 @@ end;
 
 destructor TScanResult.Destroy;
 begin
-
+  SetLength(pTims, 0);
+  pTims := nil;
   inherited;
 end;
 

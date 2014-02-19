@@ -169,9 +169,19 @@ begin
   UpdateProgressBar;
   SetStatusText;
 
-  if pScanResult.Count = 0 then Exit;
-  frmMain.ScanResult.Add(pScanResult);
-  frmMain.cbbFiles.Items.Add(pScanResult.ScanFile);
+  if pScanResult.Count = 0 then
+  begin
+    pScanResult.Free;
+    Exit;
+  end;
+
+  if not frmMain.CheckForFileOpened(pScanResult.ScanFile) then
+  begin
+    frmMain.ScanResult.Add(pScanResult);
+    frmMain.cbbFiles.Items.Add(pScanResult.ScanFile);
+  end
+  else
+    pScanResult.Free;
 end;
 
 procedure TScanThread.SetStatusText;
