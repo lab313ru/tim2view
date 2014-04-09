@@ -608,7 +608,7 @@ object frmMain: TfrmMain
         PopupMenu = pmList
         TabOrder = 0
         ViewStyle = vsReport
-        OnClick = lvListClick
+        OnChange = lvListChange
         OnData = lvListData
         OnSelectItem = lvListSelectItem
       end
