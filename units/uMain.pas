@@ -86,7 +86,6 @@ type
     procedure btnStopScanClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure lvListData(Sender: TObject; Item: TListItem);
-    procedure lvListClick(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure cbbFilesChange(Sender: TObject);
     procedure cbbCLUTChange(Sender: TObject);
@@ -112,6 +111,8 @@ type
       Selected: Boolean);
     procedure cbbTransparenceModeChange(Sender: TObject);
     procedure btnShowClutClick(Sender: TObject);
+    procedure lvListChange(Sender: TObject; Item: TListItem;
+      Change: TItemChange);
   private
     { Private declarations }
     // pResult: PNativeXml;
@@ -137,6 +138,7 @@ type
     procedure UpdateCLUTInfo;
     procedure SetCLUTListToNoCLUT;
     function ForceForegroundWindow(hwnd: THandle): Boolean;
+    procedure ShowItem();
   protected
     procedure WMDropFiles(var Msg: TWMDropFiles); message WM_DROPFILES;
     procedure WMCommandArrived(var Message: TMessage); message WM_COMMANDARRIVED;
@@ -375,7 +377,7 @@ begin
   if GetFileSizeAPI(dlgOpenFile.FileName) > cTIMMaxSize then Exit;
 
   ReplaceTimInFile(ScanRes.ScanFile, dlgOpenFile.FileName, TimIdx(ListIdx).Position, ScanRes.IsImage);
-  lvListClick(Self);
+  ShowItem;
   MessageBeep(MB_ICONINFORMATION);
 end;
 
@@ -495,8 +497,8 @@ begin
 
   lvList.SetFocus;
   lvList.Selected := nil;
-  lvList.Items[0].Selected := True;
   lvList.Items[0].Focused := True;
+  lvList.Items[0].Selected := True;
 end;
 
 procedure TfrmMain.cbbTransparenceModeChange(Sender: TObject);
@@ -783,21 +785,13 @@ begin
   FindClose(sRec);
 end;
 
-procedure TfrmMain.lvListClick(Sender: TObject);
+procedure TfrmMain.lvListChange(Sender: TObject; Item: TListItem;
+  Change: TItemChange);
 begin
-  if (lvList.Selected = nil) then Exit;
-  if (lvList.Items.Count = 0) then Exit;
+  if (Item = nil) or (Change <> ctState) then Exit;
 
-  cbbBitMode.ItemIndex := 0;
-
-  UpdateCLUTInfo;
-  DrawSelTim;
-  DrawSelClut;
-
-  actTimInfo.Caption := Format('[OFFSET: 0x%x | SIZE: 0x%x]', [TimIdx(ListIdx).Position, TimIdx(ListIdx).Size]);
-  actTimInfo.Enabled := True;
-
-  CheckButtonsAndMainMenu;
+  if Item.Focused and Item.Selected then
+    ShowItem;
 end;
 
 procedure TfrmMain.lvListData(Sender: TObject; Item: TListItem);
@@ -818,8 +812,10 @@ end;
 procedure TfrmMain.lvListSelectItem(Sender: TObject; Item: TListItem;
   Selected: Boolean);
 begin
+  (*if Item = nil then Exit;
+
   if Selected then
-    lvListClick(Self);
+    lvListClick(Self);    *)
 end;
 
 procedure TfrmMain.SetListCount(Count: Integer);
@@ -828,6 +824,23 @@ begin
   lvList.Items.Count := Count;
   lvList.Column[0].Caption := Format('# / %d', [Count]);
   lvList.Items.EndUpdate;
+end;
+
+procedure TfrmMain.ShowItem;
+begin
+  if (lvList.Selected = nil) then Exit;
+  if (lvList.Items.Count = 0) then Exit;
+
+  cbbBitMode.ItemIndex := 0;
+
+  UpdateCLUTInfo;
+  DrawSelTim;
+  DrawSelClut;
+
+  actTimInfo.Caption := Format('[OFFSET: 0x%x | SIZE: 0x%x]', [TimIdx(ListIdx).Position, TimIdx(ListIdx).Size]);
+  actTimInfo.Enabled := True;
+
+  CheckButtonsAndMainMenu;
 end;
 
 function TfrmMain.TimIdx(Index: Integer): TScanTim;
