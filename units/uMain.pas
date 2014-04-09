@@ -46,7 +46,6 @@ type
     pnlList: TPanel;
     lvList: TListView;
     pnlImageOptions: TPanel;
-    cbbCLUT: TComboBox;
     cbbTransparenceMode: TComboBox;
     grdCurrClut: TDrawGrid;
     pnlImage: TPanel;
@@ -71,7 +70,6 @@ type
     N2: TMenuItem;
     SaveasPNG1: TMenuItem;
     cbbBitMode: TComboBox;
-    chkStretch: TCheckBox;
     actStretch: TAction;
     actTimInfo: TAction;
     mnTIMInfo: TMenuItem;
@@ -83,6 +81,8 @@ type
     ExtractTIMs1: TMenuItem;
     pbTim: TImage;
     btnShowClut: TButton;
+    cbbCLUT: TComboBox;
+    actChangeBackColor: TAction;
     procedure btnStopScanClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure lvListData(Sender: TObject; Item: TListItem);
@@ -239,7 +239,7 @@ end;
 
 procedure TfrmMain.actAboutExecute(Sender: TObject);
 begin
-  MessageBox(Handle, 'Test version!', 'About', MB_OK + MB_ICONINFORMATION);
+  MessageBox(Handle, 'Some "about strings" should be here!:)', 'About', MB_OK + MB_ICONINFORMATION);
 end;
 
 procedure TfrmMain.actAssocTimsExecute(Sender: TObject);
@@ -281,10 +281,6 @@ begin
   lvList.Column[0].Caption := '# / 0';
   DrawSelTim;
   DrawSelClut;
-
-  cbbCLUT.Items.BeginUpdate;
-  if (cbbCLUT.Items.Count > 0) then cbbCLUT.Items.Delete(cbbCLUT.ItemIndex);
-  cbbCLUT.Items.EndUpdate;
 
   SetCLUTListToNoCLUT;
 
@@ -548,7 +544,7 @@ begin
   cbbCLUT.Enabled := actReplaceTim.Enabled;
   cbbTransparenceMode.Enabled := actReplaceTim.Enabled;
   cbbBitMode.Enabled := actReplaceTim.Enabled;
-  chkStretch.Enabled := actReplaceTim.Enabled;
+  //actStretch.Enabled := actReplaceTim.Enabled;
 end;
 
 function TfrmMain.SelTIM(NewBitMode: Integer = $FF): PTIM;
@@ -635,7 +631,7 @@ begin
   PNG.AssignTo(pbTim.Picture.Bitmap);
   FreeTIM(TIM);
 
-  pbTim.Stretch := chkStretch.Checked;
+  pbTim.Stretch := actStretch.Checked;
 end;
 
 function TfrmMain.ScanRes: TScanResult;
@@ -662,6 +658,8 @@ begin
   hGridRect.Right := -1;
   hGridRect.Bottom := -1;
   grdCurrClut.Selection := hGridRect;
+
+  pbTim.Parent.DoubleBuffered := true;
 
   ScanThreads := TList<TScanThread>.Create;
   ScanResult := TList<TScanResult>.Create;
@@ -812,8 +810,9 @@ begin
   H := TimIdx(Item.Index).Height;
 
   Item.Caption := Format('%.6d', [Item.Index + 1]);
-  Item.SubItems.Add(Format('%dx%d', [W, H]));
-  Item.SubItems.Add(Format('%d', [TimIdx(Item.Index).BitMode]));
+  Item.SubItems.Add(Format('%.3dx%.3d', [W, H]));
+  Item.SubItems.Add(Format('%.2d', [TimIdx(Item.Index).BitMode]));
+  Item.SubItems.Add(Format('%.2d', [TimIdx(Item.Index).Cluts]));
 end;
 
 procedure TfrmMain.lvListSelectItem(Sender: TObject; Item: TListItem;
@@ -901,11 +900,23 @@ begin
 end;
 
 procedure TfrmMain.SetCLUTListToNoCLUT;
+var
+  I: Integer;
 begin
-  cbbCLUT.Items.BeginUpdate;
-  cbbCLUT.Items.Clear;
-  cbbCLUT.Items.Add(sThisTimHasNoClut);
-  cbbCLUT.Items.EndUpdate;
+  if cbbCLUT.Items.Count > 0 then
+  begin
+    cbbCLUT.Items.BeginUpdate;
+
+    for I := 0 to cbbCLUT.Items.Count - 2 do
+      cbbCLUT.Items.Delete(I);
+
+    cbbCLUT.Items[0] := sThisTimHasNoClut;
+
+    cbbCLUT.Items.EndUpdate;
+  end
+  else
+    cbbCLUT.Items.Add(sThisTimHasNoClut);
+
   cbbCLUT.ItemIndex := 0;
 end;
 
@@ -918,14 +929,15 @@ begin
   if TIM = nil then Exit;
 
   CLUTS := GetTIMClutsCount(TIM);
-  cbbCLUT.Clear;
+  //cbbCLUT.Items.Clear;
 
-  for I := 1 to CLUTS do
-  begin
-    cbbCLUT.Items.BeginUpdate;
-    cbbCLUT.Items.Add(Format('CLUT [%d/%d]', [I, CLUTS]));
-    cbbCLUT.Items.EndUpdate;
-  end;
+  cbbCLUT.Items.BeginUpdate;
+  for I := 0 to cbbCLUT.Items.Count -1 do
+    cbbCLUT.Items[i] := Format('CLUT [%.2d/%.2d]', [I + 1, CLUTS]);
+
+  for I := cbbCLUT.Items.Count + 1 to CLUTS do
+    cbbCLUT.Items.Add(Format('CLUT [%.2d/%.2d]', [I, CLUTS]));
+  cbbCLUT.Items.EndUpdate;
 
   cbbCLUT.ItemIndex := 0;
 

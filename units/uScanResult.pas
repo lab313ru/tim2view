@@ -9,6 +9,7 @@ type
     Width: Integer;
     Height: Integer;
     BitMode: Byte;
+    Cluts: Integer;
     Good: Boolean;
   end;
 

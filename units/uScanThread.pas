@@ -68,6 +68,12 @@ begin
   ScanTim.Width := GetTimRealWidth(TIM);
   ScanTim.Height := GetTimHeight(TIM);
   ScanTim.Bitmode := BppToBitMode(TIM);
+
+  if TIMHasCLUT(TIM) then
+    ScanTim.Cluts := GetTimClutsCount(TIM)
+  else
+    ScanTim.Cluts := 0;
+
   ScanTim.Good := TIMIsGood(TIM);
 
   pScanResult.Count := TIM^.dwTimNumber;
