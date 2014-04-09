@@ -1,8 +1,9 @@
 object frmMain: TfrmMain
   Left = 0
   Top = 0
-  Width = 754
+  Width = 780
   Height = 591
+  ActiveControl = pnlList
   AutoScroll = True
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -494,7 +495,7 @@ object frmMain: TfrmMain
   object pnlStatus: TPanel
     Left = 0
     Top = 502
-    Width = 738
+    Width = 764
     Height = 30
     Align = alBottom
     BevelOuter = bvLowered
@@ -502,19 +503,19 @@ object frmMain: TfrmMain
     object lblStatus: TLabel
       Left = 76
       Top = 1
-      Width = 157
+      Width = 164
       Height = 28
       Align = alClient
       Alignment = taRightJustify
       Layout = tlCenter
-      ExplicitLeft = 230
+      ExplicitLeft = 237
       ExplicitWidth = 3
       ExplicitHeight = 13
     end
     object pbProgress: TProgressBar
-      Left = 233
+      Left = 240
       Top = 1
-      Width = 504
+      Width = 523
       Height = 28
       Align = alRight
       Anchors = [akLeft, akTop, akRight, akBottom]
@@ -536,7 +537,7 @@ object frmMain: TfrmMain
   object cbbFiles: TComboBox
     Left = 0
     Top = 0
-    Width = 738
+    Width = 764
     Height = 21
     Align = alTop
     AutoDropDown = True
@@ -550,13 +551,13 @@ object frmMain: TfrmMain
   object pnlMain: TPanel
     Left = 0
     Top = 21
-    Width = 738
+    Width = 764
     Height = 481
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 1
     object splMain: TSplitter
-      Left = 233
+      Left = 240
       Top = 0
       Height = 481
       ResizeStyle = rsUpdate
@@ -565,7 +566,7 @@ object frmMain: TfrmMain
     object pnlList: TPanel
       Left = 0
       Top = 0
-      Width = 233
+      Width = 240
       Height = 481
       Align = alLeft
       BevelOuter = bvNone
@@ -573,7 +574,7 @@ object frmMain: TfrmMain
       object lvList: TListView
         Left = 0
         Top = 0
-        Width = 233
+        Width = 240
         Height = 481
         Align = alClient
         Columns = <
@@ -583,11 +584,17 @@ object frmMain: TfrmMain
           end
           item
             Alignment = taCenter
-            Caption = 'Resolution'
-            Width = 95
+            Caption = 'W x H'
+            Width = 70
           end
           item
+            Alignment = taCenter
             Caption = 'BPP'
+            Width = 35
+          end
+          item
+            Alignment = taCenter
+            Caption = 'CLUTs'
           end>
         ColumnClick = False
         DoubleBuffered = True
@@ -607,9 +614,9 @@ object frmMain: TfrmMain
       end
     end
     object pnlImage: TPanel
-      Left = 236
+      Left = 243
       Top = 0
-      Width = 502
+      Width = 521
       Height = 481
       Align = alClient
       BevelOuter = bvLowered
@@ -617,31 +624,31 @@ object frmMain: TfrmMain
       object splImageClut: TSplitter
         Left = 1
         Top = 1
-        Width = 500
+        Width = 519
         Height = 3
         Cursor = crVSplit
         Align = alTop
         Beveled = True
         ResizeStyle = rsUpdate
         ExplicitTop = 274
+        ExplicitWidth = 500
       end
       object pbTim: TImage
         AlignWithMargins = True
         Left = 4
         Top = 7
-        Width = 494
-        Height = 290
+        Width = 513
+        Height = 293
         Align = alClient
         Center = True
+        PopupMenu = pmImage
         Proportional = True
-        ExplicitLeft = 6
-        ExplicitTop = -59
-        ExplicitHeight = 265
+        ExplicitWidth = 517
       end
       object grdCurrClut: TDrawGrid
         Left = 1
-        Top = 300
-        Width = 500
+        Top = 303
+        Width = 519
         Height = 150
         Align = alBottom
         ColCount = 1
@@ -662,56 +669,37 @@ object frmMain: TfrmMain
       end
       object pnlImageOptions: TPanel
         Left = 1
-        Top = 450
-        Width = 500
-        Height = 30
+        Top = 453
+        Width = 519
+        Height = 27
         Align = alBottom
-        BevelOuter = bvLowered
+        AutoSize = True
+        BevelOuter = bvNone
         TabOrder = 1
-        object cbbCLUT: TComboBox
+        object btnShowClut: TButton
+          Left = 467
+          Top = 0
+          Width = 52
+          Height = 27
+          Align = alRight
+          Caption = 'CLUT'
+          TabOrder = 0
+          OnClick = btnShowClutClick
+        end
+        object cbbBitMode: TComboBox
           AlignWithMargins = True
-          Left = 4
-          Top = 4
-          Width = 93
+          Left = 3
+          Top = 3
+          Width = 74
           Height = 21
           Align = alLeft
           AutoDropDown = True
           AutoCloseUp = True
           Style = csDropDownList
-          Enabled = False
-          TabOrder = 0
-          OnChange = cbbCLUTChange
-        end
-        object cbbTransparenceMode: TComboBox
-          AlignWithMargins = True
-          Left = 103
-          Top = 4
-          Width = 122
-          Height = 21
-          Align = alLeft
-          Style = csDropDownList
+          Anchors = []
           Enabled = False
           ItemIndex = 0
           TabOrder = 1
-          Text = 'Full transparence'
-          OnChange = cbbTransparenceModeChange
-          Items.Strings = (
-            'Full transparence'
-            'Black Transparence'
-            'Semi Transparence'
-            'No Transparence')
-        end
-        object cbbBitMode: TComboBox
-          AlignWithMargins = True
-          Left = 231
-          Top = 4
-          Width = 74
-          Height = 21
-          Align = alLeft
-          Style = csDropDownList
-          Enabled = False
-          ItemIndex = 0
-          TabOrder = 2
           Text = 'Real'
           OnChange = cbbBitModeChange
           Items.Strings = (
@@ -721,26 +709,43 @@ object frmMain: TfrmMain
             '16 BPP'
             '24 BPP')
         end
-        object chkStretch: TCheckBox
+        object cbbTransparenceMode: TComboBox
           AlignWithMargins = True
-          Left = 311
-          Top = 4
-          Width = 81
-          Height = 22
-          Action = actStretch
-          Align = alClient
+          Left = 83
+          Top = 3
+          Width = 122
+          Height = 21
+          Align = alLeft
+          AutoDropDown = True
+          AutoCloseUp = True
+          Style = csDropDownList
+          Anchors = []
           Enabled = False
-          TabOrder = 3
+          ItemIndex = 0
+          TabOrder = 2
+          Text = 'Full transparence'
+          OnChange = cbbTransparenceModeChange
+          Items.Strings = (
+            'Full transparence'
+            'Black Transparence'
+            'Semi Transparence'
+            'No Transparence')
         end
-        object btnShowClut: TButton
-          Left = 395
-          Top = 1
-          Width = 104
-          Height = 28
+        object cbbCLUT: TComboBox
+          AlignWithMargins = True
+          Left = 355
+          Top = 3
+          Width = 109
+          Height = 21
           Align = alRight
-          Caption = 'Show/Hide CLUT'
-          TabOrder = 4
-          OnClick = btnShowClutClick
+          AutoDropDown = True
+          AutoCloseUp = True
+          Style = csDropDownList
+          Anchors = []
+          DoubleBuffered = False
+          DropDownCount = 16
+          ParentDoubleBuffered = False
+          TabOrder = 3
         end
       end
     end
@@ -895,7 +900,7 @@ object frmMain: TfrmMain
     end
     object actStretch: TAction
       AutoCheck = True
-      Caption = '&Stretch'
+      Caption = '&Stretch Image'
       OnExecute = actStretchExecute
     end
     object actTimInfo: TAction
@@ -912,6 +917,12 @@ object frmMain: TfrmMain
       Enabled = False
       ShortCut = 112
       OnExecute = actExtractListExecute
+    end
+    object actChangeClutIdx: TAction
+      Caption = 'actChangeClutIdx'
+    end
+    object actChangeBackColor: TAction
+      Caption = '&Change Background Color'
     end
   end
   object pmList: TPopupMenu
@@ -937,6 +948,20 @@ object frmMain: TfrmMain
     end
     object mnTIMInfo: TMenuItem
       Action = actTimInfo
+    end
+  end
+  object pmImage: TPopupMenu
+    Left = 480
+    Top = 502
+    object mnSaveAsPng: TMenuItem
+      Action = actTim2Png
+    end
+    object N5: TMenuItem
+      Caption = '-'
+    end
+    object mnStretch: TMenuItem
+      Action = actStretch
+      AutoCheck = True
     end
   end
 end
