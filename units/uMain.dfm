@@ -547,6 +547,7 @@ object frmMain: TfrmMain
     Enabled = False
     TabOrder = 0
     OnChange = cbbFilesChange
+    OnCloseUp = actReturnFocusExecute
   end
   object pnlMain: TPanel
     Left = 0
@@ -610,7 +611,6 @@ object frmMain: TfrmMain
         ViewStyle = vsReport
         OnChange = lvListChange
         OnData = lvListData
-        OnSelectItem = lvListSelectItem
       end
     end
     object pnlImage: TPanel
@@ -701,7 +701,8 @@ object frmMain: TfrmMain
           ItemIndex = 0
           TabOrder = 1
           Text = 'Real'
-          OnChange = cbbBitModeChange
+          OnChange = actDrawSelectedTimExecute
+          OnCloseUp = actReturnFocusExecute
           Items.Strings = (
             'Real'
             '4 BPP'
@@ -709,7 +710,7 @@ object frmMain: TfrmMain
             '16 BPP'
             '24 BPP')
         end
-        object cbbTransparenceMode: TComboBox
+        object cbbTranspMode: TComboBox
           AlignWithMargins = True
           Left = 83
           Top = 3
@@ -724,7 +725,8 @@ object frmMain: TfrmMain
           ItemIndex = 0
           TabOrder = 2
           Text = 'Full transparence'
-          OnChange = cbbTransparenceModeChange
+          OnChange = cbbTranspModeChange
+          OnCloseUp = actReturnFocusExecute
           Items.Strings = (
             'Full transparence'
             'Black Transparence'
@@ -746,6 +748,7 @@ object frmMain: TfrmMain
           DropDownCount = 16
           ParentDoubleBuffered = False
           TabOrder = 3
+          OnCloseUp = actReturnFocusExecute
         end
       end
     end
@@ -923,6 +926,14 @@ object frmMain: TfrmMain
     end
     object actChangeBackColor: TAction
       Caption = '&Change Background Color'
+    end
+    object actReturnFocus: TAction
+      Caption = 'actReturnFocus'
+      OnExecute = actReturnFocusExecute
+    end
+    object actDrawSelectedTim: TAction
+      Caption = 'actDrawSelectedTim'
+      OnExecute = actDrawSelectedTimExecute
     end
   end
   object pmList: TPopupMenu
