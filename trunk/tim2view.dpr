@@ -15,7 +15,8 @@ uses
   uDrawTIM in 'units\uDrawTIM.pas',
   uEventWaitThread in 'units\uEventWaitThread.pas',
   uBrowseForFolder in 'units\uBrowseForFolder.pas',
-  uScanResult in 'units\uScanResult.pas';
+  uScanResult in 'units\uScanResult.pas',
+  uSettings in 'units\uSettings.pas';
 
 {$R *.res}
 

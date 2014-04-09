@@ -8,7 +8,8 @@ uses
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.Grids, Vcl.ComCtrls,
   Vcl.ExtCtrls, Vcl.Menus, Vcl.StdCtrls, uScanThread, uCommon,
   Winapi.ShellAPI, uDrawTIM, Vcl.ExtDlgs, uTIM, System.Actions,
-  Vcl.ActnList, uScanResult, System.Types, System.Generics.Collections;
+  Vcl.ActnList, uScanResult, System.Types, System.Generics.Collections,
+  uSettings;
 
 const
   WM_COMMANDARRIVED = WM_USER + 1;
@@ -46,7 +47,7 @@ type
     pnlList: TPanel;
     lvList: TListView;
     pnlImageOptions: TPanel;
-    cbbTransparenceMode: TComboBox;
+    cbbTranspMode: TComboBox;
     grdCurrClut: TDrawGrid;
     pnlImage: TPanel;
     splImageClut: TSplitter;
@@ -83,6 +84,8 @@ type
     btnShowClut: TButton;
     cbbCLUT: TComboBox;
     actChangeBackColor: TAction;
+    actReturnFocus: TAction;
+    actDrawSelectedTim: TAction;
     procedure btnStopScanClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure lvListData(Sender: TObject; Item: TListItem);
@@ -101,18 +104,17 @@ type
     procedure actTim2PngExecute(Sender: TObject);
     procedure actOpenRepoExecute(Sender: TObject);
     procedure actOpenLabExecute(Sender: TObject);
-    procedure cbbBitModeChange(Sender: TObject);
     procedure actAboutExecute(Sender: TObject);
     procedure actStretchExecute(Sender: TObject);
     procedure actTimInfoExecute(Sender: TObject);
     procedure actAssocTimsExecute(Sender: TObject);
     procedure actExtractListExecute(Sender: TObject);
-    procedure lvListSelectItem(Sender: TObject; Item: TListItem;
-      Selected: Boolean);
-    procedure cbbTransparenceModeChange(Sender: TObject);
+    procedure cbbTranspModeChange(Sender: TObject);
     procedure btnShowClutClick(Sender: TObject);
     procedure lvListChange(Sender: TObject; Item: TListItem;
       Change: TItemChange);
+    procedure actReturnFocusExecute(Sender: TObject);
+    procedure actDrawSelectedTimExecute(Sender: TObject);
   private
     { Private declarations }
     // pResult: PNativeXml;
@@ -121,6 +123,7 @@ type
     LastDir: string;
     WaitThread: TEventWaitThread;
     StartedScans: Integer;
+    Settings: TSettings;
 
     function ScanRes: TScanResult;
     procedure SetListCount(Count: Integer);
@@ -281,10 +284,10 @@ begin
   actTimInfo.Enabled := False;
   actTimInfo.Caption := 'TIM Info';
   lvList.Column[0].Caption := '# / 0';
+
+  UpdateCLUTInfo;
   DrawSelTim;
   DrawSelClut;
-
-  SetCLUTListToNoCLUT;
 
   cbbFiles.Items.Delete(cbbFiles.ItemIndex);
 
@@ -305,6 +308,11 @@ begin
     actCloseFile.Execute;
     cbbFiles.Items.EndUpdate;
   end;
+end;
+
+procedure TfrmMain.actDrawSelectedTimExecute(Sender: TObject);
+begin
+  DrawSelTim;
 end;
 
 procedure TfrmMain.actExitExecute(Sender: TObject);
@@ -381,6 +389,11 @@ begin
   MessageBeep(MB_ICONINFORMATION);
 end;
 
+procedure TfrmMain.actReturnFocusExecute(Sender: TObject);
+begin
+  if lvList.Enabled then lvList.SetFocus;
+end;
+
 procedure TfrmMain.actScanDirExecute(Sender: TObject);
 var
   SelectedDir: string;
@@ -405,7 +418,8 @@ end;
 
 procedure TfrmMain.actStretchExecute(Sender: TObject);
 begin
-  DrawSelTim;
+  Settings.StretchMode := actStretch.Checked;
+  actDrawSelectedTimExecute(Self);
 end;
 
 procedure TfrmMain.actTim2PngExecute(Sender: TObject);
@@ -482,6 +496,7 @@ procedure TfrmMain.btnShowClutClick(Sender: TObject);
 begin
   grdCurrClut.Visible := not grdCurrClut.Visible;
   DrawSelClut;
+  actReturnFocusExecute(Self);
 end;
 
 procedure TfrmMain.btnStopScanClick(Sender: TObject);
@@ -489,31 +504,28 @@ begin
   if ScanThreads.Count = 0 then Exit;
 
   ScanThreads.First.StopScan := True;
+  actReturnFocusExecute(Self);
 end;
 
 procedure TfrmMain.cbbFilesChange(Sender: TObject);
 begin
   SetListCount(ScanRes.Count);
 
-  lvList.SetFocus;
+  actReturnFocusExecute(Self);
   lvList.Selected := nil;
   lvList.Items[0].Focused := True;
   lvList.Items[0].Selected := True;
 end;
 
-procedure TfrmMain.cbbTransparenceModeChange(Sender: TObject);
+procedure TfrmMain.cbbTranspModeChange(Sender: TObject);
 begin
-  DrawSelTim;
-end;
-
-procedure TfrmMain.cbbBitModeChange(Sender: TObject);
-begin
-  DrawSelTim;
+  Settings.TranspMode := cbbTranspMode.ItemIndex;
+  actDrawSelectedTimExecute(Self);
 end;
 
 procedure TfrmMain.cbbCLUTChange(Sender: TObject);
 begin
-  DrawSelTim;
+  actDrawSelectedTimExecute(Self);
   DrawSelClut;
 end;
 
@@ -544,7 +556,8 @@ begin
   actExtractTim.Enabled := actReplaceTim.Enabled;
 
   cbbCLUT.Enabled := actReplaceTim.Enabled;
-  cbbTransparenceMode.Enabled := actReplaceTim.Enabled;
+  btnShowClut.Enabled := actReplaceTim.Enabled;
+  cbbTranspMode.Enabled := actReplaceTim.Enabled;
   cbbBitMode.Enabled := actReplaceTim.Enabled;
   //actStretch.Enabled := actReplaceTim.Enabled;
 end;
@@ -629,7 +642,7 @@ begin
   else
     Index := cbbCLUT.ItemIndex;
 
-  TimToPNG(TIM, Index, PNG, cbbTransparenceMode.ItemIndex);
+  TimToPNG(TIM, Index, PNG, cbbTranspMode.ItemIndex);
   PNG.AssignTo(pbTim.Picture.Bitmap);
   FreeTIM(TIM);
 
@@ -649,12 +662,21 @@ begin
 
   if PNG^ <> nil then PNG^.Free;
   Dispose(PNG);
+
+  Settings.SaveToFile;
+  Settings.Free;
 end;
 
 procedure TfrmMain.FormCreate(Sender: TObject);
 var
   hGridRect: TGridRect;
 begin
+  Settings := TSettings.Create;
+  Settings.LoadFromFile;
+
+  actStretch.Checked := Settings.StretchMode;
+  cbbTranspMode.ItemIndex := Settings.TranspMode;
+
   hGridRect.Top := -1;
   hGridRect.Left := -1;
   hGridRect.Right := -1;
@@ -809,15 +831,6 @@ begin
   Item.SubItems.Add(Format('%.2d', [TimIdx(Item.Index).Cluts]));
 end;
 
-procedure TfrmMain.lvListSelectItem(Sender: TObject; Item: TListItem;
-  Selected: Boolean);
-begin
-  (*if Item = nil then Exit;
-
-  if Selected then
-    lvListClick(Self);    *)
-end;
-
 procedure TfrmMain.SetListCount(Count: Integer);
 begin
   lvList.Items.BeginUpdate;
@@ -952,9 +965,9 @@ begin
     cbbCLUT.Items.Add(Format('CLUT [%.2d/%.2d]', [I, CLUTS]));
   cbbCLUT.Items.EndUpdate;
 
-  cbbCLUT.ItemIndex := 0;
-
   if CLUTS = 0 then SetCLUTListToNoCLUT;
+
+  cbbCLUT.ItemIndex := 0;
 
   FreeTIM(TIM);
 end;

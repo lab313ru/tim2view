@@ -7,7 +7,7 @@ uses
 
 const
   cProgramName = 'Tim2View by [Lab 313]';
-  cProgramVersion = '2.0 r48 Release';
+  cProgramVersion = '2.0 Stable';
   cExtractedTimsDir = 'TIMS';
   cMaxFileSize = $2EAEED80;
 
