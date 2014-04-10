@@ -748,7 +748,7 @@ object frmMain: TfrmMain
           DropDownCount = 16
           ParentDoubleBuffered = False
           TabOrder = 3
-          OnCloseUp = actReturnFocusExecute
+          OnChange = cbbCLUTChange
         end
       end
     end
