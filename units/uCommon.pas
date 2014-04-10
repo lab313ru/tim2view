@@ -7,16 +7,19 @@ uses
 
 const
   cProgramName = 'Tim2View by [Lab 313]';
-  cProgramVersion = '2.0 Stable';
+  cProgramVersion = '2.0 Release';
   cExtractedTimsDir = 'TIMS';
+  cExtractedPngsDir = 'PNGS';
   cMaxFileSize = $2EAEED80;
 
   cAutoExtractionTimFormat = '%s_%.6d_%.2db' + '.tim';
+  cAutoExtractionPngFormat = '%s_%.6d_%.2db_%.2dc' + '.png';
   cCLUTGridColsCount = 32;
 
   sStatusBarScanningFile = 'Scanning File...';
   sStatusBarTimsExtracting = 'TIMs Extracting...';
-  sStatusBarTimsExtracted = 'Exctracted Successfully!';
+  sStatusBarPngsExtracting = 'PNGs Extracting...';
+  sStatusBarExtracted = 'Exctracted Successfully!';
   sStatusBarParsingResult = 'Parsing Result...';
   sScanResultGood = 'Scan completed!';
   sSelectDirCaption = 'Please, select directory for scan...';

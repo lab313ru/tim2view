@@ -77,14 +77,16 @@ type
     mnTimInfoMain: TMenuItem;
     actAssocTims: TAction;
     mnAssociate: TMenuItem;
-    N6: TMenuItem;
-    actExtractList: TAction;
-    ExtractTIMs1: TMenuItem;
+    actExtractTIMs: TAction;
     pbTim: TImage;
     btnShowClut: TButton;
     cbbCLUT: TComboBox;
     actReturnFocus: TAction;
     actDrawSelectedTim: TAction;
+    actExtractPNGs: TAction;
+    pnlExtractAll: TPanel;
+    btnExtractAllTims: TButton;
+    btnExtractPNGs: TButton;
     procedure btnStopScanClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure lvListData(Sender: TObject; Item: TListItem);
@@ -107,13 +109,14 @@ type
     procedure actStretchExecute(Sender: TObject);
     procedure actTimInfoExecute(Sender: TObject);
     procedure actAssocTimsExecute(Sender: TObject);
-    procedure actExtractListExecute(Sender: TObject);
+    procedure actExtractTIMsExecute(Sender: TObject);
     procedure cbbTranspModeChange(Sender: TObject);
     procedure btnShowClutClick(Sender: TObject);
     procedure lvListChange(Sender: TObject; Item: TListItem;
       Change: TItemChange);
     procedure actReturnFocusExecute(Sender: TObject);
     procedure actDrawSelectedTimExecute(Sender: TObject);
+    procedure actExtractPNGsExecute(Sender: TObject);
   private
     { Private declarations }
     // pResult: PNativeXml;
@@ -134,7 +137,8 @@ type
     function ListIdx: Integer;
     function TimIdx(Index: Integer): TScanTim;
     function SelTim(NewBitMode: Integer = $FF): PTIM;
-    function SelTimName: string;
+    function FormatTimName(const FileName: string; ListIdx_, BitMode: Integer): string;
+    function FormatPngName(const FileName: string; ListIdx_, BitMode, Clut: Integer): string;
     procedure DrawSelTim;
     procedure DrawSelClut;
     procedure UpdateCLUTInfo;
@@ -158,7 +162,7 @@ var
 implementation
 
 uses
-  uCDIMAGE, uBrowseForFolder, System.Win.Registry;
+  uCDIMAGE, uBrowseForFolder, System.Win.Registry, Vcl.Imaging.pngimage;
 
 {$R *.dfm}
 
@@ -319,10 +323,10 @@ begin
   Close;
 end;
 
-procedure TfrmMain.actExtractListExecute(Sender: TObject);
+procedure TfrmMain.actExtractTIMsExecute(Sender: TObject);
 var
   I, OFFSET, BIT_MODE, SIZE: Integer;
-  FName, TIM_NAME, Path: string;
+  FName, Path: string;
   IsImage: Boolean;
   ScanTim: TScanTim;
   TIM: PTIM;
@@ -332,6 +336,8 @@ begin
   FName := ScanRes.ScanFile;
   IsImage := ScanRes.IsImage;
 
+  pbProgress.Position := 0;
+  pbProgress.Max := ScanRes.Count;
   for I := 1 to ScanRes.Count do
   begin
     ScanTim := TimIdx(I - 1);
@@ -339,26 +345,79 @@ begin
     SIZE := ScanTim.Size;
     BIT_MODE := ScanTim.BitMode;
 
-    TIM_NAME := Format(cAutoExtractionTimFormat, [ExtractJustName(FName), I, BIT_MODE]);
-
     Path := IncludeTrailingPathDelimiter(ExtractFilePath(ParamStr(0)) + cExtractedTimsDir);
     CreateDir(Path);
     Path := IncludeTrailingPathDelimiter(Path + ExtractFileName(FName));
     CreateDir(Path);
 
     TIM := LoadTimFromFile(FName, OFFSET, IsImage, SIZE);
-    SaveTimToFile(Path + TIM_NAME, TIM);
+    SaveTimToFile(Path + FormatTimName(FName, I - 1, BIT_MODE), TIM);
     FreeTIM(TIM);
+
+    pbProgress.Position := I;
+    Application.ProcessMessages;
   end;
-  lblStatus.Caption := sStatusBarTimsExtracted;
+  lblStatus.Caption := sStatusBarExtracted;
   MessageBeep(MB_ICONINFORMATION);
+  pbProgress.Position := 0;
+end;
+
+procedure TfrmMain.actExtractPNGsExecute(Sender: TObject);
+var
+  I, OFFSET, BIT_MODE, SIZE: Integer;
+  FName, Path: string;
+  IsImage: Boolean;
+  ScanTim: TScanTim;
+  TIM: PTIM;
+  PNG_: PPNGImage;
+begin
+  lblStatus.Caption := sStatusBarPngsExtracting;
+
+  FName := ScanRes.ScanFile;
+  IsImage := ScanRes.IsImage;
+
+  New(PNG_);
+
+  pbProgress.Position := 0;
+  pbProgress.Max := ScanRes.Count;
+  for I := 1 to ScanRes.Count do
+  begin
+    ScanTim := TimIdx(I - 1);
+    OFFSET := ScanTim.Position;
+    SIZE := ScanTim.Size;
+    BIT_MODE := ScanTim.BitMode;
+
+    Path := IncludeTrailingPathDelimiter(ExtractFilePath(ParamStr(0)) + cExtractedPngsDir);
+    CreateDir(Path);
+    Path := IncludeTrailingPathDelimiter(Path + ExtractFileName(FName));
+    CreateDir(Path);
+
+    PNG_^ := TPngImage.CreateBlank(COLOR_RGBALPHA, 16, ScanTim.Width, ScanTim.Height);
+    PNG_^.CompressionLevel := 0;
+    PNG_^.Filters := [];
+
+    TIM := LoadTimFromFile(FName, OFFSET, IsImage, SIZE);
+    TimToPNG(TIM, cbbCLUT.ItemIndex, PNG_, cbbTranspMode.ItemIndex);
+
+    PNG_^.SaveToFile(Path + FormatPngName(FName, I - 1, BIT_MODE, 0));
+    PNG_^.Free;
+
+    FreeTIM(TIM);
+
+    pbProgress.Position := I;
+    Application.ProcessMessages;
+  end;
+  Dispose(PNG_);
+  lblStatus.Caption := sStatusBarExtracted;
+  MessageBeep(MB_ICONINFORMATION);
+  pbProgress.Position := 0;
 end;
 
 procedure TfrmMain.actExtractTimExecute(Sender: TObject);
 var
   TIM: PTIM;
 begin
-  dlgSaveTIM.FileName := SelTimName;
+  dlgSaveTIM.FileName := FormatTimName(ScanRes.ScanFile, ListIdx, TimIdx(ListIdx).BitMode);
 
   if not dlgSaveTIM.Execute then Exit;
 
@@ -423,12 +482,8 @@ begin
 end;
 
 procedure TfrmMain.actTim2PngExecute(Sender: TObject);
-var
-  FName: string;
 begin
-  FName := SelTimName;
-  FName := ChangeFileExt(FName, '.png');
-  dlgSavePNG.FileName := FName;
+  dlgSavePNG.FileName := FormatPngName(ScanRes.ScanFile, ListIdx, TimIdx(ListIdx).BitMode, cbbCLUT.ItemIndex);
 
   if not dlgSavePNG.Execute then Exit;
 
@@ -459,8 +514,8 @@ begin
       + Tab + '%s' + Row + Row +
 
       'HEADER INFO' + Row + 'Version:' + Tab + '%d' + Row + 'BPP:' + Tab + '%d'
-      + Row + Row, [SelTimName, Index + 1, TimIdx(Index).Position,
-      BppToBitMode(TIM), IsGoodTIM,
+      + Row + Row, [FormatTimName(ScanRes.ScanFile, Index, TimIdx(Index).BitMode),
+      Index + 1, TimIdx(Index).Position, BppToBitMode(TIM), IsGoodTIM,
 
       GetTimVersion(TIM), GetTimBPP(TIM)]);
 
@@ -558,7 +613,8 @@ begin
   cbbFiles.Enabled := (cbbFiles.Items.Count <> 0);
 
   lvList.Enabled := cbbFiles.Enabled;
-  actExtractList.Enabled := cbbFiles.Enabled;
+  actExtractTIMs.Enabled := cbbFiles.Enabled;
+  actExtractPNGs.Enabled := cbbFiles.Enabled;
   actCloseFile.Enabled := cbbFiles.Enabled;
   actCloseFiles.Enabled := cbbFiles.Enabled;
   actReplaceTim.Enabled := (lvList.SelCount = 1);
@@ -587,9 +643,14 @@ begin
   Result^.HEAD^.bBPP := NewBitMode;
 end;
 
-function TfrmMain.SelTimName: string;
+function TfrmMain.FormatTimName(const FileName: string; ListIdx_, BitMode: Integer): string;
 begin
-  Result := Format(cAutoExtractionTimFormat, [ExtractJustName(ScanRes.ScanFile), ListIdx + 1, TimIdx(ListIdx).BitMode]);
+  Result := Format(cAutoExtractionTimFormat, [ExtractJustName(FileName), ListIdx_ + 1, BitMode]);
+end;
+
+function TfrmMain.FormatPngName(const FileName: string; ListIdx_, BitMode, Clut: Integer): string;
+begin
+  Result := Format(cAutoExtractionPngFormat, [ExtractJustName(FileName), ListIdx_ + 1, BitMode, Clut + 1]);
 end;
 
 procedure TfrmMain.DrawSelClut;
@@ -647,10 +708,10 @@ begin
     PNG^ := nil;
   end;
 
-  if cbbCLUT.Text = sThisTimHasNoClut then
+  (*if cbbCLUT.Text = sThisTimHasNoClut then
     Index := -1
   else
-    Index := cbbCLUT.ItemIndex;
+    *)Index := cbbCLUT.ItemIndex;
 
   TimToPNG(TIM, Index, PNG, cbbTranspMode.ItemIndex);
   PNG.AssignTo(pbTim.Picture.Bitmap);
