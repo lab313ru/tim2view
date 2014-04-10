@@ -576,9 +576,9 @@ object frmMain: TfrmMain
       TabOrder = 0
       object lvList: TListView
         Left = 0
-        Top = 0
+        Top = 49
         Width = 240
-        Height = 481
+        Height = 432
         Align = alClient
         Columns = <
           item
@@ -613,6 +613,39 @@ object frmMain: TfrmMain
         ViewStyle = vsReport
         OnChange = lvListChange
         OnData = lvListData
+        ExplicitLeft = 1
+        ExplicitTop = 28
+        ExplicitHeight = 448
+      end
+      object pnlExtractAll: TPanel
+        Left = 0
+        Top = 0
+        Width = 240
+        Height = 49
+        Align = alTop
+        BevelOuter = bvLowered
+        TabOrder = 1
+        object btnExtractAllTims: TButton
+          Left = 139
+          Top = 1
+          Width = 100
+          Height = 47
+          Action = actExtractPNGs
+          Align = alRight
+          TabOrder = 0
+          WordWrap = True
+          ExplicitLeft = 128
+        end
+        object btnExtractPNGs: TButton
+          Left = 1
+          Top = 1
+          Width = 100
+          Height = 47
+          Action = actExtractTIMs
+          Align = alLeft
+          TabOrder = 1
+          WordWrap = True
+        end
       end
     end
     object pnlImage: TPanel
@@ -923,11 +956,17 @@ object frmMain: TfrmMain
       Caption = '&Open TIMs with T2V'
       OnExecute = actAssocTimsExecute
     end
-    object actExtractList: TAction
-      Caption = '&Extract TIMs'
+    object actExtractTIMs: TAction
+      Caption = 'Extract all &TIMs'#13#10'(Shift+F2)'
       Enabled = False
-      ShortCut = 112
-      OnExecute = actExtractListExecute
+      ShortCut = 8305
+      OnExecute = actExtractTIMsExecute
+    end
+    object actExtractPNGs: TAction
+      Caption = '&Extract all PNGs'#13#10'(Shift+F4)'
+      Enabled = False
+      ShortCut = 8307
+      OnExecute = actExtractPNGsExecute
     end
     object actChangeClutIdx: TAction
     end
@@ -941,12 +980,6 @@ object frmMain: TfrmMain
   object pmList: TPopupMenu
     Left = 640
     Top = 502
-    object ExtractTIMs1: TMenuItem
-      Action = actExtractList
-    end
-    object N6: TMenuItem
-      Caption = '-'
-    end
     object ExtractTIM1: TMenuItem
       Action = actExtractTim
     end

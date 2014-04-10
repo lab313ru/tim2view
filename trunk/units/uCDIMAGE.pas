@@ -78,12 +78,15 @@ begin
     Exit;
 
   pFile := GetMemory(cSectorHeaderSize);
-  tmp := TFileStream.Create(FileName, fmOpenRead or fmShareDenyWrite);
-  tmp.Read(pFile^[0], cSectorHeaderSize);
-  Result := ((Sz mod cSectorSize) = 0) and
-    (CompareMem(@cSectorHeader, pFile, cSectorHeaderSize));
-  tmp.free;
-  FreeMemory(pFile);
+
+  try
+    tmp := TFileStream.Create(FileName, fmOpenRead or fmShareDenyWrite);
+    tmp.Read(pFile^[0], cSectorHeaderSize);
+    Result := ((Sz mod cSectorSize) = 0) and (CompareMem(@cSectorHeader, pFile, cSectorHeaderSize));
+  finally
+    tmp.free;
+    FreeMemory(pFile);
+  end;
 end;
 
 procedure ReplaceTimInFileFromMemory(const FileName: string; TIM: PTIM;

@@ -372,56 +372,58 @@ var
   Sector: TCDSector;
   P, TIM_FULL_SECTORS: Integer;
 begin
-  sImageStream := TFileStream.Create(FileName, fmOpenRead or fmShareDenyWrite);
+  try
+    sImageStream := TFileStream.Create(FileName, fmOpenRead or fmShareDenyWrite);
 
-  TimSectorNumber := Position div cSectorSize + 1;
-  TimOffsetInSector := Position mod cSectorSize - cSectorInfoSize;
-  TimStartSectorPos := (TimSectorNumber - 1) * cSectorSize;
-  FirstPartSize := cSectorDataSize - TimOffsetInSector;
+    TimSectorNumber := Position div cSectorSize + 1;
+    TimOffsetInSector := Position mod cSectorSize - cSectorInfoSize;
+    TimStartSectorPos := (TimSectorNumber - 1) * cSectorSize;
+    FirstPartSize := cSectorDataSize - TimOffsetInSector;
 
-  New(TIM_BUF);
-  P := 0;
+    New(TIM_BUF);
+    P := 0;
 
-  if SIZE < FirstPartSize then
-    FirstPartSize := SIZE;
+    if SIZE < FirstPartSize then
+      FirstPartSize := SIZE;
 
-  sImageStream.Seek(TimStartSectorPos, soBeginning);
-  sImageStream.Read(Sector, cSectorSize);
-
-  Move(Sector.dwData[TimOffsetInSector], TIM_BUF^[P], FirstPartSize);
-  Inc(P, FirstPartSize);
-
-  Inc(TimStartSectorPos, cSectorSize);
-  sImageStream.Seek(TimStartSectorPos, soBeginning);
-
-  TIM_FULL_SECTORS := (SIZE - P) div cSectorDataSize;
-
-  while TIM_FULL_SECTORS > 0 do
-  begin
+    sImageStream.Seek(TimStartSectorPos, soBeginning);
     sImageStream.Read(Sector, cSectorSize);
 
-    Move(Sector.dwData[0], TIM_BUF^[P], cSectorDataSize);
-    Inc(P, cSectorDataSize);
+    Move(Sector.dwData[TimOffsetInSector], TIM_BUF^[P], FirstPartSize);
+    Inc(P, FirstPartSize);
 
     Inc(TimStartSectorPos, cSectorSize);
     sImageStream.Seek(TimStartSectorPos, soBeginning);
 
-    Dec(TIM_FULL_SECTORS);
+    TIM_FULL_SECTORS := (SIZE - P) div cSectorDataSize;
+
+    while TIM_FULL_SECTORS > 0 do
+    begin
+      sImageStream.Read(Sector, cSectorSize);
+
+      Move(Sector.dwData[0], TIM_BUF^[P], cSectorDataSize);
+      Inc(P, cSectorDataSize);
+
+      Inc(TimStartSectorPos, cSectorSize);
+      sImageStream.Seek(TimStartSectorPos, soBeginning);
+
+      Dec(TIM_FULL_SECTORS);
+    end;
+
+    sImageStream.Read(Sector, cSectorSize);
+
+    if SIZE > P then
+    begin
+      LastPartSize := SIZE - P;
+      Move(Sector.dwData[0], TIM_BUF^[P], LastPartSize);
+    end;
+  finally
+    P := 0;
+    Result := nil;
+    LoadTimFromBuf(TIM_BUF, Result, P);
+    sImageStream.Free;
+    Dispose(TIM_BUF);
   end;
-
-  sImageStream.Read(Sector, cSectorSize);
-
-  if SIZE > P then
-  begin
-    LastPartSize := SIZE - P;
-    Move(Sector.dwData[0], TIM_BUF^[P], LastPartSize);
-  end;
-
-  P := 0;
-  Result := nil;
-  LoadTimFromBuf(TIM_BUF, Result, P);
-  sImageStream.Free;
-  Dispose(TIM_BUF);
 end;
 
 function LoadTimFromStream(Stream: TStream; var Position: Integer;
@@ -455,9 +457,12 @@ var
 begin
   if not ImageScan then
   begin
-    sTIM := TFileStream.Create(FileName, fmOpenRead or fmShareDenyWrite);
-    Result := LoadTimFromStream(sTIM, Position, dwSize);
-    sTIM.Free;
+    try
+      sTIM := TFileStream.Create(FileName, fmOpenRead or fmShareDenyWrite);
+      Result := LoadTimFromStream(sTIM, Position, dwSize);
+    finally
+      sTIM.Free;
+    end;
     Exit;
   end;
 
@@ -468,8 +473,7 @@ procedure SaveTimToFile(const FileName: string; TIM: PTIM);
 var
   tmp: TMemoryStream;
 begin
-  if TIM = nil then
-    Exit;
+  if TIM = nil then Exit;
 
   tmp := TMemoryStream.Create;
   tmp.Write(TIM^.DATA^[0], TIM^.dwSize);

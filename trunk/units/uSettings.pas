@@ -35,19 +35,19 @@ unit uSettings;
 
  { TSettings }
 
- procedure TCustomSettings.LoadFromFile() ;
- var
-   Stream: TStream;
- begin
-   if not FileExists(FFileName) then Exit;
+procedure TCustomSettings.LoadFromFile() ;
+var
+  Stream: TStream;
+begin
+  if not FileExists(FFileName) then Exit;
 
-   Stream := TFileStream.Create(FFileName, fmOpenRead or fmShareDenyWrite) ;
-   try
-     LoadFromStream(Stream) ;
-   finally
-     Stream.Free;
-   end;
- end;
+  try
+    Stream := TFileStream.Create(FFileName, fmOpenRead or fmShareDenyWrite) ;
+    LoadFromStream(Stream) ;
+  finally
+    Stream.Free;
+  end;
+end;
 
  procedure TCustomSettings.LoadFromStream(const Stream: TStream) ;
  var

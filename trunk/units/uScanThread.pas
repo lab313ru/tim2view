@@ -89,87 +89,91 @@ var
 begin
   Synchronize(StartScan);
 
-  pSrcFileStream := TFileStream.Create(pScanResult.ScanFile, fmOpenRead or
-    fmShareDenyWrite);
-  pSrcFileStream.Position := 0;
+  try
+    if pScanResult.IsImage then
+      pSectorBufferSize := cSectorBufferSize
+    else
+      pSectorBufferSize := cClearBufferSize;
 
-  if pScanResult.IsImage then
-    pSectorBufferSize := cSectorBufferSize
-  else
-    pSectorBufferSize := cClearBufferSize;
+    pClearBufferSize := cClearBufferSize;
 
-  pClearBufferSize := cClearBufferSize;
+    SectorBuffer := GetMemory(pSectorBufferSize);
+    ClearBuffer := GetMemory(pClearBufferSize);
 
-  SectorBuffer := GetMemory(pSectorBufferSize);
-  ClearBuffer := GetMemory(pClearBufferSize);
+    pSrcFileStream := TFileStream.Create(pScanResult.ScanFile, fmOpenRead or
+      fmShareDenyWrite);
 
-  TIM := CreateTIM;
+    pSrcFileStream.Position := 0;
 
-  pStatusText := sStatusBarScanningFile;
-  Synchronize(SetStatusText);
+    TIM := CreateTIM;
 
-  pRealBufSize := pSrcFileStream.Read(SectorBuffer^[0], pSectorBufferSize);
-  Inc(pFilePos, pRealBufSize);
-  ClearSectorBuffer(SectorBuffer, ClearBuffer);
+    pStatusText := sStatusBarScanningFile;
+    Synchronize(SetStatusText);
 
-  pScanFinished := False;
-  pTIMNumber := 0;
+    pRealBufSize := pSrcFileStream.Read(SectorBuffer^[0], pSectorBufferSize);
+    Inc(pFilePos, pRealBufSize);
+    ClearSectorBuffer(SectorBuffer, ClearBuffer);
 
-  while not pStopScan do
-  begin
-    if LoadTimFromBuf(ClearBuffer, TIM, pClearBufferPosition) then
+    pScanFinished := False;
+    pTIMNumber := 0;
+
+    while not pStopScan do
     begin
-      if pScanResult.IsImage then
-        pTimPosition := pFilePos - pRealBufSize +
-          ((pClearBufferPosition - 1) div cSectorDataSize) * cSectorSize +
-          ((pClearBufferPosition - 1) mod cSectorDataSize) + cSectorInfoSize
-      else
-        pTimPosition := pFilePos - pRealBufSize + (pClearBufferPosition - 1);
-
-      if pTimPosition >= pFileSize then Break;
-
-      TIM^.dwTimPosition := pTimPosition;
-      Inc(pTIMNumber);
-      TIM^.dwTimNumber := pTIMNumber;
-      AddResult(TIM);
-    end;
-
-    if pClearBufferPosition = (pClearBufferSize div 2) then
-    begin
-      if pScanFinished then Break;
-
-      pScanFinished := (pFilePos = pFileSize);
-      pClearBufferPosition := 0;
-      Move(SectorBuffer^[pSectorBufferSize div 2], SectorBuffer^[0], pSectorBufferSize div 2);
-
-      if pScanFinished then
+      if LoadTimFromBuf(ClearBuffer, TIM, pClearBufferPosition) then
       begin
-        if pRealBufSize >= (pSectorBufferSize div 2) then
-        // Need to check file size
-          pRealBufSize := pRealBufSize - (pSectorBufferSize div 2);
-      end
-      else
-      begin
-        pRealBufSize := pSrcFileStream.Read(SectorBuffer^[pSectorBufferSize div 2], pSectorBufferSize div 2);
-        Inc(pFilePos, pRealBufSize);
-        pRealBufSize := pRealBufSize + (pSectorBufferSize div 2);
+        if pScanResult.IsImage then
+          pTimPosition := pFilePos - pRealBufSize +
+            ((pClearBufferPosition - 1) div cSectorDataSize) * cSectorSize +
+            ((pClearBufferPosition - 1) mod cSectorDataSize) + cSectorInfoSize
+        else
+          pTimPosition := pFilePos - pRealBufSize + (pClearBufferPosition - 1);
+
+        if pTimPosition >= pFileSize then Break;
+
+        TIM^.dwTimPosition := pTimPosition;
+        Inc(pTIMNumber);
+        TIM^.dwTimNumber := pTIMNumber;
+        AddResult(TIM);
       end;
 
-      Synchronize(UpdateProgressBar);
+      if pClearBufferPosition = (pClearBufferSize div 2) then
+      begin
+        if pScanFinished then Break;
 
-      ClearSectorBuffer(SectorBuffer, ClearBuffer);
+        pScanFinished := (pFilePos = pFileSize);
+        pClearBufferPosition := 0;
+        Move(SectorBuffer^[pSectorBufferSize div 2], SectorBuffer^[0], pSectorBufferSize div 2);
+
+        if pScanFinished then
+        begin
+          if pRealBufSize >= (pSectorBufferSize div 2) then
+          // Need to check file size
+            pRealBufSize := pRealBufSize - (pSectorBufferSize div 2);
+        end
+        else
+        begin
+          pRealBufSize := pSrcFileStream.Read(SectorBuffer^[pSectorBufferSize div 2], pSectorBufferSize div 2);
+          Inc(pFilePos, pRealBufSize);
+          pRealBufSize := pRealBufSize + (pSectorBufferSize div 2);
+        end;
+
+        Synchronize(UpdateProgressBar);
+
+        ClearSectorBuffer(SectorBuffer, ClearBuffer);
+      end;
     end;
+  finally
+    FreeTIM(TIM);
+    FreeMemory(SectorBuffer);
+    FreeMemory(ClearBuffer);
+
+    pSrcFileStream.Free;
+    pStopScan := True;
+    pFilePos := 0;
+    pStatusText := '';
+
+    Synchronize(FinishScan);
   end;
-  FreeTIM(TIM);
-  FreeMemory(SectorBuffer);
-  FreeMemory(ClearBuffer);
-
-  pSrcFileStream.Free;
-  pStopScan := True;
-  pFilePos := 0;
-  pStatusText := '';
-
-  Synchronize(FinishScan);
 end;
 
 procedure TScanThread.FinishScan;
@@ -201,7 +205,8 @@ procedure TScanThread.StartScan;
 begin
   frmMain.cbbFiles.Enabled := False;
   frmMain.lvList.Enabled := False;
-  frmMain.actExtractList.Enabled := False;
+  frmMain.actExtractTIMs.Enabled := False;
+  frmMain.actExtractPNGs.Enabled := False;
 
   frmMain.pbProgress.Max := GetFileSizeAPI(pScanResult.ScanFile);
   frmMain.pbProgress.Position := 0;
