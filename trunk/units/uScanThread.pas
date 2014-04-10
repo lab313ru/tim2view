@@ -29,7 +29,7 @@ type
   public
     constructor Create(const FileToScan: string; ImageScan: boolean);
     //property Started: boolean read pStarted write pStarted;
-    property StopScan: boolean write pStopScan;
+    property StopScan: boolean read pStopScan write pStopScan;
   end;
 
 implementation
@@ -115,7 +115,8 @@ begin
   pScanFinished := False;
   pTIMNumber := 0;
 
-  repeat
+  while not pStopScan do
+  begin
     if LoadTimFromBuf(ClearBuffer, TIM, pClearBufferPosition) then
     begin
       if pScanResult.IsImage then
@@ -158,12 +159,13 @@ begin
 
       ClearSectorBuffer(SectorBuffer, ClearBuffer);
     end;
-  until pStopScan;
+  end;
   FreeTIM(TIM);
   FreeMemory(SectorBuffer);
   FreeMemory(ClearBuffer);
 
   pSrcFileStream.Free;
+  pStopScan := True;
   pFilePos := 0;
   pStatusText := '';
 
@@ -197,7 +199,6 @@ end;
 
 procedure TScanThread.StartScan;
 begin
-  frmMain.btnStopScan.Enabled := True;
   frmMain.cbbFiles.Enabled := False;
   frmMain.lvList.Enabled := False;
   frmMain.actExtractList.Enabled := False;

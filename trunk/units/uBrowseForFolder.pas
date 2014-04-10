@@ -21,6 +21,7 @@ function BrowseForFolderCallBack(Wnd: HWND; uMsg: UINT; lParam, lpData: lParam)
 begin
   if uMsg = BFFM_INITIALIZED then
     SendMessage(Wnd, BFFM_SETSELECTION, 1, Integer(@lg_StartFolder[1]));
+
   result := 0;
 end;
 
@@ -52,7 +53,7 @@ begin
   browse_info.pszDisplayName := @folder[0];
   browse_info.lpszTitle := PChar(browseTitle);
   browse_info.ulFlags := BIF_DONTGOBELOWDOMAIN or BIF_RETURNONLYFSDIRS or
-    BIF_STATUSTEXT or BIF_VALIDATE or BIF_USENEWUI or BIF_NONEWFOLDERBUTTON;
+    BIF_STATUSTEXT or BIF_VALIDATE {or BIF_USENEWUI} or BIF_NONEWFOLDERBUTTON;
 
   browse_info.hwndOwner := appHWND;
   if initialFolder <> '' then

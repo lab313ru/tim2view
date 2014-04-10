@@ -26,7 +26,6 @@ type
   TBytesArray = array [0 .. cMaxFileSize - 1] of byte;
   PBytesArray = ^TBytesArray;
 
-function GetStartDir: string;
 function GetFileSizeAPI(const FileName: string): Int64;
 function CheckFileExists(const FileName: string): boolean;
 // function cHex2Int( const Value : string) : Integer;
@@ -124,7 +123,7 @@ var
   FindData: TWin32FindData;
   hFind: THandle;
 begin
-  Result := -1;
+  Result := 0;
   hFind := FindFirstFile(PChar(FileName), FindData);
 
   if hFind <> INVALID_HANDLE_VALUE then
@@ -135,23 +134,6 @@ begin
       Result := FindData.nFileSizeLow;
   end;
 
-end;
-
-function GetStartDir: string;
-const
-  MAX_PATH = 260;
-var
-  Buffer: array [0 .. MAX_PATH] of Char;
-  I: Integer;
-begin
-  I := GetModuleFileName(0, Buffer, MAX_PATH);
-  for I := I downto 0 do
-    if Buffer[I] = '\' then
-    begin
-      Buffer[I + 1] := #0;
-      break;
-    end;
-  Result := Buffer;
 end;
 
 end.

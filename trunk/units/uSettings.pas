@@ -19,11 +19,13 @@ unit uSettings;
    private
      FTranspMode: Integer;
      FStretchMode: Boolean;
+     FLastDir: string;
    public
      constructor Create;
    published
      property TranspMode: Integer read FTranspMode write FTranspMode;
      property StretchMode: Boolean read FStretchMode write FStretchMode;
+     property LastDir: string read FLastDir write FLastDir;
    end;
 
  var
