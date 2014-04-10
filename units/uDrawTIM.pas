@@ -119,13 +119,13 @@ begin
 
   IMAGE_DATA_POS := 0;
 
+  Transparent := TranspMode in [0, 1];
+  SemiTransparent := TranspMode in [0, 2];
+
   R := 0;
   G := 0;
   B := 0;
   STP := 0;
-
-  Transparent := TranspMode in [0, 1];
-  SemiTransparent := TranspMode in [0, 2];
 
   for Y := 1 to RH do
     for X := 1 to RW do

@@ -342,7 +342,7 @@ begin
 
     TIM_NAME := Format(cAutoExtractionTimFormat, [ExtractJustName(FName), I, BIT_MODE]);
 
-    Path := IncludeTrailingPathDelimiter(GetStartDir + cExtractedTimsDir);
+    Path := IncludeTrailingPathDelimiter(ExtractFilePath(ParamStr(0)) + cExtractedTimsDir);
     CreateDir(Path);
     Path := IncludeTrailingPathDelimiter(Path + ExtractFileName(FName));
     CreateDir(Path);
@@ -403,6 +403,7 @@ begin
   begin
     ScanPath(SelectedDir);
     LastDir := SelectedDir;
+    Settings.LastDir := LastDir;
   end;
 end;
 
@@ -500,10 +501,20 @@ begin
 end;
 
 procedure TfrmMain.btnStopScanClick(Sender: TObject);
+var
+  I: Integer;
 begin
   if ScanThreads.Count = 0 then Exit;
 
-  ScanThreads.First.StopScan := True;
+  for I := 1 to ScanThreads.Count do
+    ScanThreads[I - 1].StopScan := True;
+
+  ScanThreads.Clear;
+  StartedScans := 0;
+  btnStopScan.Tag := NativeInt(True);
+
+  ScanFinished(nil);
+
   actReturnFocusExecute(Self);
 end;
 
@@ -676,6 +687,7 @@ begin
 
   actStretch.Checked := Settings.StretchMode;
   cbbTranspMode.ItemIndex := Settings.TranspMode;
+  LastDir := Settings.LastDir;
 
   hGridRect.Top := -1;
   hGridRect.Left := -1;
@@ -690,7 +702,7 @@ begin
   StartedScans := 0;
   New(PNG);
   PNG^ := nil;
-  LastDir := GetStartDir;
+
   SetCLUTListToNoCLUT;
   Caption := Format('%s v%s', [cProgramName, cProgramVersion]);
   DragAcceptFiles(Handle, True);
@@ -792,14 +804,15 @@ var
   Dir: string;
 begin
   Dir := IncludeTrailingPathDelimiter(Directory);
-  isFound := FindFirst(Dir + '*.*', faAnyFile, sRec) = 0;
+  isFound := FindFirst(Dir + '*', faAnyFile, sRec) = 0;
   while isFound do
   begin
     if (sRec.Name <> '.') and (sRec.Name <> '..') then
     begin
       if (sRec.Attr and faDirectory) = faDirectory then
-        ScanDirectory(Dir + sRec.Name);
-      ScanPath(Dir + sRec.Name);
+        ScanDirectory(Dir + sRec.Name)
+      else
+        ScanFile(Dir + sRec.Name);
     end;
     Application.ProcessMessages;
     isFound := FindNext(sRec) = 0;
@@ -867,19 +880,23 @@ begin
   begin
     cbbFiles.ItemIndex := cbbFiles.Items.IndexOf(FileName);
     btnStopScan.Enabled := False;
+    btnStopScan.Tag := NativeInt(True);
     CheckButtonsAndMainMenu;
     Exit;
   end;
 
-  ScanThreads.Add(TScanThread.Create(FileName, GetImageScan(FileName)));
-  ScanThreads.Last.FreeOnTerminate := True;
-  ScanThreads.Last.Priority := tpNormal;
-  ScanThreads.Last.OnTerminate := ScanFinished;
-
-  if StartedScans < GetCoreCount then
+  if not Boolean(btnStopScan.Tag) then
   begin
-    ScanThreads.Last.Start;
-    Inc(StartedScans);
+    ScanThreads.Add(TScanThread.Create(FileName, GetImageScan(FileName)));
+    ScanThreads.Last.FreeOnTerminate := True;
+    ScanThreads.Last.Priority := tpNormal;
+    ScanThreads.Last.OnTerminate := ScanFinished;
+
+    if StartedScans < GetCoreCount then
+    begin
+      ScanThreads.Last.Start;
+      Inc(StartedScans);
+    end;
   end;
 end;
 
@@ -893,7 +910,7 @@ begin
   if ScanThreads.Count <> 0 then
   begin
     for I := 1 to ScanThreads.Count do
-      if ScanThreads[I - 1].Suspended then
+      if ScanThreads[I - 1].Suspended and (not ScanThreads[I - 1].StopScan) then
       begin
         ScanThreads[I - 1].Start;
         Inc(StartedScans);
@@ -913,11 +930,15 @@ begin
   end;
 
   btnStopScan.Enabled := False;
+  btnStopScan.Tag := NativeInt(True);
 end;
 
 procedure TfrmMain.ScanPath(const Path: string);
 begin
   if Path = '' then Exit;
+
+  btnStopScan.Enabled := True;
+  btnStopScan.Tag := NativeInt(False);
 
   if CheckFileExists(Path) then
     ScanFile(Path)
