@@ -32,7 +32,7 @@ type
     N3: TMenuItem;
     mnAbout: TMenuItem;
     pbProgress: TProgressBar;
-    mnConfig: TMenuItem;
+    mnOptions: TMenuItem;
     pnlStatus: TPanel;
     lblStatus: TLabel;
     btnStopScan: TButton;
@@ -74,7 +74,7 @@ type
     actStretch: TAction;
     actTimInfo: TAction;
     mnTIMInfo: TMenuItem;
-    IMInfo1: TMenuItem;
+    mnTimInfoMain: TMenuItem;
     actAssocTims: TAction;
     mnAssociate: TMenuItem;
     N6: TMenuItem;
@@ -83,7 +83,6 @@ type
     pbTim: TImage;
     btnShowClut: TButton;
     cbbCLUT: TComboBox;
-    actChangeBackColor: TAction;
     actReturnFocus: TAction;
     actDrawSelectedTim: TAction;
     procedure btnStopScanClick(Sender: TObject);
@@ -682,7 +681,7 @@ procedure TfrmMain.FormCreate(Sender: TObject);
 var
   hGridRect: TGridRect;
 begin
-  Settings := TSettings.Create;
+  Settings := TSettings.Create(ExtractFilePath(ParamStr(0)));
   Settings.LoadFromFile;
 
   actStretch.Checked := Settings.StretchMode;

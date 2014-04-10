@@ -529,7 +529,9 @@ object frmMain: TfrmMain
       Height = 28
       Align = alLeft
       Caption = 'Stop Scan'
+      DoubleBuffered = False
       Enabled = False
+      ParentDoubleBuffered = False
       TabOrder = 0
       OnClick = btnStopScanClick
     end
@@ -683,6 +685,8 @@ object frmMain: TfrmMain
           Height = 27
           Align = alRight
           Caption = 'CLUT'
+          DoubleBuffered = False
+          ParentDoubleBuffered = False
           TabOrder = 0
           OnClick = btnShowClutClick
         end
@@ -697,8 +701,10 @@ object frmMain: TfrmMain
           AutoCloseUp = True
           Style = csDropDownList
           Anchors = []
+          DoubleBuffered = False
           Enabled = False
           ItemIndex = 0
+          ParentDoubleBuffered = False
           TabOrder = 1
           Text = 'Real'
           OnChange = actDrawSelectedTimExecute
@@ -721,8 +727,10 @@ object frmMain: TfrmMain
           AutoCloseUp = True
           Style = csDropDownList
           Anchors = []
+          DoubleBuffered = False
           Enabled = False
           ItemIndex = 0
+          ParentDoubleBuffered = False
           TabOrder = 2
           Text = 'Full transparence'
           OnChange = cbbTranspModeChange
@@ -799,11 +807,11 @@ object frmMain: TfrmMain
       object N4: TMenuItem
         Caption = '-'
       end
-      object IMInfo1: TMenuItem
+      object mnTimInfoMain: TMenuItem
         Action = actTimInfo
       end
     end
-    object mnConfig: TMenuItem
+    object mnOptions: TMenuItem
       Caption = '&Options'
       object mnAssociate: TMenuItem
         Action = actAssocTims
@@ -898,7 +906,7 @@ object frmMain: TfrmMain
       OnExecute = actOpenLabExecute
     end
     object actAbout: TAction
-      Caption = 'About...'
+      Caption = '&About...'
       OnExecute = actAboutExecute
     end
     object actStretch: TAction
@@ -907,32 +915,26 @@ object frmMain: TfrmMain
       OnExecute = actStretchExecute
     end
     object actTimInfo: TAction
-      Caption = 'TIM Info'
+      Caption = '&TIM Info'
       Enabled = False
       OnExecute = actTimInfoExecute
     end
     object actAssocTims: TAction
-      Caption = 'Open TIMs with T2V'
+      Caption = '&Open TIMs with T2V'
       OnExecute = actAssocTimsExecute
     end
     object actExtractList: TAction
-      Caption = 'Extract TIMs'
+      Caption = '&Extract TIMs'
       Enabled = False
       ShortCut = 112
       OnExecute = actExtractListExecute
     end
     object actChangeClutIdx: TAction
-      Caption = 'actChangeClutIdx'
-    end
-    object actChangeBackColor: TAction
-      Caption = '&Change Background Color'
     end
     object actReturnFocus: TAction
-      Caption = 'actReturnFocus'
       OnExecute = actReturnFocusExecute
     end
     object actDrawSelectedTim: TAction
-      Caption = 'actDrawSelectedTim'
       OnExecute = actDrawSelectedTimExecute
     end
   end

@@ -8,6 +8,7 @@ unit uSettings;
  type
    TCustomSettings = class
    private
+     FFileName: string;
      procedure LoadFromStream(const Stream: TStream) ;
      procedure SaveToStream(const Stream: TStream) ;
    public
@@ -21,21 +22,16 @@ unit uSettings;
      FStretchMode: Boolean;
      FLastDir: string;
    public
-     constructor Create;
+     constructor Create(const DirPath: string);
    published
      property TranspMode: Integer read FTranspMode write FTranspMode;
      property StretchMode: Boolean read FStretchMode write FStretchMode;
      property LastDir: string read FLastDir write FLastDir;
    end;
 
- var
-   Settings: TSettings;
-
  implementation
 
  uses TypInfo, Sysutils;
-
-  const FileName = 'settings.t2v';
 
  { TSettings }
 
@@ -43,9 +39,9 @@ unit uSettings;
  var
    Stream: TStream;
  begin
-   if not FileExists(FileName) then Exit;
+   if not FileExists(FFileName) then Exit;
 
-   Stream := TFileStream.Create(FileName, fmOpenRead or fmShareDenyWrite) ;
+   Stream := TFileStream.Create(FFileName, fmOpenRead or fmShareDenyWrite) ;
    try
      LoadFromStream(Stream) ;
    finally
@@ -76,7 +72,7 @@ unit uSettings;
  var
    Stream: TStream;
  begin
-   Stream := TFileStream.Create(FileName, fmCreate) ;
+   Stream := TFileStream.Create(FFileName, fmCreate) ;
    try
      SaveToStream(Stream) ;
    finally
@@ -84,46 +80,43 @@ unit uSettings;
    end;
  end;
 
- procedure TCustomSettings.SaveToStream(const Stream: TStream) ;
- var
-   PropName, PropValue: string;
-   cnt: Integer;
-   lPropInfo: PPropInfo;
-   lPropCount: Integer;
-   lPropList: PPropList;
-   lPropType: PPTypeInfo;
-   Writer: TWriter;
+procedure TCustomSettings.SaveToStream(const Stream: TStream) ;
+var
+ PropName, PropValue: string;
+ cnt: Integer;
+ lPropInfo: PPropInfo;
+ lPropCount: Integer;
+ lPropList: PPropList;
+ lPropType: PPTypeInfo;
+ Writer: TWriter;
+begin
+ lPropCount := GetPropList(PTypeInfo(ClassInfo), lPropList) ;
+ Writer := TWriter.Create(Stream, $FFF) ;
+ Stream.Size := 0;
+ Writer.WriteListBegin;
+ for cnt := 0 to lPropCount - 1 do
  begin
-   lPropCount := GetPropList(PTypeInfo(ClassInfo), lPropList) ;
-   Writer := TWriter.Create(Stream, $FFF) ;
-   Stream.Size := 0;
-   Writer.WriteListBegin;
-   for cnt := 0 to lPropCount - 1 do
-   begin
-     lPropInfo := lPropList^[cnt];
-     lPropType := lPropInfo^.PropType;
-     if lPropType^.Kind = tkMethod then Continue;
+   lPropInfo := lPropList^[cnt];
+   lPropType := lPropInfo^.PropType;
+   if lPropType^.Kind = tkMethod then Continue;
 
-     PropName := lPropInfo.Name;
-     PropValue := GetPropValue(Self, lPropInfo) ;
-     Writer.WriteString(PropName) ;
-     Writer.WriteString(PropValue) ;
-   end;
-
-   Writer.WriteListEnd;
-   FreeAndNil(Writer) ;
+   PropName := lPropInfo.Name;
+   PropValue := GetPropValue(Self, lPropInfo) ;
+   Writer.WriteString(PropName) ;
+   Writer.WriteString(PropValue) ;
  end;
 
- { TSettings }
+  Writer.WriteListEnd;
+  FreeAndNil(Writer) ;
+end;
 
-constructor TSettings.Create;
+{ TSettings }
+
+constructor TSettings.Create(const DirPath: string);
 begin
+  FFileName := IncludeTrailingPathDelimiter(DirPath) + 'settings.t2v';
   FTranspMode := 0;
   FStretchMode := False;
 end;
 
-initialization
-   Settings := TSettings.Create;
- finalization
-   FreeAndNil(Settings) ;
- end.
+end.
