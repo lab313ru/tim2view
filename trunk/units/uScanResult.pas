@@ -1,9 +1,12 @@
-unit uScanResult;
+unit uscanresult;
 
 interface
 
+uses
+  generics.collections;
+
 type
-  TScanTim = record
+  TTimInfo = record
     Position: Integer;
     Size: Integer;
     Width: Integer;
@@ -13,18 +16,17 @@ type
     Good: Boolean;
   end;
 
-type
   TScanResult = class(TObject)
     private
       pScanFile: string;
       pIsImage: Boolean;
       pCount: Integer;
-      pTims: array of TScanTim;
+      pTims: array of TTimInfo;
 
       procedure fSetCount(Value: Integer);
 
-      function fGetTim(Index: Integer): TScanTim;
-      procedure fSetTim(Index: Integer; Value: TScanTim);
+      function fGetTim(Index: Integer): TTimInfo;
+      procedure fSetTim(Index: Integer; Value: TTimInfo);
 
     public
       constructor Create;
@@ -34,8 +36,9 @@ type
       property IsImage: Boolean read pIsImage write pIsImage;
       property Count: Integer read pCount write fSetCount;
 
-      property ScanTim[index: Integer]: TScanTim read fGetTim write fSetTim;
+      property ScanTim[index: Integer]: TTimInfo read fGetTim write fSetTim;
   end;
+  TScanResultList = TList<TScanResult>;
 
 implementation
 
@@ -58,7 +61,7 @@ begin
   inherited;
 end;
 
-function TScanResult.fGetTim(Index: Integer): TScanTim;
+function TScanResult.fGetTim(Index: Integer): TTimInfo;
 begin
   Result := pTims[Index];
 end;
@@ -69,7 +72,7 @@ begin
   SetLength(pTims, Value);
 end;
 
-procedure TScanResult.fSetTim(Index: Integer; Value: TScanTim);
+procedure TScanResult.fSetTim(Index: Integer; Value: TTimInfo);
 begin
   pTims[Index] := Value;
 end;

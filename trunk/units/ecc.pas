@@ -3,7 +3,7 @@ unit ecc;
 interface
 
 uses
-  uCommon;
+  ucommon;
 
 const
   L1_RAW = 24;
@@ -19,7 +19,7 @@ Procedure encode_L2_P(Data: PBytesArray);
 
 implementation
 
-{$INCLUDE l2sq_table.pas}
+{$INCLUDE l2sq_table.inc}
 
 Procedure encode_L2_Q(Data: PBytesArray);
 var

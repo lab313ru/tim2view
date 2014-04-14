@@ -1,9 +1,9 @@
-unit uCDIMAGE;
+unit ucdimage;
 
 interface
 
 uses
-  Windows, uTIM;
+  utim;
 
 const
   cSectorHeaderSize = 12;
@@ -40,7 +40,7 @@ procedure ReplaceTimInFileFromMemory(const FileName: string; TIM: PTIM;
 implementation
 
 uses
-  uCommon, ecc, edc, System.SysUtils, System.Classes;
+  ucommon, ecc, edc, classes, sysutils, windows;
 
 function bin2bcd(P: Integer): byte;
 begin
@@ -72,10 +72,10 @@ var
   tmp: TFileStream;
 begin
   Result := False;
-  Sz := GetFileSizeAPI(FileName);
+  Sz := FileSize(FileName);
+  tmp := nil;
 
-  if (Sz > cMaxFileSize) or (Sz = 0) then
-    Exit;
+  if (Sz > cMaxFileSize) or (Sz = 0) then Exit;
 
   pFile := GetMemory(cSectorHeaderSize);
 
@@ -214,7 +214,7 @@ var
 begin
   Result := False;
 
-  SIZE := GetFileSizeAPI(TimToInsert);
+  SIZE := FileSize(TimToInsert);
   P := 0;
   TIM := LoadTimFromFile(TimToInsert, P, False, SIZE);
   // SaveTimToFile('test.tim', TIM);
