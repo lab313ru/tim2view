@@ -1,122 +1,82 @@
-unit uSettings;
+unit usettings;
 
- interface
+interface
 
- uses Classes;
- {$M+}
+uses
+  IniFiles;
 
- type
-   TCustomSettings = class
-   private
-     FFileName: string;
-     procedure LoadFromStream(const Stream: TStream) ;
-     procedure SaveToStream(const Stream: TStream) ;
-   public
-     procedure LoadFromFile() ;
-     procedure SaveToFile() ;
-   end;
+type
 
-   TSettings = class(TCustomSettings)
-   private
-     FTranspMode: Integer;
-     FStretchMode: Boolean;
-     FLastDir: string;
-   public
-     constructor Create(const DirPath: string);
-   published
-     property TranspMode: Integer read FTranspMode write FTranspMode;
-     property StretchMode: Boolean read FStretchMode write FStretchMode;
-     property LastDir: string read FLastDir write FLastDir;
-   end;
+  { TSettings }
 
- implementation
-
- uses TypInfo, Sysutils;
-
- { TSettings }
-
-procedure TCustomSettings.LoadFromFile() ;
-var
-  Stream: TStream;
-begin
-  if not FileExists(FFileName) then Exit;
-
-  try
-    Stream := TFileStream.Create(FFileName, fmOpenRead or fmShareDenyWrite) ;
-    LoadFromStream(Stream) ;
-  finally
-    Stream.Free;
+  TSettings = class
+    private
+      FIniFile: TIniFile;
+      procedure FTranspModeWrite(Value: Integer);
+      function  FTranspModeRead(): Integer;
+      procedure FStretchModeWrite(Value: Boolean);
+      function  FStretchModeRead(): Boolean;
+      procedure FLastDirWrite(const Value: string);
+      function  FLastDirRead(): string;
+    public
+      constructor Create(const DirPath: string);
+      destructor Destroy; override;
+      property TranspMode: Integer read FTranspModeRead write FTranspModeWrite;
+      property StretchMode: Boolean read FStretchModeRead write FStretchModeWrite;
+      property LastDir: string read FLastDirRead write FLastDirWrite;
   end;
-end;
 
- procedure TCustomSettings.LoadFromStream(const Stream: TStream) ;
- var
-   Reader: TReader;
-   PropName, PropValue: string;
- begin
-   Reader := TReader.Create(Stream, $FFF) ;
-   Stream.Position := 0;
-   Reader.ReadListBegin;
+implementation
 
-   while not Reader.EndOfList do
-   begin
-     PropName := Reader.ReadString;
-     PropValue := Reader.ReadString;
-     SetPropValue(Self, PropName, PropValue) ;
-   end;
+uses Classes, SysUtils;
 
-   FreeAndNil(Reader) ;
- end;
-
- procedure TCustomSettings.SaveToFile() ;
- var
-   Stream: TStream;
- begin
-   Stream := TFileStream.Create(FFileName, fmCreate) ;
-   try
-     SaveToStream(Stream) ;
-   finally
-     Stream.Free;
-   end;
- end;
-
-procedure TCustomSettings.SaveToStream(const Stream: TStream) ;
-var
- PropName, PropValue: string;
- cnt: Integer;
- lPropInfo: PPropInfo;
- lPropCount: Integer;
- lPropList: PPropList;
- lPropType: PPTypeInfo;
- Writer: TWriter;
-begin
- lPropCount := GetPropList(PTypeInfo(ClassInfo), lPropList) ;
- Writer := TWriter.Create(Stream, $FFF) ;
- Stream.Size := 0;
- Writer.WriteListBegin;
- for cnt := 0 to lPropCount - 1 do
- begin
-   lPropInfo := lPropList^[cnt];
-   lPropType := lPropInfo^.PropType;
-   if lPropType^.Kind = tkMethod then Continue;
-
-   PropName := lPropInfo.Name;
-   PropValue := GetPropValue(Self, lPropInfo) ;
-   Writer.WriteString(PropName) ;
-   Writer.WriteString(PropValue) ;
- end;
-
-  Writer.WriteListEnd;
-  FreeAndNil(Writer) ;
-end;
+const sMain = 'main';
 
 { TSettings }
 
+procedure TSettings.FTranspModeWrite(Value: Integer);
+begin
+  FIniFile.WriteInteger(sMain, 'TranspMode', Value);
+end;
+
+function TSettings.FTranspModeRead: Integer;
+begin
+  Result := FIniFile.ReadInteger(sMain, 'TranspMode', 0);
+end;
+
+procedure TSettings.FStretchModeWrite(Value: Boolean);
+begin
+  FIniFile.WriteBool(sMain, 'StretchMode', Value);
+end;
+
+function TSettings.FStretchModeRead: Boolean;
+begin
+  Result := FIniFile.ReadBool(sMain, 'StretchMode', False);
+end;
+
+procedure TSettings.FLastDirWrite(const Value: string);
+begin
+  FIniFile.WriteString(sMain, 'LastDir', Value);
+end;
+
+function TSettings.FLastDirRead: string;
+begin
+  Result := FIniFile.ReadString(sMain, 'LastDir', '');
+end;
+
 constructor TSettings.Create(const DirPath: string);
 begin
-  FFileName := IncludeTrailingPathDelimiter(DirPath) + 'settings.t2v';
-  FTranspMode := 0;
-  FStretchMode := False;
+  inherited Create;
+
+  FIniFile := TIniFile.Create(IncludeTrailingPathDelimiter(DirPath) + 'settings.t2v');
+end;
+
+destructor TSettings.Destroy;
+begin
+  FIniFile.Free;
+
+  inherited Destroy;
 end;
 
 end.
+

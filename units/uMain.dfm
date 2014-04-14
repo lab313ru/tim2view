@@ -548,7 +548,7 @@ object frmMain: TfrmMain
     DropDownCount = 30
     Enabled = False
     TabOrder = 0
-    OnChange = cbbFilesChange
+    OnChange = actChangeFileExecute
     OnCloseUp = actReturnFocusExecute
   end
   object pnlMain: TPanel
@@ -576,9 +576,9 @@ object frmMain: TfrmMain
       TabOrder = 0
       object lvList: TListView
         Left = 0
-        Top = 49
+        Top = 27
         Width = 240
-        Height = 432
+        Height = 454
         Align = alClient
         Columns = <
           item
@@ -611,17 +611,14 @@ object frmMain: TfrmMain
         PopupMenu = pmList
         TabOrder = 0
         ViewStyle = vsReport
-        OnChange = lvListChange
         OnData = lvListData
-        ExplicitLeft = 1
-        ExplicitTop = 28
-        ExplicitHeight = 448
+        OnSelectItem = lvListSelectItem
       end
       object pnlExtractAll: TPanel
         Left = 0
         Top = 0
         Width = 240
-        Height = 49
+        Height = 27
         Align = alTop
         BevelOuter = bvLowered
         TabOrder = 1
@@ -629,18 +626,17 @@ object frmMain: TfrmMain
           Left = 139
           Top = 1
           Width = 100
-          Height = 47
+          Height = 25
           Action = actExtractPNGs
           Align = alRight
           TabOrder = 0
           WordWrap = True
-          ExplicitLeft = 128
         end
         object btnExtractPNGs: TButton
           Left = 1
           Top = 1
           Width = 100
-          Height = 47
+          Height = 25
           Action = actExtractTIMs
           Align = alLeft
           TabOrder = 1
@@ -740,7 +736,7 @@ object frmMain: TfrmMain
           ParentDoubleBuffered = False
           TabOrder = 1
           Text = 'Real'
-          OnChange = actDrawSelectedTimExecute
+          OnChange = cbbBitModeChange
           OnCloseUp = actReturnFocusExecute
           Items.Strings = (
             'Real'
@@ -789,7 +785,7 @@ object frmMain: TfrmMain
           DropDownCount = 16
           ParentDoubleBuffered = False
           TabOrder = 3
-          OnChange = cbbCLUTChange
+          OnChange = actChangeClutIdxExecute
         end
       end
     end
@@ -957,24 +953,27 @@ object frmMain: TfrmMain
       OnExecute = actAssocTimsExecute
     end
     object actExtractTIMs: TAction
-      Caption = 'Extract all &TIMs'#13#10'(Shift+F2)'
+      Caption = 'Extract all &TIMs'
       Enabled = False
       ShortCut = 8305
       OnExecute = actExtractTIMsExecute
     end
     object actExtractPNGs: TAction
-      Caption = '&Extract all PNGs'#13#10'(Shift+F4)'
+      Caption = '&Extract all PNGs'#13#10
       Enabled = False
       ShortCut = 8307
       OnExecute = actExtractPNGsExecute
     end
     object actChangeClutIdx: TAction
+      OnExecute = actChangeClutIdxExecute
     end
     object actReturnFocus: TAction
       OnExecute = actReturnFocusExecute
     end
     object actDrawSelectedTim: TAction
-      OnExecute = actDrawSelectedTimExecute
+    end
+    object actChangeFile: TAction
+      OnExecute = actChangeFileExecute
     end
   end
   object pmList: TPopupMenu

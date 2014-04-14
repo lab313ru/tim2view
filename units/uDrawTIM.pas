@@ -1,30 +1,25 @@
-unit uDrawTIM;
+unit udrawtim;
 
 interface
 
 uses
-  Vcl.Graphics, uTIM, System.Types, Vcl.Imaging.pngimage, Vcl.Grids;
+  utim, Grids, Graphics, types, pngimage;
 
 type
   PCanvas = ^TCanvas;
-  PPNGImage = ^TPngImage;
+  PPNG = ^TPngImage; { TODO : Replace with another type }
   PDrawGrid = ^TDrawGrid;
 
-procedure DrawTIM(TIM: PTIM; CLUT_NUM: Integer; ACanvas: PCanvas; Rect: TRect;
-  var PNG: PPNGImage; TranspMode: Byte);
-procedure TimToPNG(TIM: PTIM; CLUT_NUM: Integer; var PNG: PPNGImage;
-  TranspMode: Byte);
-procedure DrawPNG(PNG: PPNGImage; ACanvas: PCanvas; Rect: TRect);
-procedure DrawClutCell(TIM: PTIM; CLUT_NUM: Integer; Grid: PDrawGrid;
-  X, Y: Integer);
+procedure TimToPNG(TIM: PTIM; CLUT_NUM: Integer; var PNG: PPNG; TranspMode: Byte);
+procedure DrawClutCell(TIM: PTIM; CLUT_NUM: Integer; Grid: PDrawGrid; X, Y: Integer);
 procedure DrawCLUT(TIM: PTIM; CLUT_NUM: Integer; Grid: PDrawGrid);
-procedure ClearCanvas(CHandle: THandle; Rect: TRect);
+procedure ClearCanvas(ACanvas: PCanvas; Rect: TRect);
 procedure ClearGrid(Grid: PDrawGrid);
 
 implementation
 
 uses
-  Windows, uCommon;
+  ucommon, windows;
 
 function PrepareCLUT(TIM: PTIM; CLUT_NUM: Integer): PCLUT_COLORS;
 var
@@ -95,8 +90,24 @@ begin
   end;
 end;
 
-procedure TimToPNG(TIM: PTIM; CLUT_NUM: Integer; var PNG: PPNGImage;
-  TranspMode: Byte);
+procedure ClearCanvas(ACanvas: PCanvas; Rect: TRect);
+begin
+  ACanvas^.FillRect(Rect);
+end;
+
+procedure ClearGrid(Grid: PDrawGrid);
+var
+  X, Y, W, H: Word;
+begin
+  W := Grid^.ColCount;
+  H := Grid^.RowCount;
+
+  for Y := 1 to H do
+    for X := 1 to W do
+      ClearCanvas(@Grid^.Canvas, Grid^.CellRect(X - 1, Y - 1));
+end;
+
+procedure TimToPNG(TIM: PTIM; CLUT_NUM: Integer; var PNG: PPNG; TranspMode: Byte);
 var
   RW, RH, CW: Word;
   CLUT_DATA: PCLUT_COLORS;
@@ -111,7 +122,7 @@ begin
   RH := GetTimHeight(TIM);
 
   PNG^ := TPngImage.CreateBlank(COLOR_RGBALPHA, 16, RW, RH);
-  PNG^.CompressionLevel := 9;
+  PNG^.CompressionLevel := 0;
   PNG^.Filters := [];
 
   CLUT_DATA := PrepareCLUT(TIM, CLUT_NUM);
@@ -182,8 +193,6 @@ begin
         end;
       end;
 
-      PNG^.AlphaScanline[Y - 1]^[X - 1] := ALPHA;
-
       if ALPHA = 0 then
       begin
         B := 0;
@@ -191,6 +200,7 @@ begin
         R := 0;
       end;
 
+      PNG^.AlphaScanline[Y - 1]^[X - 1] := ALPHA;
       pRGBLine(PNG^.Scanline[Y - 1])^[X - 1].rgbtBlue := B;
       pRGBLine(PNG^.Scanline[Y - 1])^[X - 1].rgbtGreen := G;
       pRGBLine(PNG^.Scanline[Y - 1])^[X - 1].rgbtRed := R;
@@ -200,41 +210,6 @@ begin
 
   Dispose(CLUT_DATA);
   Dispose(IMAGE_DATA);
-end;
-
-procedure DrawTIM(TIM: PTIM; CLUT_NUM: Integer; ACanvas: PCanvas; Rect: TRect;
-  var PNG: PPNGImage; TranspMode: Byte);
-begin
-  TimToPNG(TIM, CLUT_NUM, PNG, TranspMode);
-  DrawPNG(PNG, ACanvas, Rect);
-end;
-
-procedure ClearCanvas(CHandle: THandle; Rect: TRect);
-begin
-  PatBlt(CHandle, Rect.Left, Rect.Top, Rect.Width, Rect.Height, WHITENESS);
-end;
-
-procedure ClearGrid(Grid: PDrawGrid);
-var
-  X, Y, W, H: Word;
-begin
-  W := Grid^.ColCount;
-  H := Grid^.RowCount;
-
-  for Y := 1 to H do
-    for X := 1 to W do
-      ClearCanvas(Grid^.Canvas.Handle, Grid^.CellRect(X - 1, Y - 1));
-end;
-
-procedure DrawPNG(PNG: PPNGImage; ACanvas: PCanvas; Rect: TRect);
-begin
-  if PNG^ = nil then
-    Exit;
-
-  Rect.Width := PNG^.Width;
-  Rect.Height := PNG^.Height;
-
-  PNG^.Draw(ACanvas^, Rect);
 end;
 
 procedure DrawClutCell(TIM: PTIM; CLUT_NUM: Integer; Grid: PDrawGrid;
@@ -256,7 +231,6 @@ begin
 
   Rect := Grid^.CellRect(X, Y);
 
-  ClearCanvas(Grid^.Canvas.Handle, Rect);
   Grid^.Canvas.Brush.COLOR := RGB(R, G, B);
 
   Grid^.Canvas.FillRect(Rect);
@@ -275,9 +249,9 @@ begin
   begin
     Grid^.Canvas.Brush.COLOR := clWhite;
     if ALPHA = 0 then
-      Rect.Height := Rect.Height div 2
+      Rect.Bottom := Rect.Top + ((Rect.Bottom - Rect.Top) div 2)
     else
-      Rect.Width := Rect.Width div 2;
+      Rect.Right := Rect.Left + ((Rect.Right - Rect.Left) div 2);
 
     Grid^.Canvas.FillRect(Rect);
   end;
@@ -299,7 +273,7 @@ begin
   for Y := 1 to ROWS do
     for X := 1 to COLS do
     begin
-      ClearCanvas(Grid^.Canvas.Handle, Grid^.CellRect(X - 1, Y - 1));
+      ClearCanvas(@Grid^.Canvas, Grid^.CellRect(X - 1, Y - 1));
       DrawClutCell(TIM, CLUT_NUM, Grid, X - 1, Y - 1);
     end;
 end;

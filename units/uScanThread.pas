@@ -1,12 +1,12 @@
-unit uScanThread;
+unit uscanthread;
 
 interface
 
 uses
-  Classes, Windows, uCommon, uTIM, uScanResult;
+  ucommon, utim, uscanresult, classes, generics.collections;
 
 type
-  TScanThread = class(Classes.TThread)
+  TScanThread = class(TThread)
   private
     { Private declarations }
     pScanResult: TScanResult;
@@ -28,18 +28,17 @@ type
     procedure Execute; override;
   public
     constructor Create(const FileToScan: string; ImageScan: boolean);
-    //property Started: boolean read pStarted write pStarted;
     property StopScan: boolean read pStopScan write pStopScan;
   end;
+  TScanThreadList = TList<TScanThread>;
 
 implementation
 
 uses
-  uMain, uCDIMAGE, System.SysUtils;
+  umain, ucdimage, sysutils;
 
 const
-  cClearBufferSize = ((cTIMMaxSize div cSectorDataSize) + 1) *
-    cSectorDataSize * 2;
+  cClearBufferSize = ((cTIMMaxSize div cSectorDataSize) + 1) * cSectorDataSize * 2;
   cSectorBufferSize = (cClearBufferSize div cSectorDataSize) * cSectorSize;
 
   { TScanThread }
@@ -50,7 +49,7 @@ begin
   FreeOnTerminate := True;
   pClearBufferPosition := 0;
   pFilePos := 0;
-  pFileSize := GetFileSizeAPI(FileToScan);
+  pFileSize := FileSize(FileToScan);
   pStatusText := '';
   pStopScan := False;
 
@@ -61,7 +60,7 @@ end;
 
 procedure TScanThread.AddResult(TIM: PTIM);
 var
-  ScanTim: TScanTim;
+  ScanTim: TTimInfo;
 begin
   ScanTim.Position := TIM^.dwTimPosition;
   ScanTim.Size := TIM^.dwSIZE;
@@ -88,6 +87,8 @@ var
   pRealBufSize, pTimPosition, pTIMNumber: Integer;
 begin
   Synchronize(StartScan);
+  SectorBuffer := nil;
+  ClearBuffer := nil;
 
   try
     if pScanResult.IsImage then
@@ -117,7 +118,7 @@ begin
     pScanFinished := False;
     pTIMNumber := 0;
 
-    while not pStopScan do
+    while (not pStopScan) or (not Terminated) do
     begin
       if LoadTimFromBuf(ClearBuffer, TIM, pClearBufferPosition) then
       begin
@@ -164,8 +165,8 @@ begin
     end;
   finally
     FreeTIM(TIM);
-    FreeMemory(SectorBuffer);
-    FreeMemory(ClearBuffer);
+    if SectorBuffer <> nil then FreeMemory(SectorBuffer);
+    if ClearBuffer <> nil then FreeMemory(ClearBuffer);
 
     pSrcFileStream.Free;
     pStopScan := True;
@@ -189,7 +190,7 @@ begin
 
   if not frmMain.CheckForFileOpened(pScanResult.ScanFile) then
   begin
-    frmMain.ScanResult.Add(pScanResult);
+    frmMain.ScanResults.Add(pScanResult);
     frmMain.cbbFiles.Items.Add(pScanResult.ScanFile);
   end
   else
@@ -208,7 +209,7 @@ begin
   frmMain.actExtractTIMs.Enabled := False;
   frmMain.actExtractPNGs.Enabled := False;
 
-  frmMain.pbProgress.Max := GetFileSizeAPI(pScanResult.ScanFile);
+  frmMain.pbProgress.Max := FileSize(pScanResult.ScanFile);
   frmMain.pbProgress.Position := 0;
 end;
 
