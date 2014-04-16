@@ -775,6 +775,7 @@ object frmMain: TfrmMain
         AntialiasingMode = amOff
         Align = alClient
         Center = True
+        PopupMenu = pmImage
       end
     end
   end
