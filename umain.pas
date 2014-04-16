@@ -733,6 +733,7 @@ begin
   if CheckForFileOpened(FileName) then
   begin
     cbbFiles.ItemIndex := cbbFiles.Items.IndexOf(FileName);
+    actChangeFile.Execute;
     btnStopScan.Enabled := False;
     btnStopScan.Tag := NativeInt(True);
     CheckButtonsAndMainMenu;
@@ -975,4 +976,4 @@ begin
 end;
 
 end.
-
+
