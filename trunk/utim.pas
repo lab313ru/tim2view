@@ -329,10 +329,12 @@ begin
   Inc(Position);
   TIM_POS := P;
 
-  if TIM = nil then TIM := CreateTIM;
+  if TIM = nil then
+    TIM := CreateTIM;
 
   Move(PBytesArray(BUFFER)^[P], TIM^.HEAD^, cTIMHeadSize);
-  if not CheckHEAD(TIM) then Exit;
+  if not CheckHEAD(TIM) then
+    Exit;
   Inc(P, cTIMHeadSize);
 
   if TIMHasCLUT(TIM) then
@@ -345,8 +347,10 @@ begin
 
   Move(PBytesArray(BUFFER)^[P], TIM^.IMAGE^, cIMAGEHeadSize);
 
-  if not CheckIMAGE(TIM) then Exit;
-  if not CheckTIMSize(TIM) then Exit;
+  if not CheckIMAGE(TIM) then
+    Exit;
+  if not CheckTIMSize(TIM) then
+    Exit;
 
   TIM^.dwSize := GetTIMSize(TIM);
   TIM^.bGOOD := TIMIsGood(TIM);
@@ -366,9 +370,6 @@ var
   Sector: TCDSector;
   P, TIM_FULL_SECTORS: Integer;
 begin
-  sImageStream := nil;
-  TIM_BUF := nil;
-
   try
     sImageStream := TFileStream.Create(FileName, fmOpenRead or fmShareDenyWrite);
 
@@ -380,7 +381,8 @@ begin
     New(TIM_BUF);
     P := 0;
 
-    if SIZE < FirstPartSize then FirstPartSize := SIZE;
+    if SIZE < FirstPartSize then
+      FirstPartSize := SIZE;
 
     sImageStream.Seek(TimStartSectorPos, soBeginning);
     sImageStream.Read(Sector, cSectorSize);
@@ -430,7 +432,8 @@ var
 begin
   Result := nil;
 
-  if dwSize > cTIMMaxSize then Exit;
+  if dwSize > cTIMMaxSize then
+    Exit;
 
   New(BUF);
   Result := CreateTIM;
@@ -439,7 +442,8 @@ begin
   Stream.Read(BUF^[0], dwSize);
 
   P := 0;
-  if not LoadTimFromBuf(BUF, Result, P) then FreeTIM(Result);
+  if not LoadTimFromBuf(BUF, Result, P) then
+    FreeTIM(Result);
 
   Dispose(BUF);
 end;
@@ -449,7 +453,6 @@ function LoadTimFromFile(const FileName: string; var Position: Integer;
 var
   sTIM: TFileStream;
 begin
-  sTIM := nil;
   if not ImageScan then
   begin
     try

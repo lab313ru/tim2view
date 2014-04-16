@@ -3,7 +3,7 @@ unit uscanthread;
 interface
 
 uses
-  ucommon, utim, uscanresult, classes, generics.collections;
+  ucommon, utim, uscanresult, classes, fgl;
 
 type
   TScanThread = class(TThread)
@@ -28,17 +28,19 @@ type
     procedure Execute; override;
   public
     constructor Create(const FileToScan: string; ImageScan: boolean);
+    //property Started: boolean read pStarted write pStarted;
     property StopScan: boolean read pStopScan write pStopScan;
   end;
-  TScanThreadList = TList<TScanThread>;
+  TScanThreadList = specialize TFPGObjectList<TScanThread>;
 
 implementation
 
 uses
-  umain, ucdimage, sysutils;
+  umain, ucdimage, sysutils, FileUtil;
 
 const
-  cClearBufferSize = ((cTIMMaxSize div cSectorDataSize) + 1) * cSectorDataSize * 2;
+  cClearBufferSize = ((cTIMMaxSize div cSectorDataSize) + 1) *
+    cSectorDataSize * 2;
   cSectorBufferSize = (cClearBufferSize div cSectorDataSize) * cSectorSize;
 
   { TScanThread }
@@ -86,9 +88,7 @@ var
   pScanFinished: boolean;
   pRealBufSize, pTimPosition, pTIMNumber: Integer;
 begin
-  Synchronize(StartScan);
-  SectorBuffer := nil;
-  ClearBuffer := nil;
+  Synchronize(@StartScan);
 
   try
     if pScanResult.IsImage then
@@ -109,7 +109,7 @@ begin
     TIM := CreateTIM;
 
     pStatusText := sStatusBarScanningFile;
-    Synchronize(SetStatusText);
+    Synchronize(@SetStatusText);
 
     pRealBufSize := pSrcFileStream.Read(SectorBuffer^[0], pSectorBufferSize);
     Inc(pFilePos, pRealBufSize);
@@ -158,22 +158,22 @@ begin
           pRealBufSize := pRealBufSize + (pSectorBufferSize div 2);
         end;
 
-        Synchronize(UpdateProgressBar);
+        Synchronize(@UpdateProgressBar);
 
         ClearSectorBuffer(SectorBuffer, ClearBuffer);
       end;
     end;
   finally
     FreeTIM(TIM);
-    if SectorBuffer <> nil then FreeMemory(SectorBuffer);
-    if ClearBuffer <> nil then FreeMemory(ClearBuffer);
+    FreeMemory(SectorBuffer);
+    FreeMemory(ClearBuffer);
 
     pSrcFileStream.Free;
     pStopScan := True;
     pFilePos := 0;
     pStatusText := '';
 
-    Synchronize(FinishScan);
+    Synchronize(@FinishScan);
   end;
 end;
 

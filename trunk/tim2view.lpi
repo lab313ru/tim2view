@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CONFIG>
+  <ProjectOptions>
+    <Version Value="9"/>
+    <PathDelim Value="\"/>
+    <General>
+      <SessionStorage Value="InProjectDir"/>
+      <MainUnit Value="0"/>
+      <Title Value="tim2view"/>
+      <ResourceType Value="res"/>
+      <UseXPManifest Value="True"/>
+      <Icon Value="0"/>
+    </General>
+    <i18n>
+      <EnableI18N LFM="False"/>
+    </i18n>
+    <VersionInfo>
+      <UseVersionInfo Value="True"/>
+      <AutoIncrementBuild Value="True"/>
+      <MajorVersionNr Value="1"/>
+      <RevisionNr Value="54"/>
+      <BuildNr Value="68"/>
+      <StringTable CompanyName="Lab 313" FileDescription="The best TIMs tool ever!:)" ProductVersion=""/>
+    </VersionInfo>
+    <BuildModes Count="1">
+      <Item1 Name="Default" Default="True"/>
+    </BuildModes>
+    <PublishOptions>
+      <Version Value="2"/>
+    </PublishOptions>
+    <RunParams>
+      <local>
+        <FormatVersion Value="1"/>
+      </local>
+    </RunParams>
+    <RequiredPackages Count="1">
+      <Item1>
+        <PackageName Value="LCL"/>
+      </Item1>
+    </RequiredPackages>
+    <Units Count="13">
+      <Unit0>
+        <Filename Value="tim2view.lpr"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="tim2view"/>
+      </Unit0>
+      <Unit1>
+        <Filename Value="umain.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="frmMain"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+        <UnitName Value="umain"/>
+      </Unit1>
+      <Unit2>
+        <Filename Value="edc.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="edc"/>
+      </Unit2>
+      <Unit3>
+        <Filename Value="ecc.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="ecc"/>
+      </Unit3>
+      <Unit4>
+        <Filename Value="ucommon.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="ucommon"/>
+      </Unit4>
+      <Unit5>
+        <Filename Value="utim.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="utim"/>
+      </Unit5>
+      <Unit6>
+        <Filename Value="ucdimage.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="ucdimage"/>
+      </Unit6>
+      <Unit7>
+        <Filename Value="usettings.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="usettings"/>
+      </Unit7>
+      <Unit8>
+        <Filename Value="uscanresult.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="uscanresult"/>
+      </Unit8>
+      <Unit9>
+        <Filename Value="uscanthread.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="uscanthread"/>
+      </Unit9>
+      <Unit10>
+        <Filename Value="ucpucount.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="ucpucount"/>
+      </Unit10>
+      <Unit11>
+        <Filename Value="udrawtim.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="udrawtim"/>
+      </Unit11>
+      <Unit12>
+        <Filename Value="bgrabitmap\bgrabitmap.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="BGRABitmap"/>
+      </Unit12>
+    </Units>
+  </ProjectOptions>
+  <CompilerOptions>
+    <Version Value="11"/>
+    <PathDelim Value="\"/>
+    <Target>
+      <Filename Value="tim2view"/>
+    </Target>
+    <SearchPaths>
+      <IncludeFiles Value="$(ProjOutDir);bgrabitmap"/>
+      <OtherUnitFiles Value="bgrabitmap"/>
+      <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
+    </SearchPaths>
+    <CodeGeneration>
+      <TargetCPU Value="i386"/>
+      <TargetOS Value="win32"/>
+    </CodeGeneration>
+    <Linking>
+      <Options>
+        <Win32>
+          <GraphicApplication Value="True"/>
+        </Win32>
+      </Options>
+    </Linking>
+    <Other>
+      <CompilerMessages>
+        <MsgFileName Value=""/>
+      </CompilerMessages>
+      <CompilerPath Value="$(CompPath)"/>
+    </Other>
+  </CompilerOptions>
+  <Debugging>
+    <Exceptions Count="3">
+      <Item1>
+        <Name Value="EAbort"/>
+      </Item1>
+      <Item2>
+        <Name Value="ECodetoolError"/>
+      </Item2>
+      <Item3>
+        <Name Value="EFOpenError"/>
+      </Item3>
+    </Exceptions>
+  </Debugging>
+</CONFIG>

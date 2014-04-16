@@ -1,9 +1,11 @@
 unit usettings;
 
+{$mode objfpc}{$H+}
+
 interface
 
 uses
-  IniFiles;
+  Classes, SysUtils, IniFiles;
 
 type
 
@@ -27,8 +29,6 @@ type
   end;
 
 implementation
-
-uses Classes, SysUtils;
 
 const sMain = 'main';
 
