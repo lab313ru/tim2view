@@ -2,8 +2,7 @@ unit uscanresult;
 
 interface
 
-uses
-  generics.collections;
+uses fgl;
 
 type
   TTimInfo = record
@@ -16,6 +15,7 @@ type
     Good: Boolean;
   end;
 
+type
   TScanResult = class(TObject)
     private
       pScanFile: string;
@@ -38,7 +38,7 @@ type
 
       property ScanTim[index: Integer]: TTimInfo read fGetTim write fSetTim;
   end;
-  TScanResultList = TList<TScanResult>;
+  TScanResultList = specialize TFPGObjectList<TScanResult>;
 
 implementation
 

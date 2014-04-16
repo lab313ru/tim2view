@@ -40,7 +40,7 @@ procedure ReplaceTimInFileFromMemory(const FileName: string; TIM: PTIM;
 implementation
 
 uses
-  ucommon, ecc, edc, classes, sysutils, windows;
+  ucommon, ecc, edc, classes, FileUtil, sysutils;
 
 function bin2bcd(P: Integer): byte;
 begin
@@ -73,9 +73,9 @@ var
 begin
   Result := False;
   Sz := FileSize(FileName);
-  tmp := nil;
 
-  if (Sz > cMaxFileSize) or (Sz = 0) then Exit;
+  if (Sz > cMaxFileSize) or (Sz = 0) then
+    Exit;
 
   pFile := GetMemory(cSectorHeaderSize);
 

@@ -3,14 +3,14 @@ unit udrawtim;
 interface
 
 uses
-  utim, Grids, Graphics, types, pngimage;
+  utim, Grids, Graphics, types, BGRABitmap;
 
 type
   PCanvas = ^TCanvas;
-  PPNG = ^TPngImage; { TODO : Replace with another type }
+  PDrawSurf = ^TBGRABitmap;
   PDrawGrid = ^TDrawGrid;
 
-procedure TimToPNG(TIM: PTIM; CLUT_NUM: Integer; var PNG: PPNG; TranspMode: Byte);
+procedure TimToPNG(TIM: PTIM; CLUT_NUM: Integer; var Surf: PDrawSurf; TranspMode: Byte);
 procedure DrawClutCell(TIM: PTIM; CLUT_NUM: Integer; Grid: PDrawGrid; X, Y: Integer);
 procedure DrawCLUT(TIM: PTIM; CLUT_NUM: Integer; Grid: PDrawGrid);
 procedure ClearCanvas(ACanvas: PCanvas; Rect: TRect);
@@ -19,7 +19,7 @@ procedure ClearGrid(Grid: PDrawGrid);
 implementation
 
 uses
-  ucommon, windows;
+  ucommon, BGRABitmapTypes;
 
 function PrepareCLUT(TIM: PTIM; CLUT_NUM: Integer): PCLUT_COLORS;
 var
@@ -107,7 +107,7 @@ begin
       ClearCanvas(@Grid^.Canvas, Grid^.CellRect(X - 1, Y - 1));
 end;
 
-procedure TimToPNG(TIM: PTIM; CLUT_NUM: Integer; var PNG: PPNG; TranspMode: Byte);
+procedure TimToPNG(TIM: PTIM; CLUT_NUM: Integer; var Surf: PDrawSurf; TranspMode: Byte);
 var
   RW, RH, CW: Word;
   CLUT_DATA: PCLUT_COLORS;
@@ -116,14 +116,15 @@ var
   R, G, B, STP, ALPHA: Byte;
   COLOR: TCLUT_COLOR;
   CL: Integer;
+  P: PBGRAPixel;
   Transparent, SemiTransparent: boolean;
 begin
   RW := GetTimRealWidth(TIM);
   RH := GetTimHeight(TIM);
 
-  PNG^ := TPngImage.CreateBlank(COLOR_RGBALPHA, 16, RW, RH);
-  PNG^.CompressionLevel := 0;
-  PNG^.Filters := [];
+  if Surf^ <> nil then Surf^.Free;
+
+  Surf^ := TBGRABitmap.Create(RW, RH);
 
   CLUT_DATA := PrepareCLUT(TIM, CLUT_NUM);
   IMAGE_DATA := PrepareIMAGE(TIM);
@@ -139,6 +140,8 @@ begin
   STP := 0;
 
   for Y := 1 to RH do
+  begin
+    P := Surf^.ScanLine[Y - 1];
     for X := 1 to RW do
     begin
       case TIM^.HEAD^.bBPP of
@@ -200,14 +203,17 @@ begin
         R := 0;
       end;
 
-      PNG^.AlphaScanline[Y - 1]^[X - 1] := ALPHA;
-      pRGBLine(PNG^.Scanline[Y - 1])^[X - 1].rgbtBlue := B;
-      pRGBLine(PNG^.Scanline[Y - 1])^[X - 1].rgbtGreen := G;
-      pRGBLine(PNG^.Scanline[Y - 1])^[X - 1].rgbtRed := R;
+      P^.alpha:=ALPHA;
+      P^.blue := B;
+      P^.green := G;
+      P^.red := R;
 
+      Inc(P);
       Inc(IMAGE_DATA_POS);
     end;
+  end;
 
+  Surf^.InvalidateBitmap;
   Dispose(CLUT_DATA);
   Dispose(IMAGE_DATA);
 end;
@@ -231,7 +237,7 @@ begin
 
   Rect := Grid^.CellRect(X, Y);
 
-  Grid^.Canvas.Brush.COLOR := RGB(R, G, B);
+  Grid^.Canvas.Brush.COLOR := RGBToColor(R, G, B);
 
   Grid^.Canvas.FillRect(Rect);
 

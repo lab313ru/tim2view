@@ -1,129 +1,134 @@
 unit umain;
 
+{$mode objfpc}{$H+}
+
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils,
-  System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.Grids, Vcl.ComCtrls,
-  Vcl.ExtCtrls, Vcl.Menus, Vcl.StdCtrls, uScanThread, uCommon,
-  Winapi.ShellAPI, uDrawTIM, Vcl.ExtDlgs, uTIM, System.Actions,
-  Vcl.ActnList, uScanResult, System.Types, uSettings, ueventwaitthread;
+  Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, ActnList,
+  Menus, StdCtrls, ExtCtrls, ComCtrls, Grids, ExtDlgs,
 
-const
-  WM_COMMANDARRIVED = WM_USER + 1;
+  uscanresult, uscanthread, usettings, utim, udrawtim;
 
 type
+
+  { TfrmMain }
+
   TfrmMain = class(TForm)
-    dlgOpenFile: TOpenDialog;
-    mmMain: TMainMenu;
-    mnFile: TMenuItem;
-    mnScanFile: TMenuItem;
-    mnScanDir: TMenuItem;
-    N1: TMenuItem;
-    mnCloseFile: TMenuItem;
-    mnExit: TMenuItem;
-    mnTIM: TMenuItem;
-    mnReplaceIn: TMenuItem;
-    mnHelp: TMenuItem;
-    mnSVN: TMenuItem;
-    mnSite: TMenuItem;
-    N3: TMenuItem;
-    mnAbout: TMenuItem;
-    pbProgress: TProgressBar;
-    mnOptions: TMenuItem;
-    pnlStatus: TPanel;
-    lblStatus: TLabel;
-    btnStopScan: TButton;
-    mnCloseAllFiles: TMenuItem;
-    mnSaveToPNG: TMenuItem;
-    dlgSavePNG: TSavePictureDialog;
-    mnSaveTIM: TMenuItem;
-    dlgSaveTIM: TSaveDialog;
-    cbbFiles: TComboBox;
-    pnlMain: TPanel;
-    splMain: TSplitter;
-    pnlList: TPanel;
-    lvList: TListView;
-    pnlImageOptions: TPanel;
-    cbbTranspMode: TComboBox;
-    grdCurrClut: TDrawGrid;
-    pnlImage: TPanel;
-    splImageClut: TSplitter;
-    dlgColor: TColorDialog;
-    actList: TActionList;
-    actScanFile: TAction;
-    actScanDir: TAction;
+    actAbout: TAction;
+    actAssocTims: TAction;
+    actChangeClutIdx: TAction;
     actCloseFile: TAction;
     actCloseFiles: TAction;
     actExit: TAction;
-    N4: TMenuItem;
-    actExtractTim: TAction;
-    actReplaceTim: TAction;
-    actTim2Png: TAction;
-    actOpenRepo: TAction;
-    actOpenLab: TAction;
-    actAbout: TAction;
-    pmList: TPopupMenu;
-    ExtractTIM1: TMenuItem;
-    ReplaceTIM1: TMenuItem;
-    N2: TMenuItem;
-    SaveasPNG1: TMenuItem;
-    cbbBitMode: TComboBox;
-    actStretch: TAction;
-    actTimInfo: TAction;
-    mnTIMInfo: TMenuItem;
-    mnTimInfoMain: TMenuItem;
-    actAssocTims: TAction;
-    mnAssociate: TMenuItem;
-    actExtractTIMs: TAction;
-    pbTim: TImage;
-    btnShowClut: TButton;
-    cbbCLUT: TComboBox;
-    actReturnFocus: TAction;
-    actDrawSelectedTim: TAction;
     actExtractPNGs: TAction;
-    pnlExtractAll: TPanel;
+    actExtractTim: TAction;
+    actExtractTIMs: TAction;
+    actChangeFile: TAction;
+    actOpenLab: TAction;
+    actOpenRepo: TAction;
+    actReplaceTim: TAction;
+    actReturnFocus: TAction;
+    actScanDir: TAction;
+    actScanFile: TAction;
+    actList: TActionList;
+    actStretch: TAction;
+    actTim2Png: TAction;
+    actTimInfo: TAction;
     btnExtractAllTims: TButton;
     btnExtractPNGs: TButton;
-    actChangeFile: TAction;
-    procedure btnStopScanClick(Sender: TObject);
-    procedure FormCreate(Sender: TObject);
-    procedure lvListData(Sender: TObject; Item: TListItem);
-    procedure FormClose(Sender: TObject; var Action: TCloseAction);
-    procedure grdCurrClutDrawCell(Sender: TObject; ACol, ARow: Integer; Rect: TRect; State: TGridDrawState);
-    procedure grdCurrClutDblClick(Sender: TObject);
-    procedure actScanFileExecute(Sender: TObject);
-    procedure actScanDirExecute(Sender: TObject);
+    btnShowClut: TButton;
+    btnStopScan: TButton;
+    cbbBitMode: TComboBox;
+    cbbCLUT: TComboBox;
+    cbbFiles: TComboBox;
+    cbbTranspMode: TComboBox;
+    dlgColor: TColorDialog;
+    dlgOpenFile: TOpenDialog;
+    dlgSavePNG: TSavePictureDialog;
+    dlgSaveTIM: TSaveDialog;
+    ExtractTIM1: TMenuItem;
+    grdCurrClut: TDrawGrid;
+    imgTim: TImage;
+    lblStatus: TLabel;
+    lvList: TListView;
+    mnSaveAsPng: TMenuItem;
+    mnAbout: TMenuItem;
+    mnAssociate: TMenuItem;
+    mnCloseAllFiles: TMenuItem;
+    mnCloseFile: TMenuItem;
+    mnExit: TMenuItem;
+    mnFile: TMenuItem;
+    mmMain: TMainMenu;
+    mnHelp: TMenuItem;
+    mnOptions: TMenuItem;
+    mnReplaceIn: TMenuItem;
+    mnSaveTIM: TMenuItem;
+    mnSaveToPNG: TMenuItem;
+    mnScanDir: TMenuItem;
+    mnScanFile: TMenuItem;
+    mnSite: TMenuItem;
+    mnStretch: TMenuItem;
+    mnSVN: TMenuItem;
+    mnTIM: TMenuItem;
+    mnTIMInfo: TMenuItem;
+    mnTimInfoMain: TMenuItem;
+    N1: TMenuItem;
+    N2: TMenuItem;
+    N3: TMenuItem;
+    N4: TMenuItem;
+    N5: TMenuItem;
+    pbProgress: TProgressBar;
+    pnlExtractAll: TPanel;
+    pnlImage: TPanel;
+    pnlImageOptions: TPanel;
+    pnlList: TPanel;
+    pnlStatus: TPanel;
+    pnlMain: TPanel;
+    pmImage: TPopupMenu;
+    pmList: TPopupMenu;
+    ReplaceTIM1: TMenuItem;
+    SaveasPNG1: TMenuItem;
+    dlgSelectDir: TSelectDirectoryDialog;
+    splImageClut: TSplitter;
+    splMain: TSplitter;
+    procedure actAboutExecute(Sender: TObject);
+    procedure actAssocTimsExecute(Sender: TObject);
+    procedure actChangeClutIdxExecute(Sender: TObject);
+    procedure actChangeFileExecute(Sender: TObject);
     procedure actCloseFileExecute(Sender: TObject);
     procedure actCloseFilesExecute(Sender: TObject);
     procedure actExitExecute(Sender: TObject);
-    procedure actExtractTimExecute(Sender: TObject);
-    procedure actReplaceTimExecute(Sender: TObject);
-    procedure actTim2PngExecute(Sender: TObject);
-    procedure actOpenRepoExecute(Sender: TObject);
-    procedure actOpenLabExecute(Sender: TObject);
-    procedure actAboutExecute(Sender: TObject);
-    procedure actStretchExecute(Sender: TObject);
-    procedure actTimInfoExecute(Sender: TObject);
-    procedure actAssocTimsExecute(Sender: TObject);
-    procedure actExtractTIMsExecute(Sender: TObject);
-    procedure cbbTranspModeChange(Sender: TObject);
-    procedure btnShowClutClick(Sender: TObject);
-    procedure actReturnFocusExecute(Sender: TObject);
     procedure actExtractPNGsExecute(Sender: TObject);
-    procedure actChangeClutIdxExecute(Sender: TObject);
+    procedure actExtractTimExecute(Sender: TObject);
+    procedure actExtractTIMsExecute(Sender: TObject);
+    procedure actOpenLabExecute(Sender: TObject);
+    procedure actOpenRepoExecute(Sender: TObject);
+    procedure actReplaceTimExecute(Sender: TObject);
+    procedure actReturnFocusExecute(Sender: TObject);
+    procedure actScanDirExecute(Sender: TObject);
+    procedure actScanFileExecute(Sender: TObject);
+    procedure actStretchExecute(Sender: TObject);
+    procedure actTim2PngExecute(Sender: TObject);
+    procedure actTimInfoExecute(Sender: TObject);
+    procedure btnShowClutClick(Sender: TObject);
+    procedure cbbBitModeChange(Sender: TObject);
+    procedure cbbTranspModeChange(Sender: TObject);
+    procedure FormClose(Sender: TObject; var CloseAction: TCloseAction);
+    procedure FormCreate(Sender: TObject);
+    procedure FormDropFiles(Sender: TObject; const FileNames: array of String);
+    procedure grdCurrClutDblClick(Sender: TObject);
+    procedure grdCurrClutDrawCell(Sender: TObject; aCol, aRow: Integer;
+      aRect: TRect; aState: TGridDrawState);
+    procedure lvListData(Sender: TObject; Item: TListItem);
     procedure lvListSelectItem(Sender: TObject; Item: TListItem;
       Selected: Boolean);
-    procedure cbbBitModeChange(Sender: TObject);
-    procedure actChangeFileExecute(Sender: TObject);
   private
-    { Private declarations }
+    { private declarations }
     StartedScans: Integer; //Count of currently started scans
     LastDir: string; //var to store last selected dir
     Settings: TSettings; //var to work with program settings
-    PNG: PPNG; { TODO : Declare variable to store drawable TIM in some drawable format }
-    WaitThread: TEventWaitThread;
+    Surf: PDrawSurf;
 
     function FGetSelectedScanResult: TScanResult;
     property SelectedScanResult: TScanResult read FGetSelectedScanResult; //Selected scan result
@@ -154,13 +159,8 @@ type
     function FormatTimName(const FileName: string; ListIdx_, BitMode: Integer): string;
     function FormatPngName(const FileName: string; ListIdx_, BitMode, Clut: Integer): string;
     procedure ShowTim;
-    function ForceForegroundWindow(hwnd: THandle): Boolean;
-  protected
-    procedure WMDropFiles(var Msg: TWMDropFiles); message WM_DROPFILES;
-    procedure WMCommandArrived(var Message: TMessage); message WM_COMMANDARRIVED;
-    function ReadPathFromMailslot: string;
   public
-    { Public declarations }
+    { public declarations }
     ScanResults: TScanResultList; //List of finished scan results
     ScanThreads: TScanThreadList; //List of currently started scans
     function CheckForFileOpened(const FileName: string): boolean;
@@ -168,14 +168,19 @@ type
 
 var
   frmMain: TfrmMain;
-  ServerMailSlot: THandle;
 
 implementation
 
-uses
-  ucdimage, udirselect, registry, pngimage;
+uses ucdimage, ucpucount, lcltype, ucommon, LCLIntf, Clipbrd
 
-{$R *.dfm}
+{$IFDEF windows}
+,registry
+{$IFEND}
+;
+
+{$R *.lfm}
+
+{ TfrmMain }
 
 procedure TfrmMain.actScanFileExecute(Sender: TObject);
 var
@@ -199,13 +204,13 @@ begin
 
   if not dlgSavePNG.Execute then Exit;
 
-  PNG^.SaveToFile(dlgSavePNG.FileName);
+  Surf^.SaveToFile(dlgSavePNG.FileName);
 end;
 
 procedure TfrmMain.actTimInfoExecute(Sender: TObject);
 const
   Tab = #$09;
-  Row = #13#10;
+  Row = #10;
 var
   Info, IsGoodTIM: string;
   Index: Integer;
@@ -247,12 +252,12 @@ begin
       GetTimImageVRAMY(TIM), GetTimWidth(TIM), GetTimRealWidth(TIM),
       GetTimHeight(TIM)]);
 
-    case MessageBox(Handle,
-      PWideChar(Info + Row + Row +
+    case Application.MessageBox(
+      PChar(Info + Row + Row +
       'If you want to copy this info to clipboard press "YES" button.'),
-      'Information', MB_OKCANCEL + MB_ICONINFORMATION + MB_TOPMOST) of
+      'Information', MB_OKCANCEL + MB_ICONINFORMATION) of
       IDOK:
-        Text2Clipboard(Info);
+        Clipboard.AsText := Info;
     end;
 
     FreeTIM(TIM);
@@ -289,10 +294,11 @@ end;
 
 procedure TfrmMain.actAboutExecute(Sender: TObject);
 begin
-  MessageBox(Handle, 'Some "about strings" should be here!:)', 'About', MB_OK + MB_ICONINFORMATION);
+  Application.MessageBox('Some "about strings" should be here!:)', 'About', MB_OK + MB_ICONINFORMATION);
 end;
 
 procedure TfrmMain.actAssocTimsExecute(Sender: TObject);
+{$IFDEF windows}
 var
   reg: TRegistry;
 begin
@@ -316,6 +322,9 @@ begin
   finally
     reg.Free;
   end;
+{$ELSE}
+begin
+{$ENDIF}
 end;
 
 procedure TfrmMain.actChangeClutIdxExecute(Sender: TObject);
@@ -354,7 +363,7 @@ begin
   while cbbFiles.Items.Count > 0 do
     actCloseFile.Execute;
   cbbFiles.Items.EndUpdate;
-  end;
+end;
 
 procedure TfrmMain.actExitExecute(Sender: TObject);
 begin
@@ -368,14 +377,14 @@ var
   IsImage: Boolean;
   ScanTim: TTimInfo;
   TIM: PTIM;
-  PNG_: PPNG;
+  Surf_: PDrawSurf;
 begin
   lblStatus.Caption := sStatusBarPngsExtracting;
 
   FName := SelectedScanResult.ScanFile;
   IsImage := SelectedScanResult.IsImage;
 
-  New(PNG_);
+  New(Surf_);
 
   pbProgress.Position := 0;
   pbProgress.Max := SelectedScanResult.Count;
@@ -392,17 +401,17 @@ begin
     CreateDir(Path);
 
     TIM := LoadTimFromFile(FName, OFFSET, IsImage, SIZE);
-    TimToPNG(TIM, cbbCLUT.ItemIndex, PNG_, cbbTranspMode.ItemIndex);
+    TimToPNG(TIM, cbbCLUT.ItemIndex, Surf_, cbbTranspMode.ItemIndex);
 
-    PNG_^.SaveToFile(Path + FormatPngName(FName, I - 1, BIT_MODE, 0));
-    PNG_^.Free;
+    Surf_^.SaveToFile(Path + FormatPngName(FName, I - 1, BIT_MODE, 0));
+    Surf_^.Free;
 
     FreeTIM(TIM);
 
     pbProgress.Position := I;
     Application.ProcessMessages;
   end;
-  Dispose(PNG_);
+  Dispose(Surf_);
   lblStatus.Caption := sStatusBarExtracted;
   pbProgress.Position := 0;
 end;
@@ -460,12 +469,12 @@ end;
 
 procedure TfrmMain.actOpenLabExecute(Sender: TObject);
 begin
-  ShellExecute(Handle, 'open', 'tim2view.googlecode.com', nil, nil, SW_SHOW);
+  OpenUrl('http://lab313.ru');
 end;
 
 procedure TfrmMain.actOpenRepoExecute(Sender: TObject);
 begin
-  ShellExecute(Handle, 'open', 'tim2view.googlecode.com', nil, nil, SW_SHOW);
+  OpenUrl('http://tim2view.googlecode.com');
 end;
 
 procedure TfrmMain.actReplaceTimExecute(Sender: TObject);
@@ -487,7 +496,12 @@ procedure TfrmMain.actScanDirExecute(Sender: TObject);
 var
   SelectedDir: string;
 begin
-  SelectedDir := BrowseForFolder(Handle, sSelectDirCaption, LastDir);
+  dlgSelectDir.Title := sSelectDirCaption;
+  dlgSelectDir.FileName := LastDir;
+
+  if not dlgSelectDir.Execute then Exit;
+
+  SelectedDir := dlgSelectDir.FileName;
   if DirectoryExists(SelectedDir) then
   begin
     ScanPath(SelectedDir);
@@ -496,14 +510,14 @@ begin
   end;
 end;
 
-procedure TfrmMain.FormClose(Sender: TObject; var Action: TCloseAction);
+procedure TfrmMain.FormClose(Sender: TObject; var CloseAction: TCloseAction);
 begin
   actCloseFiles.Execute;
   ScanThreads.Free;
   ScanResults.Free;
 
-  if PNG^ <> nil then PNG^.Free;
-  Dispose(PNG);
+  Surf^.Free;
+  Dispose(Surf);
 
   Settings.Free;
 end;
@@ -512,6 +526,8 @@ procedure TfrmMain.FormCreate(Sender: TObject);
 var
   hGridRect: TGridRect;
 begin
+  {$IFDEF Linux}mnOptions.Visible := False;{$IFEND}
+
   Settings := TSettings.Create(ExtractFilePath(ParamStr(0)));
 
   actStretch.Checked := Settings.StretchMode;
@@ -524,47 +540,28 @@ begin
   hGridRect.Bottom := -1;
   grdCurrClut.Selection := hGridRect;
 
-  pbTim.Parent.DoubleBuffered := true;
-
-  ScanThreads := TScanThreadList.Create;
-  ScanResults := TScanResultList.Create;
+  ScanThreads := TScanThreadList.Create(False); //False - to able scan thread remove itself from this list
+  ScanResults := TScanResultList.Create(False);
   StartedScans := 0;
-  New(PNG);
-  PNG^ := nil;
+
+  New(Surf);
+  Surf^ := nil;
 
   SetCLUTListToNoCLUT;
-  Caption := cProgramName;
-  DragAcceptFiles(Handle, True);
+  Caption := Format('%s v%s', [cProgramName, cProgramVersion]);
+
   CheckButtonsAndMainMenu;
 
   if ParamCount > 0 then ScanPath(ParamStr(1));
-
-  WaitThread := TEventWaitThread.Create(False);
-  WaitThread.FreeOnTerminate := True;
 end;
 
-procedure TfrmMain.WMDropFiles(var Msg: TWMDropFiles);
+procedure TfrmMain.FormDropFiles(Sender: TObject;
+  const FileNames: array of String);
 var
-  I: Integer;
-  CountFile: Integer;
-  SIZE: Integer;
-  FileName: PChar;
+  i: Integer;
 begin
-  FileName := nil;
-  try
-    CountFile := DragQueryFile(Msg.Drop, $FFFFFFFF, FileName, 1024);
-
-    for I := 0 to (CountFile - 1) do
-    begin
-      SIZE := DragQueryFile(Msg.Drop, I, nil, 0) + 1;
-      FileName := StrAlloc(SIZE);
-      DragQueryFile(Msg.Drop, I, FileName, SIZE);
-      ScanPath(StrPas(FileName));
-      StrDispose(FileName);
-    end;
-  finally
-    DragFinish(Msg.Drop);
-  end;
+  for i := 1 to Length(FileNames) do
+    ScanPath(FileNames[i - 1]);
 end;
 
 procedure TfrmMain.grdCurrClutDblClick(Sender: TObject);
@@ -624,10 +621,11 @@ begin
 
   DrawSelTim;
   DrawSelClut;
+
 end;
 
-procedure TfrmMain.grdCurrClutDrawCell(Sender: TObject; ACol, ARow: Integer;
-  Rect: TRect; State: TGridDrawState);
+procedure TfrmMain.grdCurrClutDrawCell(Sender: TObject; aCol, aRow: Integer;
+  aRect: TRect; aState: TGridDrawState);
 var
   TIM: PTIM;
 begin
@@ -746,9 +744,9 @@ begin
     ScanThreads.Add(TScanThread.Create(FileName, GetImageScan(FileName)));
     ScanThreads.Last.FreeOnTerminate := True;
     ScanThreads.Last.Priority := tpNormal;
-    ScanThreads.Last.OnTerminate := ScanFinished;
+    ScanThreads.Last.OnTerminate := @ScanFinished;
 
-    if StartedScans < GetCoreCount then
+    if StartedScans < GetLogicalCpuCount then
     begin
       ScanThreads.Last.Start;
       Inc(StartedScans);
@@ -790,7 +788,7 @@ begin
   actCloseFiles.Enabled := cbbFiles.Enabled;
   actReplaceTim.Enabled := (lvList.Selected <> nil) and (lvList.Selected.Index <> -1);
 
-  actTim2Png.Enabled := (PNG^ <> nil) and actReplaceTim.Enabled;
+  actTim2Png.Enabled := (Surf^ <> nil) and actReplaceTim.Enabled;
   actExtractTim.Enabled := actReplaceTim.Enabled;
 
   cbbCLUT.Enabled := actReplaceTim.Enabled;
@@ -873,7 +871,7 @@ var
   Index: Integer;
   mode: Byte;
 begin
-  pbTim.Picture := nil;
+  imgTim.Picture.Bitmap := nil;
 
   case cbbBitMode.ItemIndex of
     1: mode := cTIM4C;
@@ -887,19 +885,14 @@ begin
   TIM := SelectedTimInMode[mode];
   if TIM = nil then Exit;
 
-  if PNG^ <> nil then
-  begin
-    PNG^.Free;
-    PNG^ := nil;
-  end;
-
   Index := cbbCLUT.ItemIndex;
 
-  TimToPNG(TIM, Index, PNG, cbbTranspMode.ItemIndex);
-  PNG^.AssignTo(pbTim.Picture.Bitmap);
+  TimToPNG(TIM, Index, Surf, cbbTranspMode.ItemIndex);
+  imgTim.Picture.Bitmap := TBitmap.Create;
+  imgTim.Picture.Bitmap := Surf^.Bitmap;
   FreeTIM(TIM);
 
-  pbTim.Stretch := actStretch.Checked;
+  imgTim.Stretch := actStretch.Checked;
 end;
 
 procedure TfrmMain.DrawSelClut;
@@ -952,12 +945,14 @@ begin
   cbbCLUT.ItemIndex := 0;
 end;
 
-function TfrmMain.FormatTimName(const FileName: string; ListIdx_, BitMode: Integer): string;
+function TfrmMain.FormatTimName(const FileName: string; ListIdx_,
+  BitMode: Integer): string;
 begin
   Result := Format(cAutoExtractionTimFormat, [ExtractJustName(FileName), ListIdx_ + 1, BitMode]);
 end;
 
-function TfrmMain.FormatPngName(const FileName: string; ListIdx_, BitMode, Clut: Integer): string;
+function TfrmMain.FormatPngName(const FileName: string; ListIdx_, BitMode,
+  Clut: Integer): string;
 begin
   Result := Format(cAutoExtractionPngFormat, [ExtractJustName(FileName), ListIdx_ + 1, BitMode, Clut + 1]);
 end;
@@ -979,101 +974,5 @@ begin
   CheckButtonsAndMainMenu;
 end;
 
-procedure TfrmMain.btnStopScanClick(Sender: TObject);
-var
-  I: Integer;
-begin
-  if ScanThreads.Count = 0 then Exit;
-
-  for I := 1 to ScanThreads.Count do
-    ScanThreads[I - 1].StopScan := True;
-
-  ScanThreads.Clear;
-  StartedScans := 0;
-  btnStopScan.Tag := NativeInt(True);
-
-  ScanFinished(nil);
-
-  actReturnFocusExecute(Self);
-end;
-
-function TfrmMain.ForceForegroundWindow(hwnd: THandle): Boolean;
-const
-  SPI_GETFOREGROUNDLOCKTIMEOUT = $2000;
-  SPI_SETFOREGROUNDLOCKTIMEOUT = $2001;
-var
-  ForegroundThreadID: DWORD;
-  ThisThreadID: DWORD;
-  timeout: DWORD;
-begin
-  if IsIconic(hwnd) then ShowWindow(hwnd, SW_RESTORE);
-
-  if GetForegroundWindow = hwnd then Result := True
-  else
-  begin
-    // Windows 98/2000 doesn't want to foreground a window when some other
-    // window has keyboard focus
-
-    if ((Win32Platform = VER_PLATFORM_WIN32_NT) and (Win32MajorVersion > 4)) or
-      ((Win32Platform = VER_PLATFORM_WIN32_WINDOWS) and
-      ((Win32MajorVersion > 4) or ((Win32MajorVersion = 4) and
-      (Win32MinorVersion > 0)))) then
-    begin
-      Result := False;
-      ForegroundThreadID := GetWindowThreadProcessID(GetForegroundWindow, nil);
-      ThisThreadID := GetWindowThreadPRocessId(hwnd, nil);
-      if AttachThreadInput(ThisThreadID, ForegroundThreadID, True) then
-      begin
-        BringWindowToTop(hwnd); // IE 5.5 related hack
-        SetForegroundWindow(hwnd);
-        AttachThreadInput(ThisThreadID, ForegroundThreadID, False);
-        Result := (GetForegroundWindow = hwnd);
-      end;
-      if not Result then
-      begin
-        // Code by Daniel P. Stasinski
-        SystemParametersInfo(SPI_GETFOREGROUNDLOCKTIMEOUT, 0, @timeout, 0);
-        SystemParametersInfo(SPI_SETFOREGROUNDLOCKTIMEOUT, 0, TObject(0),
-          SPIF_SENDCHANGE);
-        BringWindowToTop(hwnd); // IE 5.5 related hack
-        SetForegroundWindow(hWnd);
-        SystemParametersInfo(SPI_SETFOREGROUNDLOCKTIMEOUT, 0, TObject(timeout), SPIF_SENDCHANGE);
-      end;
-    end
-    else
-    begin
-      BringWindowToTop(hwnd); // IE 5.5 related hack
-      SetForegroundWindow(hwnd);
-    end;
-
-    Result := (GetForegroundWindow = hwnd);
-  end;
-end;
-
-function TfrmMain.ReadPathFromMailslot: string;
-var
-  MessageSize: DWORD;
-begin
-  GetMailslotInfo(ServerMailSlot, nil, MessageSize, nil, nil);
-
-  if MessageSize = MAILSLOT_NO_MESSAGE then
-  begin
-    Result := '';
-    Exit;
-  end;
-
-  SetLength(Result, MessageSize div SizeOf(Char));
-  ReadFile(ServerMailSlot, Result[1], MessageSize * SizeOf(Char), MessageSize, nil);
-  Result := Trim(Result);
-end;
-
-procedure TfrmMain.WMCommandArrived(var Message: TMessage);
-var
-  path: string;
-begin
-  ForceForegroundWindow(Self.Handle);
-  path := ReadPathFromMailslot;
-  ScanPath(path);
-end;
-
 end.
+

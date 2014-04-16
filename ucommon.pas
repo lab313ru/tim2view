@@ -3,7 +3,8 @@ unit ucommon;
 interface
 
 const
-  cProgramName = 'Tim2View r55 by [Lab 313]';
+  cProgramName = 'Tim2View by [Lab 313]';
+  cProgramVersion = '2.0 Release';
   cExtractedTimsDir = 'TIMS';
   cExtractedPngsDir = 'PNGS';
   cMaxFileSize = $2EAEED80;
@@ -25,29 +26,13 @@ type
   TBytesArray = array [0 .. cMaxFileSize - 1] of byte;
   PBytesArray = ^TBytesArray;
 
-procedure Text2Clipboard(const S: string);
 function ExtractJustName(const Path: string): string;
 function Min(A, B: Integer): Integer;
 function Max(A, B: Integer): Integer;
-function GetCoreCount: Integer;
-function FileSize(const FileName: string): Integer;
 
 implementation
 
-uses sysutils, windows, clipbrd;
-
-function GetCoreCount: Integer;
-var
-  SystemInfo: SYSTEM_INFO;
-begin
-  GetSystemInfo(&SystemInfo);
-  Result := SystemInfo.dwNumberOfProcessors;
-end;
-
-procedure Text2Clipboard(const S: string);
-begin
-  Clipboard.AsText := S;
-end;
+uses sysutils;
 
 function Min(A, B: Integer): Integer;
 begin
@@ -69,24 +54,6 @@ function ExtractJustName(const Path: string): string;
 begin
   Result := ExtractFileName(Path);
   Result := Copy(Result, 1, Length(Result) - Length(ExtractFileExt(Result)));
-end;
-
-function FileSize(const FileName: string): Integer;
-var
-  FindData: TWin32FindData;
-  hFind: THandle;
-begin
-  Result := 0;
-  hFind := FindFirstFile(PChar(FileName), FindData);
-
-  if hFind <> INVALID_HANDLE_VALUE then
-  begin
-
-    Windows.FindClose(hFind);
-    if (FindData.dwFileAttributes and FILE_ATTRIBUTE_DIRECTORY) = 0 then
-      Result := Integer(FindData.nFileSizeLow);
-  end;
-
 end;
 
 end.
