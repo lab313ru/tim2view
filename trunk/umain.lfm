@@ -4,11 +4,11 @@ object frmMain: TfrmMain
   Top = 147
   Width = 780
   HorzScrollBar.Page = 780
-  VertScrollBar.Page = 567
+  VertScrollBar.Page = 570
   ActiveControl = pnlList
   AllowDropFiles = True
   AutoScroll = True
-  ClientHeight = 567
+  ClientHeight = 570
   ClientWidth = 780
   Color = clBtnFace
   Font.Color = clWindowText
@@ -493,11 +493,11 @@ object frmMain: TfrmMain
   OnCreate = FormCreate
   OnDropFiles = FormDropFiles
   Position = poScreenCenter
-  LCLVersion = '1.2.0.3'
+  LCLVersion = '1.3'
   object pnlStatus: TPanel
     Left = 0
     Height = 30
-    Top = 537
+    Top = 540
     Width = 780
     Align = alBottom
     BevelOuter = bvLowered
@@ -537,13 +537,13 @@ object frmMain: TfrmMain
   end
   object cbbFiles: TComboBox
     Left = 0
-    Height = 28
+    Height = 21
     Top = 0
     Width = 780
     Align = alTop
     DropDownCount = 30
     Enabled = False
-    ItemHeight = 0
+    ItemHeight = 13
     OnChange = actChangeFileExecute
     OnCloseUp = actReturnFocusExecute
     Style = csDropDownList
@@ -551,33 +551,33 @@ object frmMain: TfrmMain
   end
   object pnlMain: TPanel
     Left = 0
-    Height = 509
-    Top = 28
+    Height = 519
+    Top = 21
     Width = 780
     Align = alClient
     BevelOuter = bvNone
-    ClientHeight = 509
+    ClientHeight = 519
     ClientWidth = 780
     TabOrder = 1
     object splMain: TSplitter
       Left = 240
-      Height = 509
+      Height = 519
       Top = 0
       Width = 5
     end
     object pnlList: TPanel
       Left = 0
-      Height = 509
+      Height = 519
       Top = 0
       Width = 240
       Align = alLeft
       BevelOuter = bvNone
-      ClientHeight = 509
+      ClientHeight = 519
       ClientWidth = 240
       TabOrder = 0
       object lvList: TListView
         Left = 0
-        Height = 481
+        Height = 491
         Top = 28
         Width = 240
         Align = alClient
@@ -646,12 +646,12 @@ object frmMain: TfrmMain
     end
     object pnlImage: TPanel
       Left = 245
-      Height = 509
+      Height = 519
       Top = 0
       Width = 535
       Align = alClient
       BevelOuter = bvLowered
-      ClientHeight = 509
+      ClientHeight = 519
       ClientWidth = 535
       TabOrder = 1
       object splImageClut: TSplitter
@@ -667,7 +667,7 @@ object frmMain: TfrmMain
       object grdCurrClut: TDrawGrid
         Left = 1
         Height = 150
-        Top = 330
+        Top = 345
         Width = 533
         Align = alBottom
         ColCount = 1
@@ -691,18 +691,18 @@ object frmMain: TfrmMain
       end
       object pnlImageOptions: TPanel
         Left = 1
-        Height = 28
-        Top = 480
+        Height = 23
+        Top = 495
         Width = 533
         Align = alBottom
         AutoSize = True
         BevelOuter = bvNone
-        ClientHeight = 28
+        ClientHeight = 23
         ClientWidth = 533
         TabOrder = 1
         object btnShowClut: TButton
           Left = 481
-          Height = 28
+          Height = 23
           Top = 0
           Width = 52
           Align = alRight
@@ -713,12 +713,12 @@ object frmMain: TfrmMain
         end
         object cbbBitMode: TComboBox
           Left = 0
-          Height = 28
+          Height = 21
           Top = 0
           Width = 90
           Align = alLeft
           Enabled = False
-          ItemHeight = 0
+          ItemHeight = 13
           ItemIndex = 0
           Items.Strings = (
             'Real'
@@ -735,12 +735,12 @@ object frmMain: TfrmMain
         end
         object cbbTranspMode: TComboBox
           Left = 90
-          Height = 28
+          Height = 21
           Top = 0
           Width = 136
           Align = alLeft
           Enabled = False
-          ItemHeight = 0
+          ItemHeight = 13
           ItemIndex = 0
           Items.Strings = (
             'Full transparence'
@@ -756,13 +756,13 @@ object frmMain: TfrmMain
         end
         object cbbCLUT: TComboBox
           Left = 372
-          Height = 28
+          Height = 21
           Top = 0
           Width = 109
           Align = alRight
           DropDownCount = 16
           Enabled = False
-          ItemHeight = 0
+          ItemHeight = 13
           OnChange = actChangeClutIdxExecute
           Style = csDropDownList
           TabOrder = 3
@@ -770,7 +770,7 @@ object frmMain: TfrmMain
       end
       object imgTim: TImage
         Left = 1
-        Height = 326
+        Height = 341
         Top = 4
         Width = 533
         AntialiasingMode = amOff
@@ -1024,4 +1024,4 @@ object frmMain: TfrmMain
     left = 449
     top = 450
   end
-end
+end

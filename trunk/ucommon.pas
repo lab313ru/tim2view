@@ -3,7 +3,7 @@ unit ucommon;
 interface
 
 const
-  cProgramName = 'Tim2View SVN.r58 by [Lab 313] (for ' +
+  cProgramName = 'Tim2View SVN.r61 by [Lab 313] (for ' +
   {$IFDEF Linux}'Linux' + {$IFEND}
   {$IFDEF Darwin}'Mac OS X' + {$IFEND}
   {$IFDEF Windows}'Windows' + {$IFEND}
@@ -59,4 +59,4 @@ begin
   Result := Copy(Result, 1, Length(Result) - Length(ExtractFileExt(Result)));
 end;
 
-end.
+end.
