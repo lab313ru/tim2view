@@ -122,7 +122,7 @@ begin
   RW := GetTimRealWidth(TIM);
   RH := GetTimHeight(TIM);
 
-  if Surf^ <> nil then Surf^.Free;
+  if (Surf^ <> nil) then Surf^.Free;
 
   Surf^ := TBGRABitmap.Create(RW, RH);
 

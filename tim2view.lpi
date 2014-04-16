@@ -118,20 +118,7 @@
       <OtherUnitFiles Value="bgrabitmap"/>
       <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
-    <CodeGeneration>
-      <SmartLinkUnit Value="True"/>
-      <RelocatableUnit Value="True"/>
-      <TargetCPU Value="x86_64"/>
-      <TargetOS Value="linux"/>
-      <Optimizations>
-        <OptimizationLevel Value="3"/>
-      </Optimizations>
-    </CodeGeneration>
     <Linking>
-      <Debugging>
-        <GenerateDebugInfo Value="False"/>
-      </Debugging>
-      <LinkSmart Value="True"/>
       <Options>
         <Win32>
           <GraphicApplication Value="True"/>

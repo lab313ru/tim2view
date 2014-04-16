@@ -3,7 +3,7 @@ unit uscanthread;
 interface
 
 uses
-  ucommon, utim, uscanresult, classes, fgl;
+  ucommon, utim, uscanresult, classes, fgl, lazutf8classes;
 
 type
   TScanThread = class(TThread)
@@ -16,7 +16,7 @@ type
     pClearBufferPosition: Integer;
     pClearBufferSize: Integer;
     pSectorBufferSize: Integer;
-    pSrcFileStream: TFileStream;
+    pSrcFileStream: TFileStreamUTF8;
     pStopScan: boolean;
     procedure SetStatusText;
     procedure StartScan;
@@ -39,8 +39,7 @@ uses
   umain, ucdimage, sysutils, FileUtil;
 
 const
-  cClearBufferSize = ((cTIMMaxSize div cSectorDataSize) + 1) *
-    cSectorDataSize * 2;
+  cClearBufferSize = ((cTIMMaxSize div cSectorDataSize) + 1) * cSectorDataSize * 2;
   cSectorBufferSize = (cClearBufferSize div cSectorDataSize) * cSectorSize;
 
   { TScanThread }
@@ -101,8 +100,7 @@ begin
     SectorBuffer := GetMemory(pSectorBufferSize);
     ClearBuffer := GetMemory(pClearBufferSize);
 
-    pSrcFileStream := TFileStream.Create(pScanResult.ScanFile, fmOpenRead or
-      fmShareDenyWrite);
+    pSrcFileStream := TFileStreamUTF8.Create(pScanResult.ScanFile, fmOpenRead or fmShareDenyWrite);
 
     pSrcFileStream.Position := 0;
 
