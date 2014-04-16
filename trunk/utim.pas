@@ -145,7 +145,7 @@ function ConvertCLUTColor(COLOR: TCLUT_COLOR): word;
 implementation
 
 uses
-  ucdimage, classes, sysutils;
+  ucdimage, classes, sysutils, lazutf8classes;
 
 function ConvertTIMColor(COLOR: word): TCLUT_COLOR;
 begin
@@ -366,12 +366,12 @@ var
   TimOffsetInSector, FirstPartSize, LastPartSize: Integer;
   TimSectorNumber, TimStartSectorPos: Integer;
   TIM_BUF: PTIMDataArray;
-  sImageStream: TFileStream;
+  sImageStream: TFileStreamUTF8;
   Sector: TCDSector;
   P, TIM_FULL_SECTORS: Integer;
 begin
   try
-    sImageStream := TFileStream.Create(FileName, fmOpenRead or fmShareDenyWrite);
+    sImageStream := TFileStreamUTF8.Create(FileName, fmOpenRead or fmShareDenyWrite);
 
     TimSectorNumber := Position div cSectorSize + 1;
     TimOffsetInSector := Position mod cSectorSize - cSectorInfoSize;
@@ -451,12 +451,12 @@ end;
 function LoadTimFromFile(const FileName: string; var Position: Integer;
   ImageScan: Boolean; dwSize: Integer): PTIM;
 var
-  sTIM: TFileStream;
+  sTIM: TFileStreamUTF8;
 begin
   if not ImageScan then
   begin
     try
-      sTIM := TFileStream.Create(FileName, fmOpenRead or fmShareDenyWrite);
+      sTIM := TFileStreamUTF8.Create(FileName, fmOpenRead or fmShareDenyWrite);
       Result := LoadTimFromStream(sTIM, Position, dwSize);
     finally
       sTIM.Free;
@@ -469,13 +469,12 @@ end;
 
 procedure SaveTimToFile(const FileName: string; TIM: PTIM);
 var
-  tmp: TMemoryStream;
+  tmp: TFileStreamUTF8;
 begin
   if TIM = nil then Exit;
 
-  tmp := TMemoryStream.Create;
+  tmp := TFileStreamUTF8.Create(FileName, fmOpenWrite or fmCreate, fmShareDenyRead);
   tmp.Write(TIM^.DATA^[0], TIM^.dwSize);
-  tmp.SaveToFile(FileName);
   tmp.Free;
 end;
 

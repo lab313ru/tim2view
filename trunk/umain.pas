@@ -204,7 +204,7 @@ begin
 
   if not dlgSavePNG.Execute then Exit;
 
-  Surf^.SaveToFile(dlgSavePNG.FileName);
+  Surf^.SaveToFileUTF8(dlgSavePNG.FileName);
 end;
 
 procedure TfrmMain.actTimInfoExecute(Sender: TObject);
@@ -314,10 +314,10 @@ begin
     reg.WriteString('', 'Tim File Format');
     reg.CloseKey;
     reg.OpenKey('Software\Classes\TimFile\DefaultIcon', True);
-    reg.WriteString('', '"' + ParamStr(0) +'",0');
+    reg.WriteString('', '"' + ParamStrUTF8(0) +'",0');
     reg.CloseKey;
     reg.OpenKey('Software\Classes\TimFile\shell\Open\Command', True);
-    reg.WriteString('', '"' + ParamStr(0) + '" "%1"');
+    reg.WriteString('', '"' + ParamStrUTF8(0) + '" "%1"');
     reg.CloseKey;
   finally
     reg.Free;
@@ -385,6 +385,7 @@ begin
   IsImage := SelectedScanResult.IsImage;
 
   New(Surf_);
+  Surf_^ := nil;
 
   pbProgress.Position := 0;
   pbProgress.Max := SelectedScanResult.Count;
@@ -395,16 +396,17 @@ begin
     SIZE := ScanTim.Size;
     BIT_MODE := ScanTim.BitMode;
 
-    Path := IncludeTrailingPathDelimiter(ExtractFilePath(ParamStr(0)) + cExtractedPngsDir);
-    CreateDir(Path);
+    Path := IncludeTrailingPathDelimiter(ExtractFilePath(ParamStrUTF8(0)) + cExtractedPngsDir);
+    CreateDirUTF8(Path);
     Path := IncludeTrailingPathDelimiter(Path + ExtractFileName(FName));
-    CreateDir(Path);
+    CreateDirUTF8(Path);
 
     TIM := LoadTimFromFile(FName, OFFSET, IsImage, SIZE);
     TimToPNG(TIM, cbbCLUT.ItemIndex, Surf_, cbbTranspMode.ItemIndex);
 
-    Surf_^.SaveToFile(Path + FormatPngName(FName, I - 1, BIT_MODE, 0));
+    Surf_^.SaveToFileUTF8(Path + FormatPngName(FName, I - 1, BIT_MODE, 0));
     Surf_^.Free;
+    Surf_^ := nil;
 
     FreeTIM(TIM);
 
@@ -451,10 +453,10 @@ begin
     SIZE := ScanTim.Size;
     BIT_MODE := ScanTim.BitMode;
 
-    Path := IncludeTrailingPathDelimiter(ExtractFilePath(ParamStr(0)) + cExtractedTimsDir);
-    CreateDir(Path);
+    Path := IncludeTrailingPathDelimiter(ExtractFilePath(ParamStrUTF8(0)) + cExtractedTimsDir);
+    CreateDirUTF8(Path);
     Path := IncludeTrailingPathDelimiter(Path + ExtractFileName(FName));
-    CreateDir(Path);
+    CreateDirUTF8(Path);
 
     TIM := LoadTimFromFile(FName, OFFSET, IsImage, SIZE);
     SaveTimToFile(Path + FormatTimName(FName, I - 1, BIT_MODE), TIM);
@@ -528,7 +530,7 @@ var
 begin
   {$IFnDEF Windows}mnOptions.Enabled := False;{$IFEND}
 
-  Settings := TSettings.Create(ExtractFilePath(ParamStr(0)));
+  Settings := TSettings.Create(ExtractFilePath(ParamStrUTF8(0)));
 
   actStretch.Checked := Settings.StretchMode;
   cbbTranspMode.ItemIndex := Settings.TranspMode;
@@ -552,7 +554,7 @@ begin
 
   CheckButtonsAndMainMenu;
 
-  if ParamCount > 0 then ScanPath(ParamStr(1));
+  if ParamCount > 0 then ScanPath(ParamStrUTF8(1));
 end;
 
 procedure TfrmMain.FormDropFiles(Sender: TObject;
@@ -722,7 +724,7 @@ begin
   btnStopScan.Enabled := True;
   btnStopScan.Tag := NativeInt(False);
 
-  if FileExists(Path) then
+  if FileExistsUTF8(Path) then
     ScanFile(Path)
   else
     ScanDirectory(Path);
@@ -762,7 +764,7 @@ var
   Dir: string;
 begin
   Dir := IncludeTrailingPathDelimiter(Directory);
-  isFound := FindFirst(Dir + '*', faAnyFile, sRec) = 0;
+  isFound := FindFirstUTF8(Dir + '*', faAnyFile, sRec) = 0;
   while isFound do
   begin
     if (sRec.Name <> '.') and (sRec.Name <> '..') then
@@ -773,9 +775,9 @@ begin
         ScanFile(Dir + sRec.Name);
     end;
     Application.ProcessMessages;
-    isFound := FindNext(sRec) = 0;
+    isFound := FindNextUTF8(sRec) = 0;
   end;
-  FindClose(sRec);
+  FindCloseUTF8(sRec);
 end;
 
 procedure TfrmMain.CheckButtonsAndMainMenu;
@@ -949,13 +951,13 @@ end;
 function TfrmMain.FormatTimName(const FileName: string; ListIdx_,
   BitMode: Integer): string;
 begin
-  Result := Format(cAutoExtractionTimFormat, [ExtractJustName(FileName), ListIdx_ + 1, BitMode]);
+  Result := Format(cAutoExtractionTimFormat, [ExtractFileNameWithoutExt(FileName), ListIdx_ + 1, BitMode]);
 end;
 
 function TfrmMain.FormatPngName(const FileName: string; ListIdx_, BitMode,
   Clut: Integer): string;
 begin
-  Result := Format(cAutoExtractionPngFormat, [ExtractJustName(FileName), ListIdx_ + 1, BitMode, Clut + 1]);
+  Result := Format(cAutoExtractionPngFormat, [ExtractFileNameWithoutExt(FileName), ListIdx_ + 1, BitMode, Clut + 1]);
 end;
 
 procedure TfrmMain.ShowTim;

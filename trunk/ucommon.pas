@@ -3,7 +3,7 @@ unit ucommon;
 interface
 
 const
-  cProgramName = 'Tim2View SVN.r61 by [Lab 313] (for ' +
+  cProgramName = 'Tim2View SVN.r62 by [Lab 313] (for ' +
   {$IFDEF Linux}'Linux' + {$IFEND}
   {$IFDEF Darwin}'Mac OS X' + {$IFEND}
   {$IFDEF Windows}'Windows' + {$IFEND}
@@ -29,7 +29,6 @@ type
   TBytesArray = array [0 .. cMaxFileSize - 1] of byte;
   PBytesArray = ^TBytesArray;
 
-function ExtractJustName(const Path: string): string;
 function Min(A, B: Integer): Integer;
 function Max(A, B: Integer): Integer;
 
@@ -51,12 +50,6 @@ begin
     Result := A
   else
     Result := B;
-end;
-
-function ExtractJustName(const Path: string): string;
-begin
-  Result := ExtractFileName(Path);
-  Result := Copy(Result, 1, Length(Result) - Length(ExtractFileExt(Result)));
 end;
 
 end.
