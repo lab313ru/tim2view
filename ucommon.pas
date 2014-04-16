@@ -3,8 +3,11 @@ unit ucommon;
 interface
 
 const
-  cProgramName = 'Tim2View by [Lab 313]';
-  cProgramVersion = '2.0 Release';
+  cProgramName = 'Tim2View SVN.r58 by [Lab 313] (for ' +
+  {$IFDEF Linux}'Linux' + {$IFEND}
+  {$IFDEF Darwin}'Mac OS X' + {$IFEND}
+  {$IFDEF Windows}'Windows' + {$IFEND}
+  ')';
   cExtractedTimsDir = 'TIMS';
   cExtractedPngsDir = 'PNGS';
   cMaxFileSize = $2EAEED80;
@@ -56,4 +59,4 @@ begin
   Result := Copy(Result, 1, Length(Result) - Length(ExtractFileExt(Result)));
 end;
 
-end.
+end.
