@@ -1,0 +1,14 @@
+#summary How to compile tim2view in Lazarus.
+
+= Lazarus Compilation Instruction =
+
+  # Launch target OS (for which you want to compile *tim2view*);
+  # Download and install *[http://www.lazarus.freepascal.org/ Lazarus]*;
+  # *[http://code.google.com/p/tim2view/source/checkout Checkout SVN]* to download last source version;
+  # Open *tim2view.lpi* in Lazarus;
+  # Click *Run -> Build* to make tim2view.
+
+
+= Screenshots =
+
+Will be later.
