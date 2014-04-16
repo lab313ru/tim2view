@@ -526,7 +526,7 @@ procedure TfrmMain.FormCreate(Sender: TObject);
 var
   hGridRect: TGridRect;
 begin
-  {$IFDEF Linux}mnOptions.Visible := False;{$IFEND}
+  {$IFnDEF Windows}mnOptions.Enabled := False;{$IFEND}
 
   Settings := TSettings.Create(ExtractFilePath(ParamStr(0)));
 
@@ -548,7 +548,7 @@ begin
   Surf^ := nil;
 
   SetCLUTListToNoCLUT;
-  Caption := Format('%s v%s', [cProgramName, cProgramVersion]);
+  Caption := cProgramName;
 
   CheckButtonsAndMainMenu;
 
@@ -975,4 +975,4 @@ begin
 end;
 
 end.
-
+
