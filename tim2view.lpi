@@ -16,10 +16,7 @@
     </i18n>
     <VersionInfo>
       <UseVersionInfo Value="True"/>
-      <AutoIncrementBuild Value="True"/>
       <MajorVersionNr Value="1"/>
-      <RevisionNr Value="54"/>
-      <BuildNr Value="71"/>
       <StringTable CompanyName="Lab 313" FileDescription="The best TIMs tool ever!:)" ProductVersion=""/>
     </VersionInfo>
     <BuildModes Count="1">
@@ -120,6 +117,10 @@
       <OtherUnitFiles Value="bgrabitmap"/>
       <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
+    <CodeGeneration>
+      <TargetCPU Value="x86_64"/>
+      <TargetOS Value="linux"/>
+    </CodeGeneration>
     <Linking>
       <Options>
         <Win32>

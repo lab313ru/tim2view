@@ -51,11 +51,10 @@
         <Filename Value="ucommon.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="ucommon"/>
-        <IsVisibleTab Value="True"/>
         <EditorIndex Value="1"/>
         <WindowIndex Value="0"/>
         <TopLine Value="1"/>
-        <CursorPos X="33" Y="6"/>
+        <CursorPos X="42" Y="11"/>
         <UsageCount Value="46"/>
         <Loaded Value="True"/>
       </Unit4>
@@ -108,6 +107,7 @@
         <Filename Value="ucpucount.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="ucpucount"/>
+        <IsVisibleTab Value="True"/>
         <EditorIndex Value="2"/>
         <WindowIndex Value="0"/>
         <TopLine Value="1"/>
