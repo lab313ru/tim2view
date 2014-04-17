@@ -116,7 +116,7 @@ begin
     pScanFinished := False;
     pTIMNumber := 0;
 
-    while (not pStopScan) or (not Terminated) do
+    while (not pStopScan) and (not Terminated) do
     begin
       if LoadTimFromBuf(ClearBuffer, TIM, pClearBufferPosition) then
       begin

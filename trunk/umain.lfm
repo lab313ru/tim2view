@@ -497,7 +497,7 @@ object frmMain: TfrmMain
   object pnlStatus: TPanel
     Left = 0
     Height = 30
-    Top = 540
+    Top = 517
     Width = 780
     Align = alBottom
     BevelOuter = bvLowered
@@ -550,33 +550,33 @@ object frmMain: TfrmMain
   end
   object pnlMain: TPanel
     Left = 0
-    Height = 519
+    Height = 496
     Top = 21
     Width = 780
     Align = alClient
     BevelOuter = bvNone
-    ClientHeight = 519
+    ClientHeight = 496
     ClientWidth = 780
     TabOrder = 1
     object splMain: TSplitter
       Left = 253
-      Height = 519
+      Height = 496
       Top = 0
       Width = 5
     end
     object pnlList: TPanel
       Left = 0
-      Height = 519
+      Height = 496
       Top = 0
       Width = 253
       Align = alLeft
       BevelOuter = bvNone
-      ClientHeight = 519
+      ClientHeight = 496
       ClientWidth = 253
       TabOrder = 0
       object lvList: TListView
         Left = 0
-        Height = 491
+        Height = 468
         Top = 28
         Width = 253
         Align = alClient
@@ -644,12 +644,12 @@ object frmMain: TfrmMain
     end
     object pnlImage: TPanel
       Left = 258
-      Height = 519
+      Height = 496
       Top = 0
       Width = 522
       Align = alClient
       BevelOuter = bvLowered
-      ClientHeight = 519
+      ClientHeight = 496
       ClientWidth = 522
       Color = clBtnFace
       ParentColor = False
@@ -669,9 +669,10 @@ object frmMain: TfrmMain
       object grdCurrClut: TDrawGrid
         Left = 1
         Height = 150
-        Top = 343
+        Top = 320
         Width = 520
         Align = alBottom
+        AutoEdit = False
         ColCount = 1
         DefaultColWidth = 14
         DefaultRowHeight = 14
@@ -681,7 +682,7 @@ object frmMain: TfrmMain
         FixedRows = 0
         Options = [goFixedVertLine, goFixedHorzLine, goDrawFocusSelected]
         RowCount = 1
-        ScrollBars = ssNone
+        ScrollBars = ssAutoVertical
         TabOrder = 0
         TitleFont.Color = clWindowText
         TitleFont.Height = -11
@@ -694,7 +695,7 @@ object frmMain: TfrmMain
       object pnlImageOptions: TPanel
         Left = 1
         Height = 25
-        Top = 493
+        Top = 470
         Width = 520
         Align = alBottom
         AutoSize = True
@@ -774,15 +775,51 @@ object frmMain: TfrmMain
       end
       object imgTim: TImage
         Left = 1
-        Height = 339
+        Height = 316
         Top = 4
         Width = 520
         AntialiasingMode = amOff
         Align = alClient
         Center = True
         PopupMenu = pmImage
+        Proportional = True
       end
     end
+  end
+  object sbMain: TStatusBar
+    Left = 0
+    Height = 23
+    Top = 547
+    Width = 780
+    Panels = <    
+      item
+        Width = 50
+      end    
+      item
+        Width = 50
+      end    
+      item
+        Width = 50
+      end    
+      item
+        Width = 50
+      end    
+      item
+        Width = 50
+      end    
+      item
+        Width = 50
+      end    
+      item
+        Width = 50
+      end    
+      item
+        Width = 50
+      end    
+      item
+        Width = 50
+      end>
+    SimplePanel = False
   end
   object dlgOpenFile: TOpenDialog
     Title = 'Please, select File...'
@@ -818,15 +855,6 @@ object frmMain: TfrmMain
     end
     object mnTIM: TMenuItem
       Caption = '&TIM'
-      object mnExtractAllTims: TMenuItem
-        Action = actExtractTIMs
-      end
-      object mnExtractAllPngs: TMenuItem
-        Action = actExtractPNGs
-      end
-      object N6: TMenuItem
-        Caption = '-'
-      end
       object mnSaveTIM: TMenuItem
         Action = actExtractTim
       end
@@ -835,12 +863,6 @@ object frmMain: TfrmMain
       end
       object mnSaveToPNG: TMenuItem
         Action = actTim2Png
-      end
-      object N4: TMenuItem
-        Caption = '-'
-      end
-      object mnTimInfoMain: TMenuItem
-        Action = actTimInfo
       end
     end
     object mnOptions: TMenuItem
@@ -978,11 +1000,6 @@ object frmMain: TfrmMain
       Caption = '&Stretch Image'
       OnExecute = actStretchExecute
     end
-    object actTimInfo: TAction
-      Caption = '&TIM Info...'
-      Enabled = False
-      OnExecute = actTimInfoExecute
-    end
     object actAssocTims: TAction
       Caption = '&Open TIMs with T2V'
       OnExecute = actAssocTimsExecute
@@ -1036,12 +1053,6 @@ object frmMain: TfrmMain
     end
     object mnExtractAllPngs2: TMenuItem
       Action = actExtractPNGs
-    end
-    object N2: TMenuItem
-      Caption = '-'
-    end
-    object mnTIMInfo: TMenuItem
-      Action = actTimInfo
     end
   end
   object pmImage: TPopupMenu
