@@ -951,13 +951,13 @@ end;
 function TfrmMain.FormatTimName(const FileName: string; ListIdx_,
   BitMode: Integer): string;
 begin
-  Result := Format(cAutoExtractionTimFormat, [ExtractFileNameWithoutExt(FileName), ListIdx_ + 1, BitMode]);
+  Result := Format(cAutoExtractionTimFormat, [ExtractJustName(FileName), ListIdx_ + 1, BitMode]);
 end;
 
 function TfrmMain.FormatPngName(const FileName: string; ListIdx_, BitMode,
   Clut: Integer): string;
 begin
-  Result := Format(cAutoExtractionPngFormat, [ExtractFileNameWithoutExt(FileName), ListIdx_ + 1, BitMode, Clut + 1]);
+  Result := Format(cAutoExtractionPngFormat, [ExtractJustName(FileName), ListIdx_ + 1, BitMode, Clut + 1]);
 end;
 
 procedure TfrmMain.ShowTim;
