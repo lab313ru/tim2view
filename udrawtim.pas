@@ -19,7 +19,7 @@ procedure ClearGrid(Grid: PDrawGrid);
 implementation
 
 uses
-  ucommon, BGRABitmapTypes;
+  ucommon, BGRABitmapTypes, Math;
 
 function PrepareCLUT(TIM: PTIM; CLUT_NUM: Integer): PCLUT_COLORS;
 var
@@ -224,18 +224,25 @@ var
   CLUT_COLOR: PCLUT_COLOR;
   R, G, B, STP, ALPHA: Byte;
   Rect: TRect;
-  COLS: Integer;
+  COLS, Colors: Integer;
 begin
+  Colors := GetTimColorsCount(TIM);
+  COLS := Min(Colors, cCLUTGridColsCount);
+  Rect := Grid^.CellRect(X, Y);
+
+  if (Y * COLS + X) >= Colors then
+  begin
+    ClearCanvas(@Grid^.Canvas, Rect);
+    Exit;
+  end;
+
   New(CLUT_COLOR);
 
-  COLS := Min(GetTimColorsCount(TIM), cCLUTGridColsCount);
   CLUT_COLOR^ := GetCLUTColor(TIM, CLUT_NUM, Y * COLS + X);
   R := CLUT_COLOR^.R;
   G := CLUT_COLOR^.G;
   B := CLUT_COLOR^.B;
   STP := CLUT_COLOR^.STP;
-
-  Rect := Grid^.CellRect(X, Y);
 
   Grid^.Canvas.Brush.COLOR := RGBToColor(R, G, B);
 
@@ -272,7 +279,7 @@ begin
   COLORS := GetTimColorsCount(TIM);
   COLS := Min(COLORS, cCLUTGridColsCount);
   Grid^.ColCount := COLS;
-  ROWS := COLORS div COLS;
+  ROWS := Ceil(COLORS / COLS);
 
   Grid^.RowCount := ROWS;
 

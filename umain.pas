@@ -36,7 +36,6 @@ type
     actList: TActionList;
     actStretch: TAction;
     actTim2Png: TAction;
-    actTimInfo: TAction;
     btnExtractAllTims: TButton;
     btnExtractPNGs: TButton;
     btnShowClut: TButton;
@@ -62,9 +61,6 @@ type
     mnExtractAllTims2: TMenuItem;
     N7: TMenuItem;
     mnStretchImage: TMenuItem;
-    mnExtractAllPngs: TMenuItem;
-    mnExtractAllTims: TMenuItem;
-    N6: TMenuItem;
     mnSaveAsPng: TMenuItem;
     mnAbout: TMenuItem;
     mnAssociate: TMenuItem;
@@ -84,12 +80,8 @@ type
     mnStretch: TMenuItem;
     mnSVN: TMenuItem;
     mnTIM: TMenuItem;
-    mnTIMInfo: TMenuItem;
-    mnTimInfoMain: TMenuItem;
     N1: TMenuItem;
-    N2: TMenuItem;
     N3: TMenuItem;
-    N4: TMenuItem;
     N5: TMenuItem;
     pbProgress: TProgressBar;
     pnlExtractAll: TPanel;
@@ -105,6 +97,7 @@ type
     dlgSelectDir: TSelectDirectoryDialog;
     splImageClut: TSplitter;
     splMain: TSplitter;
+    sbMain: TStatusBar;
     procedure actAboutExecute(Sender: TObject);
     procedure actAssocTimsExecute(Sender: TObject);
     procedure actChangeBackColorExecute(Sender: TObject);
@@ -125,7 +118,6 @@ type
     procedure actStopScanExecute(Sender: TObject);
     procedure actStretchExecute(Sender: TObject);
     procedure actTim2PngExecute(Sender: TObject);
-    procedure actTimInfoExecute(Sender: TObject);
     procedure btnShowClutClick(Sender: TObject);
     procedure cbbBitModeChange(Sender: TObject);
     procedure cbbTranspModeChange(Sender: TObject);
@@ -133,11 +125,9 @@ type
     procedure FormCreate(Sender: TObject);
     procedure FormDropFiles(Sender: TObject; const FileNames: array of string);
     procedure grdCurrClutDblClick(Sender: TObject);
-    procedure grdCurrClutDrawCell(Sender: TObject; aCol, aRow: Integer;
-      aRect: TRect; aState: TGridDrawState);
+    procedure grdCurrClutDrawCell(Sender: TObject; aCol, aRow: Integer; aRect: TRect; aState: TGridDrawState);
     procedure lvListData(Sender: TObject; Item: TListItem);
-    procedure lvListSelectItem(Sender: TObject; Item: TListItem;
-      Selected: Boolean);
+    procedure lvListSelectItem(Sender: TObject; Item: TListItem; Selected: Boolean);
   private
     { private declarations }
     StartedScans: Integer; //Count of currently started scans
@@ -174,6 +164,7 @@ type
     function FormatTimName(const FileName: string; ListIdx_, BitMode: Integer): string;
     function FormatPngName(const FileName: string; ListIdx_, BitMode, Clut: Integer): string;
     procedure ShowTim;
+    procedure ShowTimInfo(ShowInfo: Boolean);
   public
     { public declarations }
     ScanResults: TScanResultList; //List of finished scan results
@@ -186,7 +177,7 @@ var
 
 implementation
 
-uses ucdimage, ucpucount, lcltype, ucommon, LCLIntf, Clipbrd
+uses ucdimage, ucpucount, lcltype, ucommon, LCLIntf
 
 {$IFDEF windows}
 ,registry
@@ -238,63 +229,6 @@ begin
   if not dlgSavePNG.Execute then Exit;
 
   Surf^.SaveToFile(UTF8ToSys(dlgSavePNG.FileName));
-end;
-
-procedure TfrmMain.actTimInfoExecute(Sender: TObject);
-const
-  Tab = #$09;
-  Row = #10;
-var
-  Info, IsGoodTIM: string;
-  Index: Integer;
-  TIM: PTIM;
-begin
-  if actTimInfo.Enabled then
-  begin
-    Index := SelectedTimIdx;
-    TIM := SelectedTim;
-
-    if TIMIsGood(TIM) then
-      IsGoodTIM := 'YES'
-    else
-      IsGoodTIM := 'NO';
-
-    Info := Format('"%s" Information' + Row + 'Number:' + Tab + '%d' + Row +
-      'Position:' + Tab + '0x%x' + Row + 'BitMode:' + Tab + '%d' + Row + 'Good:'
-      + Tab + '%s' + Row + Row +
-
-      'HEADER INFO' + Row + 'Version:' + Tab + '%d' + Row + 'BPP:' + Tab + '%d'
-      + Row + Row, [FormatTimName(SelectedScanResult.ScanFile, Index, SelectedTimInfo.BitMode),
-      Index + 1, SelectedTimInfo.Position, BppToBitMode(TIM), IsGoodTIM,
-
-      GetTimVersion(TIM), GetTimBPP(TIM)]);
-
-    if TIMHasCLUT(TIM) then
-      Info := Format(Info + 'CLUT INFO' + Row + 'Size (Header):' + Tab + '%d' +
-        Row + 'Size (Real):' + Tab + '%d' + Row + 'VRAM X Pos:' + Tab + '%d' +
-        Row + 'VRAM Y Pos:' + Tab + '%d' + Row + 'CLUTs Count:' + Tab + '%d' +
-        Row + 'Colors in 1 CLUT:' + Tab + '%d' + Row + Row,
-        [GetTimClutSizeHeader(TIM), GetTimClutSize(TIM), GetTimClutVRAMX(TIM),
-        GetTimClutVRAMY(TIM), GetTIMClutsCount(TIM), GetTimColorsCount(TIM)]);
-
-    Info := Format(Info + 'IMAGE INFO' + Row + 'Size (Header):' + Tab + '%d' +
-      Row + 'Size (Real):' + Tab + '%d' + Row + 'VRAM X Pos:' + Tab + '%d' + Row
-      + 'VRAM Y Pos:' + Tab + '%d' + Row + 'Width (Header):' + Tab + '%d' + Row
-      + 'Width (Real):' + Tab + '%d' + Row + 'Height (Real):' + Tab + '%d',
-      [GetTimImageSizeHeader(TIM), GetTimImageSize(TIM), GetTimImageVRAMX(TIM),
-      GetTimImageVRAMY(TIM), GetTimWidth(TIM), GetTimRealWidth(TIM),
-      GetTimHeight(TIM)]);
-
-    case Application.MessageBox(
-      PChar(Info + Row + Row +
-      'If you want to copy this info to clipboard press "YES" button.'),
-      'Information', MB_OKCANCEL + MB_ICONINFORMATION) of
-      IDOK:
-        Clipboard.AsText := Info;
-    end;
-
-    FreeTIM(TIM);
-  end;
 end;
 
 procedure TfrmMain.btnShowClutClick(Sender: TObject);
@@ -380,7 +314,7 @@ begin
   ScanResults.Delete(cbbFiles.ItemIndex);
 
   lblStatus.Caption := '';
-  actTimInfo.Enabled := False;
+  ShowTimInfo(False);
   SetTimsListCount(0);
 
   UpdateCLUTInfo;
@@ -621,7 +555,7 @@ begin
   SELECTED_CELL := grdCurrCLUT.Row * grdCurrCLUT.ColCount + grdCurrCLUT.Col;
   W := GetTimColorsCount(TIM);
 
-  if (SELECTED_CELL + 1) > W then
+  if SELECTED_CELL >= W then
   begin
     FreeTIM(TIM);
     Exit;
@@ -809,20 +743,20 @@ var
   Dir: string;
 begin
   Dir := IncludeTrailingPathDelimiter(Directory);
-  isFound := FindFirstUTF8(Dir + '*', faAnyFile, sRec) = 0;
+  isFound := FindFirst(UTF8ToSys(Dir + '*'), faAnyFile, sRec) = 0;
   while isFound do
   begin
     if (sRec.Name <> '.') and (sRec.Name <> '..') then
     begin
       if (sRec.Attr and faDirectory) = faDirectory then
-        ScanDirectory(Dir + sRec.Name)
+        ScanDirectory(Dir + SysToUTF8(sRec.Name))
       else
-        ScanFile(Dir + sRec.Name);
+        ScanFile(Dir + SysToUTF8(sRec.Name));
     end;
     Application.ProcessMessages;
-    isFound := FindNextUTF8(sRec) = 0;
+    isFound := FindNext(sRec) = 0;
   end;
-  FindCloseUTF8(sRec);
+  FindClose(sRec);
 end;
 
 procedure TfrmMain.CheckButtonsAndMainMenu;
@@ -1011,9 +945,56 @@ begin
   DrawSelTim;
   DrawSelClut;
 
-  actTimInfo.Enabled := True;
+  ShowTimInfo(True);
 
   CheckButtonsAndMainMenu;
+end;
+
+procedure TfrmMain.ShowTimInfo(ShowInfo: Boolean);
+var
+  I: Integer;
+  TIM: PTIM;
+  ScanRes: TScanResult;
+  TimInfo: TTimInfo;
+begin
+  for I := 1 to sbMain.Panels.Count do
+    sbMain.Panels[I - 1].Text := '';
+
+  if not ShowInfo then Exit;
+
+  ScanRes := SelectedScanResult;
+  TimInfo := SelectedTimInfo;
+  TIM := SelectedTim;
+
+  I := 0;
+
+  sbMain.Panels[I].Text := Format('Position: 0x%x', [TimInfo.Position]);
+  sbMain.Panels[I].Width := Canvas.GetTextWidth(sbMain.Panels[I].Text) + 8; Inc(I);
+  sbMain.Panels[I].Text := Format('Version: %d', [GetTimVersion(TIM)]);
+  sbMain.Panels[I].Width := Canvas.GetTextWidth(sbMain.Panels[I].Text) + 8; Inc(I);
+
+  if TIMHasCLUT(TIM) then
+  begin
+    sbMain.Panels[I].Alignment := taRightJustify;
+    sbMain.Panels[I].Text := 'CLUT:';
+    sbMain.Panels[I].Width := Canvas.GetTextWidth(sbMain.Panels[I].Text) + 20; Inc(I);
+    sbMain.Panels[I].Text := Format('VRAM.X: %d', [GetTimClutVRAMX(TIM)]);
+    sbMain.Panels[I].Width := Canvas.GetTextWidth(sbMain.Panels[I].Text) + 8; Inc(I);
+    sbMain.Panels[I].Text := Format('VRAM.Y: %d', [GetTimClutVRAMY(TIM)]);
+    sbMain.Panels[I].Width := Canvas.GetTextWidth(sbMain.Panels[I].Text) + 8; Inc(I);
+    sbMain.Panels[I].Text := Format('Colors/CLUT: %d', [GetTimColorsCount(TIM)]);
+    sbMain.Panels[I].Width := Canvas.GetTextWidth(sbMain.Panels[I].Text) + 8; Inc(I);
+  end;
+
+  sbMain.Panels[I].Alignment := taRightJustify;
+  sbMain.Panels[I].Text := 'IMAGE:';
+  sbMain.Panels[I].Width := Canvas.GetTextWidth(sbMain.Panels[I].Text) + 20; Inc(I);
+  sbMain.Panels[I].Text := Format('VRAM.X: %d', [GetTimImageVRAMX(TIM)]);
+  sbMain.Panels[I].Width := Canvas.GetTextWidth(sbMain.Panels[I].Text) + 8; Inc(I);
+  sbMain.Panels[I].Text := Format('VRAM.Y: %d', [GetTimImageVRAMY(TIM)]);
+  sbMain.Panels[I].Width := Canvas.GetTextWidth(sbMain.Panels[I].Text) + 8; Inc(I);
+
+  FreeTIM(TIM);
 end;
 
 end.

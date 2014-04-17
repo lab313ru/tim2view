@@ -24,8 +24,7 @@ const
   cTIMWrongBads = [cTIM4NC, cTIM8NC, cTIMMix];
   cTIMCLUT = [cTIM4C, cTIM8C, cTIM16C, cTIM24C];
   cTIMNOCLUT = [cTIM4NC, cTIM8NC, cTIM16NC, cTIM24NC, cTIMMix];
-  cTIMBpp = [cTIM4C, cTIM8C, cTIM16C, cTIM24C, cTIM4NC, cTIM8NC, cTIM16NC,
-    cTIM24NC, cTIMMix];
+  cTIMBpp = [cTIM4C, cTIM8C, cTIM16C, cTIM24C, cTIM4NC, cTIM8NC, cTIM16NC, cTIM24NC, cTIMMix];
 
   cCLUTColorsMax = 1024;
   cCLUTCountMax = 512;
@@ -35,8 +34,7 @@ const
   cIMAGEHeadSize = $0C;
   cTIMHeadSize = 8;
   cRandomPaletteSize = $100;
-  cTIMMaxSize = cTIMHeadSize + cCLUTColorsMax * cCLUTCountMax * 2 +
-    cCLUTHeadSize + cIMAGEWidthMax * cIMAGEHeightMax * 2 + cIMAGEHeadSize;
+  cTIMMaxSize = cTIMHeadSize + cCLUTColorsMax * cCLUTCountMax * 2 + cCLUTHeadSize + cIMAGEWidthMax * cIMAGEHeightMax * 2 + cIMAGEHeadSize;
 
 type
   TTIMHeader = packed record // TIM Header (8 bytes)
@@ -92,8 +90,7 @@ type
   PCLUT_COLORS = ^TCLUT_COLORS;
 
 type
-  TIMAGE_INDEXES = array [0 .. cIMAGEWidthMax * cIMAGEHeightMax * 4 -
-    1] of Integer;
+  TIMAGE_INDEXES = array [0 .. cIMAGEWidthMax * cIMAGEHeightMax * 4 - 1] of Integer;
   PIMAGE_INDEXES = ^TIMAGE_INDEXES;
 
 type
@@ -117,10 +114,8 @@ function GetTimWidth(TIM: PTIM): word;
 function GetTimRealWidth(TIM: PTIM): word;
 function GetTimHeight(TIM: PTIM): word;
 function TIMIsGood(TIM: PTIM): Boolean;
-function LoadTimFromBuf(BUFFER: pointer; var TIM: PTIM;
-  var Position: Integer): Boolean;
-function LoadTimFromFile(const FileName: string; var Position: Integer;
-  ImageScan: Boolean; dwSize: Integer): PTIM;
+function LoadTimFromBuf(BUFFER: pointer; var TIM: PTIM; var Position: Integer): Boolean;
+function LoadTimFromFile(const FileName: string; var Position: Integer; ImageScan: Boolean; dwSize: Integer): PTIM;
 procedure SaveTimToFile(const FileName: string; TIM: PTIM);
 function CreateTIM: PTIM;
 procedure FreeTIM(TIM: PTIM);
@@ -137,8 +132,7 @@ function GetTimImageVRAMX(TIM: PTIM): word;
 function GetTimImageVRAMY(TIM: PTIM): word;
 function GetTIMIMAGESize(TIM: PTIM): Integer;
 function GetCLUTColor(TIM: PTIM; CLUT_NUM, COLOR_NUM: Integer): TCLUT_COLOR;
-procedure WriteCLUTColor(TIM: PTIM; CLUT_NUM, COLOR_NUM: Integer;
-  COLOR: TCLUT_COLOR);
+procedure WriteCLUTColor(TIM: PTIM; CLUT_NUM, COLOR_NUM: Integer; COLOR: TCLUT_COLOR);
 function ConvertTIMColor(COLOR: word): TCLUT_COLOR;
 function ConvertCLUTColor(COLOR: TCLUT_COLOR): word;
 
@@ -190,8 +184,7 @@ begin
   CLUT_OFFSET := CLUT_NUM * GetTimColorsCount(TIM) * 2;
 
   COLOR_TO_WRITE := ConvertCLUTColor(COLOR);
-  Move(COLOR_TO_WRITE, TIM^.DATA^[cTIMHeadSize + cCLUTHeadSize + COLOR_NUM * 2 +
-    CLUT_OFFSET], 2);
+  Move(COLOR_TO_WRITE, TIM^.DATA^[cTIMHeadSize + cCLUTHeadSize + COLOR_NUM * 2 + CLUT_OFFSET], 2);
 end;
 
 function GetTimHeight(TIM: PTIM): word;
@@ -203,10 +196,8 @@ function GetTIMCLUTSize(TIM: PTIM): Integer;
 begin
   Result := 0;
 
-  if not TIMHasCLUT(TIM) then
-    Exit;
-  Result := TIM^.CLUT^.wColorsCount * TIM^.CLUT^.wClutsCount * 2 +
-    cCLUTHeadSize;
+  if not TIMHasCLUT(TIM) then Exit;
+  Result := TIM^.CLUT^.wColorsCount * TIM^.CLUT^.wClutsCount * 2 + cCLUTHeadSize;
 end;
 
 function GetTIMIMAGESize(TIM: PTIM): Integer;
@@ -246,27 +237,21 @@ end;
 
 function CheckCLUTColors(TIM: PTIM): Boolean;
 begin
-  Result := (TIM^.CLUT^.wColorsCount >= 1) and
-    (TIM^.CLUT^.wColorsCount <= cCLUTColorsMax);
+  Result := (TIM^.CLUT^.wColorsCount >= 1) and (TIM^.CLUT^.wColorsCount <= cCLUTColorsMax);
 end;
 
 function CheckCLUTCount(TIM: PTIM): Boolean;
 begin
-  Result := (TIM^.CLUT^.wClutsCount >= 1) and
-    (TIM^.CLUT^.wClutsCount <= cCLUTCountMax);
+  Result := (TIM^.CLUT^.wClutsCount >= 1) and (TIM^.CLUT^.wClutsCount <= cCLUTCountMax);
 end;
 
 function IWidthToRWidth(TIM: PTIM): word;
 begin
   case TIM^.HEAD^.bBPP of
-    cTIM4C, cTIM4NC:
-      Result := (TIM^.IMAGE^.wWidth * 4) and $FFFF;
-    cTIM8C, cTIM8NC:
-      Result := (TIM^.IMAGE^.wWidth * 2) and $FFFF;
-    cTIM16C, cTIM16NC, cTIMMix:
-      Result := TIM^.IMAGE^.wWidth;
-    cTIM24C, cTIM24NC:
-      Result := (Round(TIM^.IMAGE^.wWidth * 2 / 3)) and $FFFF;
+    cTIM4C, cTIM4NC: Result := (TIM^.IMAGE^.wWidth * 4) and $FFFF;
+    cTIM8C, cTIM8NC: Result := (TIM^.IMAGE^.wWidth * 2) and $FFFF;
+    cTIM16C, cTIM16NC, cTIMMix: Result := TIM^.IMAGE^.wWidth;
+    cTIM24C, cTIM24NC: Result := (Round(TIM^.IMAGE^.wWidth * 2 / 3)) and $FFFF;
   else
     Result := 0;
   end;
@@ -274,8 +259,7 @@ end;
 
 function CheckHEAD(TIM: PTIM): Boolean;
 begin
-  Result := (CheckMagic(TIM) and CheckVersion(TIM) and CheckBpp(TIM) and
-    CheckReserved(TIM))
+  Result := (CheckMagic(TIM) and CheckVersion(TIM) and CheckBpp(TIM) and CheckReserved(TIM))
 end;
 
 function CheckCLUT(TIM: PTIM): Boolean;
@@ -299,12 +283,9 @@ function CheckIMAGE(TIM: PTIM): Boolean;
 begin
   Result := False;
 
-  if (TIM^.IMAGE^.wWidth = 0) or (TIM^.IMAGE^.wHeight = 0) then
-    Exit;
+  if (TIM^.IMAGE^.wWidth = 0) or (TIM^.IMAGE^.wHeight = 0) then Exit;
 
-  if (TIM^.IMAGE^.wWidth > cIMAGEWidthMax) or
-    (TIM^.IMAGE^.wHeight > cIMAGEHeightMax) then
-    Exit;
+  if (TIM^.IMAGE^.wWidth > cIMAGEWidthMax) or (TIM^.IMAGE^.wHeight > cIMAGEHeightMax) then Exit;
 
   Result := (not(TIM^.HEAD^.bBPP in cTIMWrongBads)) or TIMIsGood(TIM);
 end;
@@ -317,8 +298,7 @@ begin
   FillChar(TIM^.DATA^, cTIMMaxSize, 0);
 end;
 
-function LoadTimFromBuf(BUFFER: pointer; var TIM: PTIM;
-  var Position: Integer): Boolean;
+function LoadTimFromBuf(BUFFER: pointer; var TIM: PTIM; var Position: Integer): Boolean;
 var
   P: Integer;
   TIM_POS: Integer;
@@ -329,28 +309,23 @@ begin
   Inc(Position);
   TIM_POS := P;
 
-  if TIM = nil then
-    TIM := CreateTIM;
+  if TIM = nil then TIM := CreateTIM;
 
   Move(PBytesArray(BUFFER)^[P], TIM^.HEAD^, cTIMHeadSize);
-  if not CheckHEAD(TIM) then
-    Exit;
+  if not CheckHEAD(TIM) then Exit;
   Inc(P, cTIMHeadSize);
 
   if TIMHasCLUT(TIM) then
   begin
     Move(PBytesArray(BUFFER)^[P], TIM^.CLUT^, cCLUTHeadSize);
-    if not CheckCLUT(TIM) then
-      Exit;
+    if not CheckCLUT(TIM) then Exit;
     Inc(P, GetTIMCLUTSize(TIM));
   end;
 
   Move(PBytesArray(BUFFER)^[P], TIM^.IMAGE^, cIMAGEHeadSize);
 
-  if not CheckIMAGE(TIM) then
-    Exit;
-  if not CheckTIMSize(TIM) then
-    Exit;
+  if not CheckIMAGE(TIM) then Exit;
+  if not CheckTIMSize(TIM) then Exit;
 
   TIM^.dwSize := GetTIMSize(TIM);
   TIM^.bGOOD := TIMIsGood(TIM);
@@ -381,8 +356,7 @@ begin
     New(TIM_BUF);
     P := 0;
 
-    if SIZE < FirstPartSize then
-      FirstPartSize := SIZE;
+    if SIZE < FirstPartSize then FirstPartSize := SIZE;
 
     sImageStream.Seek(TimStartSectorPos, soBeginning);
     sImageStream.Read(Sector, cSectorSize);
@@ -432,8 +406,7 @@ var
 begin
   Result := nil;
 
-  if dwSize > cTIMMaxSize then
-    Exit;
+  if dwSize > cTIMMaxSize then Exit;
 
   New(BUF);
   Result := CreateTIM;
@@ -442,8 +415,7 @@ begin
   Stream.Read(BUF^[0], dwSize);
 
   P := 0;
-  if not LoadTimFromBuf(BUF, Result, P) then
-    FreeTIM(Result);
+  if not LoadTimFromBuf(BUF, Result, P) then FreeTIM(Result);
 
   Dispose(BUF);
 end;
