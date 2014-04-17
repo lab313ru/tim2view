@@ -508,17 +508,17 @@ object frmMain: TfrmMain
       Left = 76
       Height = 28
       Top = 1
-      Width = 164
+      Width = 182
       Align = alClient
       Alignment = taRightJustify
       Layout = tlCenter
       ParentColor = False
     end
     object pbProgress: TProgressBar
-      Left = 240
+      Left = 258
       Height = 28
       Top = 1
-      Width = 539
+      Width = 521
       Align = alRight
       Anchors = [akTop, akLeft, akRight, akBottom]
       Smooth = True
@@ -529,9 +529,8 @@ object frmMain: TfrmMain
       Height = 28
       Top = 1
       Width = 75
+      Action = actStopScan
       Align = alLeft
-      Caption = 'Stop Scan'
-      Enabled = False
       TabOrder = 0
     end
   end
@@ -560,7 +559,7 @@ object frmMain: TfrmMain
     ClientWidth = 780
     TabOrder = 1
     object splMain: TSplitter
-      Left = 240
+      Left = 253
       Height = 519
       Top = 0
       Width = 5
@@ -569,17 +568,17 @@ object frmMain: TfrmMain
       Left = 0
       Height = 519
       Top = 0
-      Width = 240
+      Width = 253
       Align = alLeft
       BevelOuter = bvNone
       ClientHeight = 519
-      ClientWidth = 240
+      ClientWidth = 253
       TabOrder = 0
       object lvList: TListView
         Left = 0
         Height = 491
         Top = 28
-        Width = 240
+        Width = 253
         Align = alClient
         Columns = <        
           item
@@ -602,7 +601,6 @@ object frmMain: TfrmMain
             Width = 57
           end>
         ColumnClick = False
-        Enabled = False
         GridLines = True
         HideSelection = False
         OwnerData = True
@@ -618,14 +616,14 @@ object frmMain: TfrmMain
         Left = 0
         Height = 28
         Top = 0
-        Width = 240
+        Width = 253
         Align = alTop
         BevelOuter = bvLowered
         ClientHeight = 28
-        ClientWidth = 240
+        ClientWidth = 253
         TabOrder = 1
         object btnExtractAllTims: TButton
-          Left = 139
+          Left = 152
           Height = 26
           Top = 1
           Width = 100
@@ -645,30 +643,34 @@ object frmMain: TfrmMain
       end
     end
     object pnlImage: TPanel
-      Left = 245
+      Left = 258
       Height = 519
       Top = 0
-      Width = 535
+      Width = 522
       Align = alClient
       BevelOuter = bvLowered
       ClientHeight = 519
-      ClientWidth = 535
+      ClientWidth = 522
+      Color = clBtnFace
+      ParentColor = False
       TabOrder = 1
       object splImageClut: TSplitter
         Cursor = crVSplit
         Left = 1
         Height = 3
         Top = 1
-        Width = 533
+        Width = 520
         Align = alTop
         Beveled = True
+        Color = clBtnFace
+        ParentColor = False
         ResizeAnchor = akTop
       end
       object grdCurrClut: TDrawGrid
         Left = 1
         Height = 150
-        Top = 345
-        Width = 533
+        Top = 343
+        Width = 520
         Align = alBottom
         ColCount = 1
         DefaultColWidth = 14
@@ -691,33 +693,35 @@ object frmMain: TfrmMain
       end
       object pnlImageOptions: TPanel
         Left = 1
-        Height = 23
-        Top = 495
-        Width = 533
+        Height = 25
+        Top = 493
+        Width = 520
         Align = alBottom
         AutoSize = True
         BevelOuter = bvNone
-        ClientHeight = 23
-        ClientWidth = 533
+        ClientHeight = 25
+        ClientWidth = 520
+        Color = clBtnFace
+        ParentColor = False
         TabOrder = 1
         object btnShowClut: TButton
-          Left = 481
+          Left = 467
           Height = 23
-          Top = 0
+          Top = 1
           Width = 52
           Align = alRight
+          BorderSpacing.Around = 1
           Caption = 'CLUT'
-          Enabled = False
           OnClick = btnShowClutClick
           TabOrder = 0
         end
         object cbbBitMode: TComboBox
-          Left = 0
+          Left = 1
           Height = 21
-          Top = 0
+          Top = 1
           Width = 90
           Align = alLeft
-          Enabled = False
+          BorderSpacing.Around = 1
           ItemHeight = 13
           ItemIndex = 0
           Items.Strings = (
@@ -734,12 +738,12 @@ object frmMain: TfrmMain
           Text = 'Real'
         end
         object cbbTranspMode: TComboBox
-          Left = 90
+          Left = 92
           Height = 21
-          Top = 0
+          Top = 1
           Width = 136
           Align = alLeft
-          Enabled = False
+          BorderSpacing.Around = 1
           ItemHeight = 13
           ItemIndex = 0
           Items.Strings = (
@@ -755,13 +759,13 @@ object frmMain: TfrmMain
           Text = 'Full transparence'
         end
         object cbbCLUT: TComboBox
-          Left = 372
+          Left = 357
           Height = 21
-          Top = 0
+          Top = 1
           Width = 109
           Align = alRight
+          BorderSpacing.Around = 1
           DropDownCount = 16
-          Enabled = False
           ItemHeight = 13
           OnChange = actChangeClutIdxExecute
           Style = csDropDownList
@@ -770,9 +774,9 @@ object frmMain: TfrmMain
       end
       object imgTim: TImage
         Left = 1
-        Height = 341
+        Height = 339
         Top = 4
-        Width = 533
+        Width = 520
         AntialiasingMode = amOff
         Align = alClient
         Center = True
@@ -814,6 +818,15 @@ object frmMain: TfrmMain
     end
     object mnTIM: TMenuItem
       Caption = '&TIM'
+      object mnExtractAllTims: TMenuItem
+        Action = actExtractTIMs
+      end
+      object mnExtractAllPngs: TMenuItem
+        Action = actExtractPNGs
+      end
+      object N6: TMenuItem
+        Caption = '-'
+      end
       object mnSaveTIM: TMenuItem
         Action = actExtractTim
       end
@@ -834,6 +847,16 @@ object frmMain: TfrmMain
       Caption = '&Options'
       object mnAssociate: TMenuItem
         Action = actAssocTims
+      end
+      object N8: TMenuItem
+        Caption = '-'
+      end
+      object mnStretchImage: TMenuItem
+        Action = actStretch
+        AutoCheck = True
+      end
+      object mnChangeBackColor2: TMenuItem
+        Action = actChangeBackColor
       end
     end
     object mnHelp: TMenuItem
@@ -956,7 +979,7 @@ object frmMain: TfrmMain
       OnExecute = actStretchExecute
     end
     object actTimInfo: TAction
-      Caption = '&TIM Info'
+      Caption = '&TIM Info...'
       Enabled = False
       OnExecute = actTimInfoExecute
     end
@@ -966,13 +989,11 @@ object frmMain: TfrmMain
     end
     object actExtractTIMs: TAction
       Caption = 'Extract all &TIMs'
-      Enabled = False
       OnExecute = actExtractTIMsExecute
       ShortCut = 8305
     end
     object actExtractPNGs: TAction
       Caption = '&Extract all PNGs'
-      Enabled = False
       OnExecute = actExtractPNGsExecute
       ShortCut = 8307
     end
@@ -984,6 +1005,15 @@ object frmMain: TfrmMain
     end
     object actChangeFile: TAction
       OnExecute = actChangeFileExecute
+    end
+    object actStopScan: TAction
+      Caption = '&Stop Scan'
+      Enabled = False
+      OnExecute = actStopScanExecute
+    end
+    object actChangeBackColor: TAction
+      Caption = '&Background Color'
+      OnExecute = actChangeBackColorExecute
     end
   end
   object pmList: TPopupMenu
@@ -998,6 +1028,15 @@ object frmMain: TfrmMain
     object SaveasPNG1: TMenuItem
       Action = actTim2Png
     end
+    object N7: TMenuItem
+      Caption = '-'
+    end
+    object mnExtractAllTims2: TMenuItem
+      Action = actExtractTIMs
+    end
+    object mnExtractAllPngs2: TMenuItem
+      Action = actExtractPNGs
+    end
     object N2: TMenuItem
       Caption = '-'
     end
@@ -1011,12 +1050,18 @@ object frmMain: TfrmMain
     object mnSaveAsPng: TMenuItem
       Action = actTim2Png
     end
+    object mnSaveAsTim: TMenuItem
+      Action = actExtractTim
+    end
     object N5: TMenuItem
       Caption = '-'
     end
     object mnStretch: TMenuItem
       Action = actStretch
       AutoCheck = True
+    end
+    object mnChangeBackColor: TMenuItem
+      Action = actChangeBackColor
     end
   end
   object dlgSelectDir: TSelectDirectoryDialog

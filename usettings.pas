@@ -5,7 +5,7 @@ unit usettings;
 interface
 
 uses
-  Classes, SysUtils, IniFiles;
+  Classes, SysUtils, IniFiles, Graphics;
 
 type
 
@@ -20,15 +20,20 @@ type
       function  FStretchModeRead(): Boolean;
       procedure FLastDirWrite(const Value: string);
       function  FLastDirRead(): string;
+      procedure FBackColorWrite(Color: TColor);
+      function  FBackColorRead(): TColor;
     public
       constructor Create(const DirPath: string);
       destructor Destroy; override;
       property TranspMode: Integer read FTranspModeRead write FTranspModeWrite;
       property StretchMode: Boolean read FStretchModeRead write FStretchModeWrite;
       property LastDir: string read FLastDirRead write FLastDirWrite;
+      property BackColor: TColor read FBackColorRead write FBackColorWrite;
   end;
 
 implementation
+
+uses FileUtil;
 
 const sMain = 'main';
 
@@ -56,12 +61,22 @@ end;
 
 procedure TSettings.FLastDirWrite(const Value: string);
 begin
-  FIniFile.WriteString(sMain, 'LastDir', Value);
+  FIniFile.WriteString(sMain, 'LastDir', UTF8ToSys(Value));
 end;
 
 function TSettings.FLastDirRead: string;
 begin
-  Result := FIniFile.ReadString(sMain, 'LastDir', '');
+  Result := SysToUtf8(FIniFile.ReadString(sMain, 'LastDir', ''));
+end;
+
+procedure TSettings.FBackColorWrite(Color: TColor);
+begin
+  FIniFile.WriteInteger(sMain, 'BackColor', Color);
+end;
+
+function TSettings.FBackColorRead: TColor;
+begin
+  Result := FIniFile.ReadInteger(sMain, 'BackColor', clBtnFace);
 end;
 
 constructor TSettings.Create(const DirPath: string);

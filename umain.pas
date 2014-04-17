@@ -25,6 +25,8 @@ type
     actExtractTim: TAction;
     actExtractTIMs: TAction;
     actChangeFile: TAction;
+    actChangeBackColor: TAction;
+    actStopScan: TAction;
     actOpenLab: TAction;
     actOpenRepo: TAction;
     actReplaceTim: TAction;
@@ -52,6 +54,17 @@ type
     imgTim: TImage;
     lblStatus: TLabel;
     lvList: TListView;
+    mnChangeBackColor2: TMenuItem;
+    N8: TMenuItem;
+    mnChangeBackColor: TMenuItem;
+    mnSaveAsTim: TMenuItem;
+    mnExtractAllPngs2: TMenuItem;
+    mnExtractAllTims2: TMenuItem;
+    N7: TMenuItem;
+    mnStretchImage: TMenuItem;
+    mnExtractAllPngs: TMenuItem;
+    mnExtractAllTims: TMenuItem;
+    N6: TMenuItem;
     mnSaveAsPng: TMenuItem;
     mnAbout: TMenuItem;
     mnAssociate: TMenuItem;
@@ -94,6 +107,7 @@ type
     splMain: TSplitter;
     procedure actAboutExecute(Sender: TObject);
     procedure actAssocTimsExecute(Sender: TObject);
+    procedure actChangeBackColorExecute(Sender: TObject);
     procedure actChangeClutIdxExecute(Sender: TObject);
     procedure actChangeFileExecute(Sender: TObject);
     procedure actCloseFileExecute(Sender: TObject);
@@ -108,6 +122,7 @@ type
     procedure actReturnFocusExecute(Sender: TObject);
     procedure actScanDirExecute(Sender: TObject);
     procedure actScanFileExecute(Sender: TObject);
+    procedure actStopScanExecute(Sender: TObject);
     procedure actStretchExecute(Sender: TObject);
     procedure actTim2PngExecute(Sender: TObject);
     procedure actTimInfoExecute(Sender: TObject);
@@ -116,7 +131,7 @@ type
     procedure cbbTranspModeChange(Sender: TObject);
     procedure FormClose(Sender: TObject; var CloseAction: TCloseAction);
     procedure FormCreate(Sender: TObject);
-    procedure FormDropFiles(Sender: TObject; const FileNames: array of String);
+    procedure FormDropFiles(Sender: TObject; const FileNames: array of string);
     procedure grdCurrClutDblClick(Sender: TObject);
     procedure grdCurrClutDrawCell(Sender: TObject; aCol, aRow: Integer;
       aRect: TRect; aState: TGridDrawState);
@@ -192,6 +207,24 @@ begin
     ScanPath(dlgOpenFile.Files.Strings[I - 1]);
 end;
 
+procedure TfrmMain.actStopScanExecute(Sender: TObject);
+var
+  I: Integer;
+begin
+  if ScanThreads.Count = 0 then Exit;
+
+  for I := 1 to ScanThreads.Count do
+    ScanThreads[I - 1].StopScan := True;
+
+  ScanThreads.Clear;
+  StartedScans := 0;
+  actStopScan.Tag := NativeInt(True);
+
+  ScanFinished(nil);
+
+  actReturnFocus.Execute;
+end;
+
 procedure TfrmMain.actStretchExecute(Sender: TObject);
 begin
   Settings.StretchMode := actStretch.Checked;
@@ -204,7 +237,7 @@ begin
 
   if not dlgSavePNG.Execute then Exit;
 
-  Surf^.SaveToFileUTF8(dlgSavePNG.FileName);
+  Surf^.SaveToFile(UTF8ToSys(dlgSavePNG.FileName));
 end;
 
 procedure TfrmMain.actTimInfoExecute(Sender: TObject);
@@ -327,6 +360,14 @@ begin
 {$ENDIF}
 end;
 
+procedure TfrmMain.actChangeBackColorExecute(Sender: TObject);
+begin
+  if not dlgColor.Execute then Exit;
+
+  pnlImage.Color := dlgColor.Color;
+  Settings.BackColor := dlgColor.Color;
+end;
+
 procedure TfrmMain.actChangeClutIdxExecute(Sender: TObject);
 begin
   DrawSelTim;
@@ -396,7 +437,7 @@ begin
     SIZE := ScanTim.Size;
     BIT_MODE := ScanTim.BitMode;
 
-    Path := IncludeTrailingPathDelimiter(ExtractFilePath(ParamStrUTF8(0)) + cExtractedPngsDir);
+    Path := SysToUTF8(IncludeTrailingPathDelimiter(ExtractFilePath(ParamStrUTF8(0)) + cExtractedPngsDir));
     CreateDirUTF8(Path);
     Path := IncludeTrailingPathDelimiter(Path + ExtractFileName(FName));
     CreateDirUTF8(Path);
@@ -404,7 +445,7 @@ begin
     TIM := LoadTimFromFile(FName, OFFSET, IsImage, SIZE);
     TimToPNG(TIM, cbbCLUT.ItemIndex, Surf_, cbbTranspMode.ItemIndex);
 
-    Surf_^.SaveToFileUTF8(Path + FormatPngName(FName, I - 1, BIT_MODE, 0));
+    Surf_^.SaveToFile(UTF8ToSys(Path + FormatPngName(FName, I - 1, BIT_MODE, 0)));
     Surf_^.Free;
     Surf_^ := nil;
 
@@ -453,7 +494,7 @@ begin
     SIZE := ScanTim.Size;
     BIT_MODE := ScanTim.BitMode;
 
-    Path := IncludeTrailingPathDelimiter(ExtractFilePath(ParamStrUTF8(0)) + cExtractedTimsDir);
+    Path := SysToUTF8(IncludeTrailingPathDelimiter(ExtractFilePath(ParamStrUTF8(0)) + cExtractedTimsDir));
     CreateDirUTF8(Path);
     Path := IncludeTrailingPathDelimiter(Path + ExtractFileName(FName));
     CreateDirUTF8(Path);
@@ -491,7 +532,7 @@ end;
 
 procedure TfrmMain.actReturnFocusExecute(Sender: TObject);
 begin
-  if lvList.Enabled then lvList.SetFocus;
+  if pnlList.Enabled then lvList.SetFocus;
 end;
 
 procedure TfrmMain.actScanDirExecute(Sender: TObject);
@@ -504,7 +545,7 @@ begin
   if not dlgSelectDir.Execute then Exit;
 
   SelectedDir := dlgSelectDir.FileName;
-  if DirectoryExists(SelectedDir) then
+  if DirectoryExistsUTF8(SelectedDir) then
   begin
     ScanPath(SelectedDir);
     LastDir := SelectedDir;
@@ -535,6 +576,7 @@ begin
   actStretch.Checked := Settings.StretchMode;
   cbbTranspMode.ItemIndex := Settings.TranspMode;
   LastDir := Settings.LastDir;
+  pnlImage.Color := Settings.BackColor;
 
   hGridRect.Top := -1;
   hGridRect.Left := -1;
@@ -558,7 +600,7 @@ begin
 end;
 
 procedure TfrmMain.FormDropFiles(Sender: TObject;
-  const FileNames: array of String);
+  const FileNames: array of string);
 var
   i: Integer;
 begin
@@ -721,8 +763,8 @@ procedure TfrmMain.ScanPath(const Path: string);
 begin
   if Path = '' then Exit;
 
-  btnStopScan.Enabled := True;
-  btnStopScan.Tag := NativeInt(False);
+  actStopScan.Enabled := True;
+  actStopScan.Tag := NativeInt(False);
 
   if FileExistsUTF8(Path) then
     ScanFile(Path)
@@ -732,17 +774,20 @@ end;
 
 procedure TfrmMain.ScanFile(const FileName: string);
 begin
+  LastDir := ExtractFilePath(FileName);
+  Settings.LastDir := LastDir;
+
   if CheckForFileOpened(FileName) then
   begin
     cbbFiles.ItemIndex := cbbFiles.Items.IndexOf(FileName);
     actChangeFile.Execute;
-    btnStopScan.Enabled := False;
-    btnStopScan.Tag := NativeInt(True);
+    actStopScan.Enabled := False;
+    actStopScan.Tag := NativeInt(True);
     CheckButtonsAndMainMenu;
     Exit;
   end;
 
-  if not Boolean(btnStopScan.Tag) then
+  if not Boolean(actStopScan.Tag) then
   begin
     ScanThreads.Add(TScanThread.Create(FileName, GetImageScan(FileName)));
     ScanThreads.Last.FreeOnTerminate := True;
@@ -784,9 +829,7 @@ procedure TfrmMain.CheckButtonsAndMainMenu;
 begin
   cbbFiles.Enabled := (cbbFiles.Items.Count <> 0);
 
-  lvList.Enabled := cbbFiles.Enabled;
-  actExtractTIMs.Enabled := cbbFiles.Enabled;
-  actExtractPNGs.Enabled := cbbFiles.Enabled;
+  pnlList.Enabled := cbbFiles.Enabled;
   actCloseFile.Enabled := cbbFiles.Enabled;
   actCloseFiles.Enabled := cbbFiles.Enabled;
   actReplaceTim.Enabled := (lvList.Selected <> nil) and (lvList.Selected.Index <> -1);
@@ -794,10 +837,7 @@ begin
   actTim2Png.Enabled := (Surf^ <> nil) and actReplaceTim.Enabled;
   actExtractTim.Enabled := actReplaceTim.Enabled;
 
-  cbbCLUT.Enabled := actReplaceTim.Enabled;
-  btnShowClut.Enabled := actReplaceTim.Enabled;
-  cbbTranspMode.Enabled := actReplaceTim.Enabled;
-  cbbBitMode.Enabled := actReplaceTim.Enabled;
+  pnlImageOptions.Enabled := actReplaceTim.Enabled;
 end;
 
 procedure TfrmMain.ScanFinished(Sender: TObject);
@@ -830,8 +870,8 @@ begin
     actChangeFile.Execute;
   end;
 
-  btnStopScan.Enabled := False;
-  btnStopScan.Tag := NativeInt(True);
+  actStopScan.Enabled := False;
+  actStopScan.Tag := NativeInt(True);
 end;
 
 procedure TfrmMain.SetTimsListCount(Count: Integer);
@@ -971,7 +1011,6 @@ begin
   DrawSelTim;
   DrawSelClut;
 
-  actTimInfo.Caption := Format('[OFFSET: 0x%x | SIZE: 0x%x]', [SelectedTimInfo.Position, SelectedTimInfo.Size]);
   actTimInfo.Enabled := True;
 
   CheckButtonsAndMainMenu;

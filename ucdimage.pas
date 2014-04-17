@@ -40,7 +40,7 @@ procedure ReplaceTimInFileFromMemory(const FileName: string; TIM: PTIM;
 implementation
 
 uses
-  ucommon, ecc, edc, classes, FileUtil, sysutils, lazutf8classes;
+  ucommon, ecc, edc, classes, FileUtil, sysutils;
 
 function bin2bcd(P: Integer): byte;
 begin
@@ -69,18 +69,17 @@ const
 var
   Sz: cardinal;
   pFile: PBytesArray;
-  tmp: TFileStreamUTF8;
+  tmp: TFileStream;
 begin
   Result := False;
   Sz := FileSize(FileName);
 
-  if (Sz > cMaxFileSize) or (Sz = 0) then
-    Exit;
+  if (Sz > cMaxFileSize) or (Sz = 0) then Exit;
 
   pFile := GetMemory(cSectorHeaderSize);
 
   try
-    tmp := TFileStreamUTF8.Create(FileName, fmOpenRead or fmShareDenyWrite);
+    tmp := TFileStream.Create(Utf8ToSys(FileName), fmOpenRead or fmShareDenyWrite);
     tmp.Read(pFile^[0], cSectorHeaderSize);
     Result := ((Sz mod cSectorSize) = 0) and (CompareMem(@cSectorHeader, pFile, cSectorHeaderSize));
   finally
@@ -94,7 +93,7 @@ procedure ReplaceTimInFileFromMemory(const FileName: string; TIM: PTIM;
 type
   TSecAddrAndMode = array [0 .. cSectorAddressSize + cSectorModeSize - 1] of byte;
 var
-  sImageStream: TFileStreamUTF8;
+  sImageStream: TFileStream;
   TimOffsetInSector, FirstPartSize, LastPartSize: Integer;
   TimSectorNumber, TimStartSectorPos: Integer;
   Sector: TCDSector;
@@ -102,7 +101,7 @@ var
   P, TIM_FULL_SECTORS: Integer;
   SecAddrAndMode: TSecAddrAndMode;
 begin
-  sImageStream := TFileStreamUTF8.Create(FileName, fmOpenReadWrite or fmShareDenyWrite);
+  sImageStream := TFileStream.Create(UTF8ToSys(FileName), fmOpenReadWrite or fmShareDenyWrite);
 
   if not ImageScan then
   begin
