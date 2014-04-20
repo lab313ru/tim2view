@@ -3,8 +3,8 @@
 ===Lazarus Compilation Instruction===
   # Launch target OS (for which you want to compile *tim2view*);
   # Download and install *[http://www.lazarus.freepascal.org/ Lazarus]*;
-  # *[http://code.google.com/p/tim2view/source/checkout Checkout SVN]* to download last source version;
-  # Checkout last SVN version of *[http://sourceforge.net/p/lazpaint/code/HEAD/tree/ LazPaint]*;
+  # *[http://code.google.com/p/tim2view/source/checkout Checkout SVN]* to download last source code of *t2v*;
+  # *[http://sourceforge.net/p/lazpaint/code/HEAD/tree/ Checkout SVN]* to download last source code of *LazPaint*;
   # Put *bgrabitmap* folder in the main source code directory;
   # Open *tim2view.lpi* in Lazarus;
   # Click *Run -> Build* to make tim2view.
