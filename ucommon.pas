@@ -3,7 +3,7 @@ unit ucommon;
 interface
 
 const
-  cProgramName = 'Tim2View SVN.r65 by [Lab 313] (for ' +
+  cProgramName = 'Tim2View SVN.r67 by [Lab 313] (for ' +
   {$IFDEF Linux}'Linux' + {$IFEND}
   {$IFDEF Darwin}'Mac OS X' + {$IFEND}
   {$IFDEF Windows}'Windows' + {$IFEND}
@@ -14,7 +14,6 @@ const
 
   cAutoExtractionTimFormat = '%s_%.6d_%.2db' + '.tim';
   cAutoExtractionPngFormat = '%s_%.6d_%.2db_%.2dc' + '.png';
-  cCLUTGridColsCount = 32;
 
   sStatusBarScanningFile = 'Scanning File...';
   sStatusBarTimsExtracting = 'TIMs Extracting...';

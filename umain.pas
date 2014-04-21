@@ -254,6 +254,7 @@ begin
   SetTimsListCount(SelectedScanResult.Count);
 
   actReturnFocus.Execute;
+  if lvList.Items.Count = 0 then Exit;
   lvList.ItemIndex := 0;
   lvList.Items[0].Focused := True;
   lvList.Items[0].Selected := True;
@@ -261,7 +262,7 @@ end;
 
 procedure TfrmMain.actAboutExecute(Sender: TObject);
 begin
-  Application.MessageBox('Some "about strings" should be here!:)', 'About', MB_OK + MB_ICONINFORMATION);
+  Application.MessageBox(cProgramName + #13 + 'Some "about strings" should be here!:)', 'About', MB_OK + MB_ICONINFORMATION);
 end;
 
 procedure TfrmMain.actAssocTimsExecute(Sender: TObject);
@@ -646,6 +647,7 @@ end;
 
 function TfrmMain.FGetSelectedScanResult: TScanResult;
 begin
+  if cbbFiles.ItemIndex = -1 then Exit;
   Result := ScanResults[cbbFiles.ItemIndex];
 end;
 
@@ -902,23 +904,9 @@ begin
 end;
 
 procedure TfrmMain.SetCLUTListToNoCLUT;
-var
-  I: Integer;
 begin
-  if cbbCLUT.Items.Count > 0 then
-  begin
-    cbbCLUT.Items.BeginUpdate;
-
-    for I := 0 to cbbCLUT.Items.Count - 2 do
-      cbbCLUT.Items.Delete(I);
-
-    cbbCLUT.Items[0] := sThisTimHasNoClut;
-
-    cbbCLUT.Items.EndUpdate;
-  end
-  else
-    cbbCLUT.Items.Add(sThisTimHasNoClut);
-
+  cbbCLUT.Items.Clear;
+  cbbCLUT.Items.Add(sThisTimHasNoClut);
   cbbCLUT.ItemIndex := 0;
 end;
 
@@ -954,7 +942,6 @@ procedure TfrmMain.ShowTimInfo(ShowInfo: Boolean);
 var
   I: Integer;
   TIM: PTIM;
-  ScanRes: TScanResult;
   TimInfo: TTimInfo;
 begin
   for I := 1 to sbMain.Panels.Count do
@@ -962,15 +949,16 @@ begin
 
   if not ShowInfo then Exit;
 
-  ScanRes := SelectedScanResult;
   TimInfo := SelectedTimInfo;
   TIM := SelectedTim;
 
   I := 0;
 
-  sbMain.Panels[I].Text := Format('Position: 0x%x', [TimInfo.Position]);
+  sbMain.Panels[I].Text := Format('Pos: 0x%x', [TimInfo.Position]);
   sbMain.Panels[I].Width := Canvas.GetTextWidth(sbMain.Panels[I].Text) + 8; Inc(I);
-  sbMain.Panels[I].Text := Format('Version: %d', [GetTimVersion(TIM)]);
+  sbMain.Panels[I].Text := Format('Ver: %d', [GetTimVersion(TIM)]);
+  sbMain.Panels[I].Width := Canvas.GetTextWidth(sbMain.Panels[I].Text) + 8; Inc(I);
+  sbMain.Panels[I].Text := Format('Good: %s', [TIMIsGoodStr(TIM)]);
   sbMain.Panels[I].Width := Canvas.GetTextWidth(sbMain.Panels[I].Text) + 8; Inc(I);
 
   if TIMHasCLUT(TIM) then
@@ -978,20 +966,16 @@ begin
     sbMain.Panels[I].Alignment := taRightJustify;
     sbMain.Panels[I].Text := 'CLUT:';
     sbMain.Panels[I].Width := Canvas.GetTextWidth(sbMain.Panels[I].Text) + 20; Inc(I);
-    sbMain.Panels[I].Text := Format('VRAM.X: %d', [GetTimClutVRAMX(TIM)]);
+    sbMain.Panels[I].Text := Format('X/Y: %dx%d', [GetTimClutVRAMX(TIM), GetTimClutVRAMY(TIM)]);
     sbMain.Panels[I].Width := Canvas.GetTextWidth(sbMain.Panels[I].Text) + 8; Inc(I);
-    sbMain.Panels[I].Text := Format('VRAM.Y: %d', [GetTimClutVRAMY(TIM)]);
-    sbMain.Panels[I].Width := Canvas.GetTextWidth(sbMain.Panels[I].Text) + 8; Inc(I);
-    sbMain.Panels[I].Text := Format('Colors/CLUT: %d', [GetTimColorsCount(TIM)]);
+    sbMain.Panels[I].Text := Format('Colors: %d', [GetTimColorsCount(TIM)]);
     sbMain.Panels[I].Width := Canvas.GetTextWidth(sbMain.Panels[I].Text) + 8; Inc(I);
   end;
 
   sbMain.Panels[I].Alignment := taRightJustify;
   sbMain.Panels[I].Text := 'IMAGE:';
   sbMain.Panels[I].Width := Canvas.GetTextWidth(sbMain.Panels[I].Text) + 20; Inc(I);
-  sbMain.Panels[I].Text := Format('VRAM.X: %d', [GetTimImageVRAMX(TIM)]);
-  sbMain.Panels[I].Width := Canvas.GetTextWidth(sbMain.Panels[I].Text) + 8; Inc(I);
-  sbMain.Panels[I].Text := Format('VRAM.Y: %d', [GetTimImageVRAMY(TIM)]);
+  sbMain.Panels[I].Text := Format('X/Y: %dx%d', [GetTimImageVRAMX(TIM), GetTimImageVRAMY(TIM)]);
   sbMain.Panels[I].Width := Canvas.GetTextWidth(sbMain.Panels[I].Text) + 8; Inc(I);
 
   FreeTIM(TIM);

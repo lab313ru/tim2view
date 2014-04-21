@@ -34,7 +34,7 @@ begin
   if (TIM^.HEAD^.bBPP in [cTIM4NC, cTIM8NC]) then
   begin
     Randomize;
-    for I := 1 to cRandomPaletteSize do
+    for I := 1 to $100 do
       Result^[I - 1] := GetCLUTColor(TIM, CLUT_NUM, I - 1);
 
     Exit;
@@ -51,7 +51,7 @@ var
   P24: Integer;
 begin
   New(Result);
-  OFFSET := cTIMHeadSize + GetTIMCLUTSize(TIM) + cIMAGEHeadSize;
+  OFFSET := SizeOf(TTIMHeader) + GetTIMCLUTSize(TIM) + SizeOf(TIMAGEHeader);
   RW := GetTimRealWidth(TIM);
 
   case TIM^.HEAD^.bBPP of
@@ -227,7 +227,7 @@ var
   COLS, Colors: Integer;
 begin
   Colors := GetTimColorsCount(TIM);
-  COLS := Min(Colors, cCLUTGridColsCount);
+  COLS := Min(Colors, 32);
   Rect := Grid^.CellRect(X, Y);
 
   if (Y * COLS + X) >= Colors then
@@ -277,7 +277,7 @@ var
   X, Y, ROWS, COLS, COLORS: Integer;
 begin
   COLORS := GetTimColorsCount(TIM);
-  COLS := Min(COLORS, cCLUTGridColsCount);
+  COLS := Min(COLORS, 32);
   Grid^.ColCount := COLS;
   ROWS := Ceil(COLORS / COLS);
 

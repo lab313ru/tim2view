@@ -26,16 +26,6 @@ const
   cTIMNOCLUT = [cTIM4NC, cTIM8NC, cTIM16NC, cTIM24NC, cTIMMix];
   cTIMBpp = [cTIM4C, cTIM8C, cTIM16C, cTIM24C, cTIM4NC, cTIM8NC, cTIM16NC, cTIM24NC, cTIMMix];
 
-  cCLUTColorsMax = 1024;
-  cCLUTCountMax = 512;
-  cIMAGEWidthMax = 1024;
-  cIMAGEHeightMax = 1024;
-  cCLUTHeadSize = $0C;
-  cIMAGEHeadSize = $0C;
-  cTIMHeadSize = 8;
-  cRandomPaletteSize = $100;
-  cTIMMaxSize = cTIMHeadSize + cCLUTColorsMax * cCLUTCountMax * 2 + cCLUTHeadSize + cIMAGEWidthMax * cIMAGEHeightMax * 2 + cIMAGEHeadSize;
-
 type
   TTIMHeader = packed record // TIM Header (8 bytes)
     bMagic: byte; // $10 (1 byte)
@@ -46,7 +36,6 @@ type
     // variants:
     // [$08, $09, $0A, $0B, $02, $03, $00, $01]
   end;
-
   PTIMHeader = ^TTIMHeader;
 
 type
@@ -57,7 +46,6 @@ type
     wColorsCount: word; // Number of CLUT Colors (2 bytes)
     wClutsCount: word; // Count of Palettes (2 bytes)
   end;
-
   PCLUTHeader = ^TCLUTHeader;
 
 type
@@ -68,8 +56,16 @@ type
     wWidth: word; // Image Width (not Real) (2 bytes)
     wHeight: word; // Image Height (Real) (2 bytes)
   end;
-
   PIMAGEHeader = ^TIMAGEHeader;
+
+  //Constants
+const
+  cCLUTColorsMax = 1024;
+  cCLUTCountMax = 512;
+  cIMAGEWidthMax = 1024;
+  cIMAGEHeightMax = 1024;
+  cTIMMaxSize = SizeOf(TTIMHeader) + cCLUTColorsMax * cCLUTCountMax * 2 + SizeOf(TCLUTHeader) + cIMAGEWidthMax * cIMAGEHeightMax * 2 + SizeOf(TIMAGEHeader);
+ //Constants
 
 type
   TTIMDataArray = array [0 .. cTIMMaxSize - 1] of byte;
@@ -114,6 +110,7 @@ function GetTimWidth(TIM: PTIM): word;
 function GetTimRealWidth(TIM: PTIM): word;
 function GetTimHeight(TIM: PTIM): word;
 function TIMIsGood(TIM: PTIM): Boolean;
+function TIMIsGoodStr(TIM: PTIM): string;
 function LoadTimFromBuf(BUFFER: pointer; var TIM: PTIM; var Position: Integer): Boolean;
 function LoadTimFromFile(const FileName: string; var Position: Integer; ImageScan: Boolean; dwSize: Integer): PTIM;
 procedure SaveTimToFile(const FileName: string; TIM: PTIM);
@@ -170,7 +167,7 @@ begin
 
   CLUT_OFFSET := CLUT_NUM * GetTimColorsCount(TIM) * 2;
 
-  Move(TIM^.DATA^[cTIMHeadSize + cCLUTHeadSize + COLOR_NUM * 2 + CLUT_OFFSET], COLOR, 2);
+  Move(TIM^.DATA^[SizeOf(TTIMHeader) + SizeOf(TCLUTHeader) + COLOR_NUM * 2 + CLUT_OFFSET], COLOR, 2);
 
   Result := ConvertTIMColor(COLOR);
 end;
@@ -184,7 +181,7 @@ begin
   CLUT_OFFSET := CLUT_NUM * GetTimColorsCount(TIM) * 2;
 
   COLOR_TO_WRITE := ConvertCLUTColor(COLOR);
-  Move(COLOR_TO_WRITE, TIM^.DATA^[cTIMHeadSize + cCLUTHeadSize + COLOR_NUM * 2 + CLUT_OFFSET], 2);
+  Move(COLOR_TO_WRITE, TIM^.DATA^[SizeOf(TTIMHeader) + SizeOf(TCLUTHeader) + COLOR_NUM * 2 + CLUT_OFFSET], 2);
 end;
 
 function GetTimHeight(TIM: PTIM): word;
@@ -197,17 +194,17 @@ begin
   Result := 0;
 
   if not TIMHasCLUT(TIM) then Exit;
-  Result := TIM^.CLUT^.wColorsCount * TIM^.CLUT^.wClutsCount * 2 + cCLUTHeadSize;
+  Result := TIM^.CLUT^.wColorsCount * TIM^.CLUT^.wClutsCount * 2 + SizeOf(TCLUTHeader);
 end;
 
 function GetTIMIMAGESize(TIM: PTIM): Integer;
 begin
-  Result := TIM^.IMAGE^.wWidth * TIM^.IMAGE^.wHeight * 2 + cIMAGEHeadSize;
+  Result := TIM^.IMAGE^.wWidth * TIM^.IMAGE^.wHeight * 2 + SizeOf(TIMAGEHeader);
 end;
 
 function GetTIMSize(TIM: PTIM): Integer;
 begin
-  Result := GetTIMCLUTSize(TIM) + GetTIMIMAGESize(TIM) + cTIMHeadSize;
+  Result := GetTIMCLUTSize(TIM) + GetTIMIMAGESize(TIM) + SizeOf(TTIMHeader);
 end;
 
 function CheckVersion(TIM: PTIM): Boolean;
@@ -292,10 +289,15 @@ end;
 
 procedure ClearTIM(TIM: PTIM);
 begin
-  FillChar(TIM^.HEAD^, cTIMHeadSize, 0);
-  FillChar(TIM^.CLUT^, cCLUTHeadSize, 0);
-  FillChar(TIM^.IMAGE^, cIMAGEHeadSize, 0);
+  FillChar(TIM^.HEAD^, SizeOf(TTIMHeader), 0);
+  FillChar(TIM^.CLUT^, SizeOf(TCLUTHeader), 0);
+  FillChar(TIM^.IMAGE^, SizeOf(TIMAGEHeader), 0);
   FillChar(TIM^.DATA^, cTIMMaxSize, 0);
+end;
+
+function TIMIsGoodStr(TIM: PTIM): string;
+begin
+  if TIMIsGood(TIM) then Result := 'Yes' else Result := 'No';
 end;
 
 function LoadTimFromBuf(BUFFER: pointer; var TIM: PTIM; var Position: Integer): Boolean;
@@ -311,18 +313,18 @@ begin
 
   if TIM = nil then TIM := CreateTIM;
 
-  Move(PBytesArray(BUFFER)^[P], TIM^.HEAD^, cTIMHeadSize);
+  Move(PBytesArray(BUFFER)^[P], TIM^.HEAD^, SizeOf(TTIMHeader));
   if not CheckHEAD(TIM) then Exit;
-  Inc(P, cTIMHeadSize);
+  Inc(P, SizeOf(TTIMHeader));
 
   if TIMHasCLUT(TIM) then
   begin
-    Move(PBytesArray(BUFFER)^[P], TIM^.CLUT^, cCLUTHeadSize);
+    Move(PBytesArray(BUFFER)^[P], TIM^.CLUT^, SizeOf(TCLUTHeader));
     if not CheckCLUT(TIM) then Exit;
     Inc(P, GetTIMCLUTSize(TIM));
   end;
 
-  Move(PBytesArray(BUFFER)^[P], TIM^.IMAGE^, cIMAGEHeadSize);
+  Move(PBytesArray(BUFFER)^[P], TIM^.IMAGE^, SizeOf(TIMAGEHeader));
 
   if not CheckIMAGE(TIM) then Exit;
   if not CheckTIMSize(TIM) then Exit;
