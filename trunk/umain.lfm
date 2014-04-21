@@ -1,13 +1,14 @@
 object frmMain: TfrmMain
-  Left = 1017
+  Left = 561
   Height = 590
-  Top = 147
+  Top = 213
   Width = 780
   HorzScrollBar.Page = 780
+  HorzScrollBar.Range = 489
   VertScrollBar.Page = 570
+  VertScrollBar.Range = 344
   ActiveControl = pnlList
   AllowDropFiles = True
-  AutoScroll = True
   ClientHeight = 570
   ClientWidth = 780
   Color = clBtnFace
@@ -580,6 +581,7 @@ object frmMain: TfrmMain
         Top = 28
         Width = 253
         Align = alClient
+        AutoWidthLastColumn = True
         Columns = <        
           item
             Caption = '# / 0'
@@ -598,16 +600,16 @@ object frmMain: TfrmMain
           item
             Alignment = taCenter
             Caption = 'CLUTs'
-            Width = 57
+            Width = 84
           end>
         ColumnClick = False
         GridLines = True
-        HideSelection = False
         OwnerData = True
         PopupMenu = pmList
         ReadOnly = True
         RowSelect = True
         TabOrder = 0
+        ToolTips = False
         ViewStyle = vsReport
         OnData = lvListData
         OnSelectItem = lvListSelectItem
@@ -815,11 +817,9 @@ object frmMain: TfrmMain
       end    
       item
         Width = 50
-      end    
-      item
-        Width = 50
       end>
     SimplePanel = False
+    SizeGrip = False
   end
   object dlgOpenFile: TOpenDialog
     Title = 'Please, select File...'
