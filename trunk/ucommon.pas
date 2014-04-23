@@ -3,7 +3,7 @@ unit ucommon;
 interface
 
 const
-  cProgramName = 'Tim2View SVN.r67 by [Lab 313] (for ' +
+  cProgramName = 'Tim2View SVN.r70 by [Lab 313] (for ' +
   {$IFDEF Linux}'Linux' + {$IFEND}
   {$IFDEF Darwin}'Mac OS X' + {$IFEND}
   {$IFDEF Windows}'Windows' + {$IFEND}
@@ -18,7 +18,7 @@ const
   sStatusBarScanningFile = 'Scanning File...';
   sStatusBarTimsExtracting = 'TIMs Extracting...';
   sStatusBarPngsExtracting = 'PNGs Extracting...';
-  sStatusBarExtracted = 'Exctracted Successfully!';
+  sStatusBarExtracted = 'Extracted Successfully!';
   sStatusBarParsingResult = 'Parsing Result...';
   sScanResultGood = 'Scan completed!';
   sSelectDirCaption = 'Please, select directory for scan...';

@@ -22,6 +22,8 @@ type
       function  FLastDirRead(): string;
       procedure FBackColorWrite(Color: TColor);
       function  FBackColorRead(): TColor;
+      procedure FBitModeWrite(Mode: Integer);
+      function  FBitModeRead(): Integer;
     public
       constructor Create(const DirPath: string);
       destructor Destroy; override;
@@ -29,6 +31,7 @@ type
       property StretchMode: Boolean read FStretchModeRead write FStretchModeWrite;
       property LastDir: string read FLastDirRead write FLastDirWrite;
       property BackColor: TColor read FBackColorRead write FBackColorWrite;
+      property BitMode: Integer read FBitModeRead write FBitModeWrite;
   end;
 
 implementation
@@ -77,6 +80,16 @@ end;
 function TSettings.FBackColorRead: TColor;
 begin
   Result := FIniFile.ReadInteger(sMain, 'BackColor', clBtnFace);
+end;
+
+procedure TSettings.FBitModeWrite(Mode: Integer);
+begin
+  FIniFile.WriteInteger(sMain, 'BitMode', Mode);
+end;
+
+function TSettings.FBitModeRead: Integer;
+begin
+  Result := FIniFile.ReadInteger(sMain, 'BitMode', 0);
 end;
 
 constructor TSettings.Create(const DirPath: string);

@@ -1,7 +1,7 @@
 object frmMain: TfrmMain
-  Left = 561
+  Left = 807
   Height = 590
-  Top = 213
+  Top = 193
   Width = 780
   HorzScrollBar.Page = 780
   HorzScrollBar.Range = 489
@@ -524,6 +524,7 @@ object frmMain: TfrmMain
       Anchors = [akTop, akLeft, akRight, akBottom]
       Smooth = True
       TabOrder = 1
+      BarShowText = True
     end
     object btnStopScan: TButton
       Left = 1
@@ -581,7 +582,6 @@ object frmMain: TfrmMain
         Top = 28
         Width = 253
         Align = alClient
-        AutoWidthLastColumn = True
         Columns = <        
           item
             Caption = '# / 0'
@@ -600,7 +600,7 @@ object frmMain: TfrmMain
           item
             Alignment = taCenter
             Caption = 'CLUTs'
-            Width = 84
+            Width = 57
           end>
         ColumnClick = False
         GridLines = True
@@ -656,61 +656,23 @@ object frmMain: TfrmMain
       Color = clBtnFace
       ParentColor = False
       TabOrder = 1
-      object splImageClut: TSplitter
-        Cursor = crVSplit
-        Left = 1
-        Height = 3
-        Top = 1
-        Width = 520
-        Align = alTop
-        Beveled = True
-        Color = clBtnFace
-        ParentColor = False
-        ResizeAnchor = akTop
-      end
-      object grdCurrClut: TDrawGrid
-        Left = 1
-        Height = 150
-        Top = 320
-        Width = 520
-        Align = alBottom
-        AutoEdit = False
-        ColCount = 1
-        DefaultColWidth = 14
-        DefaultRowHeight = 14
-        Enabled = False
-        ExtendedSelect = False
-        FixedCols = 0
-        FixedRows = 0
-        Options = [goFixedVertLine, goFixedHorzLine, goDrawFocusSelected]
-        RowCount = 1
-        ScrollBars = ssAutoVertical
-        TabOrder = 0
-        TitleFont.Color = clWindowText
-        TitleFont.Height = -11
-        TitleFont.Name = 'Tahoma'
-        UseXORFeatures = True
-        Visible = False
-        OnDblClick = grdCurrClutDblClick
-        OnDrawCell = grdCurrClutDrawCell
-      end
       object pnlImageOptions: TPanel
         Left = 1
-        Height = 25
-        Top = 470
+        Height = 27
+        Top = 468
         Width = 520
         Align = alBottom
         AutoSize = True
-        BevelOuter = bvNone
-        ClientHeight = 25
+        BevelOuter = bvLowered
+        ClientHeight = 27
         ClientWidth = 520
         Color = clBtnFace
         ParentColor = False
-        TabOrder = 1
+        TabOrder = 0
         object btnShowClut: TButton
-          Left = 467
+          Left = 466
           Height = 23
-          Top = 1
+          Top = 2
           Width = 52
           Align = alRight
           BorderSpacing.Around = 1
@@ -719,18 +681,20 @@ object frmMain: TfrmMain
           TabOrder = 0
         end
         object cbbBitMode: TComboBox
-          Left = 1
+          Left = 2
           Height = 21
-          Top = 1
-          Width = 90
+          Top = 2
+          Width = 159
           Align = alLeft
           BorderSpacing.Around = 1
           ItemHeight = 13
           ItemIndex = 0
           Items.Strings = (
             'Real'
-            '4 BPP'
-            '8 BPP'
+            '4 BPP (Inner palette)'
+            '4 BPP (Random palette) '
+            '8 BPP (Inner palette)'
+            '8 BPP (Random palette)'
             '16 BPP'
             '24 BPP'
           )
@@ -741,9 +705,9 @@ object frmMain: TfrmMain
           Text = 'Real'
         end
         object cbbTranspMode: TComboBox
-          Left = 92
+          Left = 162
           Height = 21
-          Top = 1
+          Top = 2
           Width = 136
           Align = alLeft
           BorderSpacing.Around = 1
@@ -762,9 +726,9 @@ object frmMain: TfrmMain
           Text = 'Full transparence'
         end
         object cbbCLUT: TComboBox
-          Left = 357
+          Left = 356
           Height = 21
-          Top = 1
+          Top = 2
           Width = 109
           Align = alRight
           BorderSpacing.Around = 1
@@ -775,10 +739,49 @@ object frmMain: TfrmMain
           TabOrder = 3
         end
       end
+      object pnlClut: TPanel
+        Left = 1
+        Height = 116
+        Top = 352
+        Width = 520
+        Align = alBottom
+        BevelOuter = bvLowered
+        ClientHeight = 116
+        ClientWidth = 520
+        Color = clBtnFace
+        ParentColor = False
+        TabOrder = 1
+        Visible = False
+        object grdClut: TDrawGrid
+          Left = 1
+          Height = 114
+          Top = 1
+          Width = 518
+          Align = alClient
+          AutoEdit = False
+          ColCount = 1
+          DefaultColWidth = 14
+          DefaultRowHeight = 14
+          Enabled = False
+          ExtendedSelect = False
+          FixedCols = 0
+          FixedRows = 0
+          Options = [goFixedVertLine, goFixedHorzLine, goDrawFocusSelected]
+          RowCount = 1
+          ScrollBars = ssAutoVertical
+          TabOrder = 0
+          TitleFont.Color = clWindowText
+          TitleFont.Height = -11
+          TitleFont.Name = 'Tahoma'
+          UseXORFeatures = True
+          OnDblClick = grdClutDblClick
+          OnDrawCell = grdClutDrawCell
+        end
+      end
       object imgTim: TImage
         Left = 1
-        Height = 316
-        Top = 4
+        Height = 351
+        Top = 1
         Width = 520
         AntialiasingMode = amOff
         Align = alClient
@@ -825,7 +828,7 @@ object frmMain: TfrmMain
     Title = 'Please, select File...'
     DefaultExt = '.bin'
     Filter = 'All Files (*.*)|*.*'
-    Options = [ofHideReadOnly, ofNoChangeDir, ofAllowMultiSelect, ofFileMustExist, ofNoNetworkButton, ofEnableSizing, ofForceShowHidden]
+    Options = [ofHideReadOnly, ofNoChangeDir, ofAllowMultiSelect, ofNoNetworkButton, ofEnableSizing, ofForceShowHidden]
     left = 664
     top = 448
   end
@@ -1076,7 +1079,7 @@ object frmMain: TfrmMain
     end
   end
   object dlgSelectDir: TSelectDirectoryDialog
-    Options = [ofNoChangeDir, ofPathMustExist, ofNoNetworkButton, ofEnableSizing, ofViewDetail]
+    Options = [ofNoChangeDir, ofNoNetworkButton, ofEnableSizing, ofViewDetail]
     left = 449
     top = 450
   end
