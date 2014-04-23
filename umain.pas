@@ -10,6 +10,8 @@ uses
 
   uscanresult, uscanthread, usettings, utim, udrawtim;
 
+{$INCLUDE todos.inc}
+
 type
 
   { TfrmMain }
@@ -49,7 +51,7 @@ type
     dlgSavePNG: TSavePictureDialog;
     dlgSaveTIM: TSaveDialog;
     ExtractTIM1: TMenuItem;
-    grdCurrClut: TDrawGrid;
+    grdClut: TDrawGrid;
     imgTim: TImage;
     lblStatus: TLabel;
     lvList: TListView;
@@ -83,6 +85,7 @@ type
     N1: TMenuItem;
     N3: TMenuItem;
     N5: TMenuItem;
+    pnlClut: TPanel;
     pbProgress: TProgressBar;
     pnlExtractAll: TPanel;
     pnlImage: TPanel;
@@ -95,7 +98,6 @@ type
     ReplaceTIM1: TMenuItem;
     SaveasPNG1: TMenuItem;
     dlgSelectDir: TSelectDirectoryDialog;
-    splImageClut: TSplitter;
     splMain: TSplitter;
     sbMain: TStatusBar;
     procedure actAboutExecute(Sender: TObject);
@@ -124,8 +126,8 @@ type
     procedure FormClose(Sender: TObject; var CloseAction: TCloseAction);
     procedure FormCreate(Sender: TObject);
     procedure FormDropFiles(Sender: TObject; const FileNames: array of string);
-    procedure grdCurrClutDblClick(Sender: TObject);
-    procedure grdCurrClutDrawCell(Sender: TObject; aCol, aRow: Integer; aRect: TRect; aState: TGridDrawState);
+    procedure grdClutDblClick(Sender: TObject);
+    procedure grdClutDrawCell(Sender: TObject; aCol, aRow: Integer; aRect: TRect; aState: TGridDrawState);
     procedure lvListData(Sender: TObject; Item: TListItem);
     procedure lvListSelectItem(Sender: TObject; Item: TListItem; Selected: Boolean);
   private
@@ -165,6 +167,7 @@ type
     function FormatPngName(const FileName: string; ListIdx_, BitMode, Clut: Integer): string;
     procedure ShowTim;
     procedure ShowTimInfo(ShowInfo: Boolean);
+    procedure RemoveGridSelection;
   public
     { public declarations }
     ScanResults: TScanResultList; //List of finished scan results
@@ -181,6 +184,10 @@ uses ucdimage, ucpucount, lcltype, ucommon, LCLIntf
 
 {$IFDEF windows}
 ,registry
+{$IFEND}
+
+{$IFDEF Linux}
+,BaseUnix
 {$IFEND}
 ;
 
@@ -229,11 +236,12 @@ begin
   if not dlgSavePNG.Execute then Exit;
 
   Surf^.SaveToFile(UTF8ToSys(dlgSavePNG.FileName));
+  {$IFDEF Linux}FpChmod(dlgSavePNG.FileName, &777){$IFEND}
 end;
 
 procedure TfrmMain.btnShowClutClick(Sender: TObject);
 begin
-  grdCurrClut.Visible := not grdCurrClut.Visible;
+  pnlClut.Visible := not pnlClut.Visible;
   DrawSelClut;
   actReturnFocus.Execute;
 end;
@@ -262,7 +270,7 @@ end;
 
 procedure TfrmMain.actAboutExecute(Sender: TObject);
 begin
-  Application.MessageBox(cProgramName + #13 + 'Some "about strings" should be here!:)', 'About', MB_OK + MB_ICONINFORMATION);
+  Application.MessageBox(cProgramName + #13#10#13#10 + 'Some "about strings" should be here!:)', 'About', MB_OK + MB_ICONINFORMATION);
 end;
 
 procedure TfrmMain.actAssocTimsExecute(Sender: TObject);
@@ -380,7 +388,9 @@ begin
     TIM := LoadTimFromFile(FName, OFFSET, IsImage, SIZE);
     TimToPNG(TIM, cbbCLUT.ItemIndex, Surf_, cbbTranspMode.ItemIndex);
 
-    Surf_^.SaveToFile(UTF8ToSys(Path + FormatPngName(FName, I - 1, BIT_MODE, 0)));
+    Path := Path + FormatPngName(FName, I - 1, BIT_MODE, 0);
+    Surf_^.SaveToFile(UTF8ToSys(Path));
+    {$IFDEF Linux}FpChmod(Path, &777){$IFEND}
     Surf_^.Free;
     Surf_^ := nil;
 
@@ -404,6 +414,7 @@ begin
 
   TIM := SelectedTim;
   SaveTimToFile(dlgSaveTIM.FileName, TIM);
+  {$IFDEF Linux}FpChmod(dlgSaveTIM.FileName, &777){$IFEND}
   FreeTIM(TIM);
 end;
 
@@ -435,7 +446,9 @@ begin
     CreateDirUTF8(Path);
 
     TIM := LoadTimFromFile(FName, OFFSET, IsImage, SIZE);
-    SaveTimToFile(Path + FormatTimName(FName, I - 1, BIT_MODE), TIM);
+    Path := Path + FormatTimName(FName, I - 1, BIT_MODE);
+    SaveTimToFile(Path, TIM);
+    {$IFDEF Linux}FpChmod(Path, &777){$IFEND}
     FreeTIM(TIM);
 
     pbProgress.Position := I;
@@ -501,23 +514,14 @@ begin
 end;
 
 procedure TfrmMain.FormCreate(Sender: TObject);
-var
-  hGridRect: TGridRect;
 begin
-  {$IFnDEF Windows}mnOptions.Enabled := False;{$IFEND}
-
   Settings := TSettings.Create(ExtractFilePath(ParamStrUTF8(0)));
 
   actStretch.Checked := Settings.StretchMode;
   cbbTranspMode.ItemIndex := Settings.TranspMode;
   LastDir := Settings.LastDir;
+  cbbBitMode.ItemIndex := Settings.BitMode;
   pnlImage.Color := Settings.BackColor;
-
-  hGridRect.Top := -1;
-  hGridRect.Left := -1;
-  hGridRect.Right := -1;
-  hGridRect.Bottom := -1;
-  grdCurrClut.Selection := hGridRect;
 
   ScanThreads := TScanThreadList.Create(False); //False - to able scan thread remove itself from this list
   ScanResults := TScanResultList.Create(False);
@@ -543,7 +547,7 @@ begin
     ScanPath(FileNames[i - 1]);
 end;
 
-procedure TfrmMain.grdCurrClutDblClick(Sender: TObject);
+procedure TfrmMain.grdClutDblClick(Sender: TObject);
 var
   TIM: PTIM;
   I, SELECTED_CELL, W, DIALOG_COLOR, CLUT_NUM: Integer;
@@ -553,7 +557,7 @@ begin
   TIM := SelectedTim;
   if TIM = nil then Exit;
 
-  SELECTED_CELL := grdCurrCLUT.Row * grdCurrCLUT.ColCount + grdCurrCLUT.Col;
+  SELECTED_CELL := grdClut.Row * grdClut.ColCount + grdClut.Col;
   W := GetTimColorsCount(TIM);
 
   if SELECTED_CELL >= W then
@@ -603,7 +607,7 @@ begin
 
 end;
 
-procedure TfrmMain.grdCurrClutDrawCell(Sender: TObject; aCol, aRow: Integer;
+procedure TfrmMain.grdClutDrawCell(Sender: TObject; aCol, aRow: Integer;
   aRect: TRect; aState: TGridDrawState);
 var
   TIM: PTIM;
@@ -617,7 +621,7 @@ begin
     Exit;
   end;
 
-  DrawClutCell(TIM, cbbCLUT.ItemIndex, @grdCurrCLUT, ACol, ARow);
+  DrawClutCell(TIM, cbbCLUT.ItemIndex, @grdClut, ACol, ARow);
 
   FreeTIM(TIM);
 end;
@@ -763,6 +767,8 @@ end;
 
 procedure TfrmMain.CheckButtonsAndMainMenu;
 begin
+  RemoveGridSelection;
+
   cbbFiles.Enabled := (cbbFiles.Items.Count <> 0);
 
   pnlList.Enabled := cbbFiles.Enabled;
@@ -827,7 +833,6 @@ begin
   if TIM = nil then Exit;
 
   CLUTS := GetTIMClutsCount(TIM);
-  //cbbCLUT.Items.Clear;
 
   cbbCLUT.Items.BeginUpdate;
   for I := 0 to cbbCLUT.Items.Count -1 do
@@ -854,9 +859,11 @@ begin
 
   case cbbBitMode.ItemIndex of
     1: mode := cTIM4C;
-    2: mode := cTIM8C;
-    3: mode := cTIM16NC;
-    4: mode := cTIM24NC;
+    2: mode := cTIM4NC;
+    3: mode := cTIM8C;
+    4: mode := cTIM8NC;
+    5: mode := cTIM16NC;
+    6: mode := cTIM24NC;
   else
     mode := $FF;
   end;
@@ -878,26 +885,26 @@ procedure TfrmMain.DrawSelClut;
 var
   TIM: PTIM;
 begin
-  if not grdCurrClut.Visible then Exit;
+  if not pnlClut.Visible then Exit;
 
-  ClearGrid(@grdCurrCLUT);
+  ClearGrid(@grdClut);
 
   TIM := SelectedTim;
   if TIM = nil then
   begin
-    grdCurrCLUT.ColCount := 1;
-    grdCurrCLUT.RowCount := 1;
+    grdClut.ColCount := 1;
+    grdClut.RowCount := 1;
     Exit;
   end;
 
-  grdCurrCLUT.Enabled := TIMHasCLUT(TIM);
+  grdClut.Enabled := TIMHasCLUT(TIM);
 
   if TIMHasCLUT(TIM) then
-    DrawCLUT(TIM, cbbCLUT.ItemIndex, @grdCurrCLUT)
+    DrawCLUT(TIM, cbbCLUT.ItemIndex, @grdClut)
   else
   begin
-    grdCurrCLUT.ColCount := 1;
-    grdCurrCLUT.RowCount := 1;
+    grdClut.ColCount := 1;
+    grdClut.RowCount := 1;
   end;
 
   FreeTIM(TIM);
@@ -927,7 +934,8 @@ begin
   if (lvList.Selected = nil) then Exit;
   if (lvList.Items.Count = 0) then Exit;
 
-  cbbBitMode.ItemIndex := 0;
+  { TODO : Reset bitmode or not? }
+  //cbbBitMode.ItemIndex := 0;
 
   UpdateCLUTInfo;
   DrawSelTim;
@@ -979,6 +987,17 @@ begin
   sbMain.Panels[I].Width := Canvas.GetTextWidth(sbMain.Panels[I].Text) + 8; Inc(I);
 
   FreeTIM(TIM);
+end;
+
+procedure TfrmMain.RemoveGridSelection;
+var
+  hGrid: TGridRect;
+begin
+  hGrid.Top := -1;
+  hGrid.Left := -1;
+  hGrid.Right := -1;
+  hGrid.Bottom := -1;
+  grdClut.Selection := hGrid;
 end;
 
 end.
