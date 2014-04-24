@@ -104,6 +104,7 @@ type
   PTIM = ^TTIM;
 
 function TIMHasCLUT(TIM: PTIM): Boolean;
+function TIMisIndexed(TIM: PTIM): Boolean;
 function GetTIMCLUTSize(TIM: PTIM): Integer;
 function GetTIMSize(TIM: PTIM): Integer;
 function GetTimWidth(TIM: PTIM): word;
@@ -187,6 +188,11 @@ end;
 function GetTimHeight(TIM: PTIM): word;
 begin
   Result := TIM^.IMAGE^.wHeight;
+end;
+
+function TIMisIndexed(TIM: PTIM): Boolean;
+begin
+  Result := TIM^.HEAD^.bBPP in [cTIM4C, cTIM4NC, cTIM8C, cTIM8NC];
 end;
 
 function GetTIMCLUTSize(TIM: PTIM): Integer;

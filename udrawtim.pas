@@ -10,41 +10,99 @@ type
   PDrawSurf = ^TBGRABitmap;
   PDrawGrid = ^TDrawGrid;
 
-procedure TimToPNG(TIM: PTIM; CLUT_NUM: Integer; var Surf: PDrawSurf; TranspMode: Byte);
+
+procedure Tim2Png(TIM: PTIM; CLUT_NUM: Integer; Surf: PDrawSurf; TranspMode: Byte; ForExport: Boolean);
 procedure DrawClutCell(TIM: PTIM; CLUT_NUM: Integer; Grid: PDrawGrid; X, Y: Integer);
-procedure DrawCLUT(TIM: PTIM; CLUT_NUM: Integer; Grid: PDrawGrid);
+procedure DrawClut(TIM: PTIM; CLUT_NUM: Integer; Grid: PDrawGrid);
 procedure ClearCanvas(ACanvas: PCanvas; Rect: TRect);
 procedure ClearGrid(Grid: PDrawGrid);
 
 implementation
 
 uses
-  ucommon, BGRABitmapTypes, Math;
+  BGRABitmapTypes, Math, FPimage;
 
-function PrepareCLUT(TIM: PTIM; CLUT_NUM: Integer): PCLUT_COLORS;
+type
+  PFPPalette = ^TFPPalette;
+
+procedure AlphaForMode(C: PFPColor; TranspMode: Integer);
 var
-  I: Integer;
+  BT, CT: Boolean;
 begin
-  Result := nil;
-  if (not TIMHasCLUT(TIM)) and (not(TIM^.HEAD^.bBPP in [cTIM4NC, cTIM8NC])) then
-    Exit;
+  BT := TranspMode in [0, 1];
+  CT := TranspMode in [0, 2];
 
-  New(Result);
+  if not (BT or CT) then
+    C^.alpha := $FFFF
+  else
+  begin
+    if (C^.red + C^.green + C^.blue) = 0 then
+    case (C^.alpha and 1) of
+      0: C^.alpha := Word(ifthen(BT, 0, $FFFF));
+      1: C^.alpha := $FFFF;
+    end
+    else
+      if CT then
+      case (C^.alpha and 1) of
+        0: C^.alpha := $FFFF;
+        1: C^.alpha := Word(ifthen(CT, $8080, $FFFF));
+      end
+      else
+        C^.alpha := $FFFF;
+  end;
+end;
+
+procedure PrepareClut(TIM: PTIM; CLUT_NUM: Integer; Pal: PFPPalette; TranspMode: Integer; ForExport: Boolean);
+var
+  I, COUNT: Integer;
+  CC: TCLUT_COLOR;
+  R, G, B, A: Byte;
+  FC: TFPColor;
+begin
+  if (TIM^.HEAD^.bBPP in [cTIM16NC, cTIM24NC]) then Exit;
 
   if (TIM^.HEAD^.bBPP in [cTIM4NC, cTIM8NC]) then
   begin
     Randomize;
-    for I := 1 to $100 do
-      Result^[I - 1] := GetCLUTColor(TIM, CLUT_NUM, I - 1);
+    COUNT := 256;
+  end
+  else
+    COUNT := GetTimColorsCount(TIM);
 
-    Exit;
+  Pal^.Clear;
+  for I := 1 to 256 do
+  begin
+    CC := GetCLUTColor(TIM, CLUT_NUM, I - 1);
+    if I <= COUNT then
+    begin
+      R := CC.R;
+      G := CC.G;
+      B := CC.B;
+      A := CC.STP;
+    end
+    else
+    begin
+      R := 0;
+      G := 0;
+      B := 0;
+      A := 1;
+    end;
+
+    if ForExport then
+    begin
+      R := R + (((I - 1) and $03) shl 1) + A;
+      G := G + (((I - 1) and $1C) shr 2);
+      B := B  + (((I - 1) and $E0) shr 5);
+      A := 255;
+    end;
+
+    FC := BGRAToFPColor(BGRA(R, G, B, A));
+    AlphaForMode(@FC, TranspMode);
+    Pal^.Add(FC);
   end;
-
-  for I := 1 to GetTimColorsCount(TIM) do
-    Result^[I - 1] := GetCLUTColor(TIM, CLUT_NUM, I - 1);
 end;
 
-function PrepareIMAGE(TIM: PTIM): PIMAGE_INDEXES;
+function PrepareImage(TIM: PTIM): PIMAGE_INDEXES;
 var
   I, OFFSET: Integer;
   RW: Word;
@@ -107,17 +165,15 @@ begin
       ClearCanvas(@Grid^.Canvas, Grid^.CellRect(X - 1, Y - 1));
 end;
 
-procedure TimToPNG(TIM: PTIM; CLUT_NUM: Integer; var Surf: PDrawSurf; TranspMode: Byte);
+procedure Tim2Png(TIM: PTIM; CLUT_NUM: Integer; Surf: PDrawSurf; TranspMode: Byte; ForExport: Boolean);
 var
   RW, RH, CW: Word;
-  CLUT_DATA: PCLUT_COLORS;
-  IMAGE_DATA: PIMAGE_INDEXES;
-  X, Y, INDEX, IMAGE_DATA_POS: Integer;
-  R, G, B, STP, ALPHA: Byte;
-  COLOR: TCLUT_COLOR;
-  CL: Integer;
-  P: PBGRAPixel;
-  Transparent, SemiTransparent: boolean;
+  INDEXES: PIMAGE_INDEXES;
+  X, Y, INDEX, IDX, COLORS: Integer;
+  R, G, B: Byte;
+  CC: TCLUT_COLOR;
+  PAL: PFPPalette;
+  FC: TFPColor;
 begin
   RW := GetTimRealWidth(TIM);
   RH := GetTimHeight(TIM);
@@ -125,106 +181,60 @@ begin
   if (Surf^ <> nil) then Surf^.Free;
 
   Surf^ := TBGRABitmap.Create(RW, RH);
+  Surf^.UsePalette := not(TIM^.HEAD^.bBPP in [cTIM16NC, cTIM24NC]);
 
-  CLUT_DATA := PrepareCLUT(TIM, CLUT_NUM);
-  IMAGE_DATA := PrepareIMAGE(TIM);
+  PAL := @(Surf^.Palette);
 
-  IMAGE_DATA_POS := 0;
+  PrepareClut(TIM, CLUT_NUM, PAL, TranspMode, ForExport);
+  INDEXES := PrepareIMAGE(TIM);
 
-  Transparent := TranspMode in [0, 1];
-  SemiTransparent := TranspMode in [0, 2];
+  COLORS := GetTimColorsCount(TIM);
+  IDX := 0;
 
   R := 0;
   G := 0;
   B := 0;
-  STP := 0;
 
   for Y := 1 to RH do
-  begin
-    P := Surf^.ScanLine[Y - 1];
     for X := 1 to RW do
     begin
       case TIM^.HEAD^.bBPP of
-        cTIM4C, cTIM4NC, cTIM8C, cTIM8NC:
-          begin
-            INDEX := IMAGE_DATA^[IMAGE_DATA_POS];
-
-            R := CLUT_DATA^[INDEX].R;
-            G := CLUT_DATA^[INDEX].G;
-            B := CLUT_DATA^[INDEX].B;
-            STP := CLUT_DATA^[INDEX].STP;
-          end;
+        cTIM4C, cTIM4NC, cTIM8C, cTIM8NC: Surf^.Pixels[X - 1, Y - 1] := INDEXES^[IDX] mod COLORS;
         cTIM16C, cTIM16NC, cTIMMix:
           begin
-            Move(IMAGE_DATA^[IMAGE_DATA_POS], CW, 2);
-            COLOR := ConvertTIMColor(CW);
+            Move(INDEXES^[IDX], CW, 2);
+            CC := ConvertTIMColor(CW);
 
-            R := COLOR.R;
-            G := COLOR.G;
-            B := COLOR.B;
-            STP := COLOR.STP;
+            FC := BGRAToFPColor(BGRA(CC.R + CC.STP, CC.G, CC.B));
+            if (not ForExport) then AlphaForMode(@FC, TranspMode);
+
+            Surf^.Colors[X - 1, Y - 1] := FC;
           end;
         cTIM24C, cTIM24NC:
           begin
-            CL := IMAGE_DATA^[IMAGE_DATA_POS];
+            INDEX := INDEXES^[IDX];
 
-            R := (CL and $FF);
-            G := ((CL and $FF00) shr 8);
-            B := ((CL and $FF0000) shr 16);
-            STP := 0;
+            R := (INDEX and $FF);
+            G := ((INDEX and $FF00) shr 8);
+            B := ((INDEX and $FF0000) shr 16);
+            Surf^.Colors[X - 1, Y - 1] := BGRAToFPColor(BGRA(R, G, B, 255));
           end;
       else
         Break;
       end;
-
-      if (TIM^.HEAD^.bBPP in cTIM24) or (not(Transparent or SemiTransparent))
-      then
-        ALPHA := 255
-      else
-      begin
-        if (R + G + B) = 0 then
-          ALPHA := 0
-        else
-        begin
-          if (STP = 0) then
-            ALPHA := 255
-          else
-            ALPHA := 128;
-
-          if (not SemiTransparent) and (ALPHA = 128) then
-            ALPHA := 255;
-        end;
-      end;
-
-      if ALPHA = 0 then
-      begin
-        B := 0;
-        G := 0;
-        R := 0;
-      end;
-
-      P^.alpha:=ALPHA;
-      P^.blue := B;
-      P^.green := G;
-      P^.red := R;
-
-      Inc(P);
-      Inc(IMAGE_DATA_POS);
+      Inc(IDX);
     end;
-  end;
 
-  Surf^.InvalidateBitmap;
-  Dispose(CLUT_DATA);
-  Dispose(IMAGE_DATA);
+  Dispose(INDEXES);
 end;
 
-procedure DrawClutCell(TIM: PTIM; CLUT_NUM: Integer; Grid: PDrawGrid;
-  X, Y: Integer);
+procedure DrawClutCell(TIM: PTIM; CLUT_NUM: Integer; Grid: PDrawGrid; X, Y: Integer);
 var
   CLUT_COLOR: PCLUT_COLOR;
-  R, G, B, STP, ALPHA: Byte;
+  R, G, B, STP: Byte;
   Rect: TRect;
   COLS, Colors: Integer;
+  FC: TFPColor;
 begin
   Colors := GetTimColorsCount(TIM);
   COLS := Min(Colors, 32);
@@ -248,20 +258,13 @@ begin
 
   Grid^.Canvas.FillRect(Rect);
 
-  if (R + G + B) = 0 then
-    ALPHA := 0
-  else
-  begin
-    if STP = 0 then
-      ALPHA := 255
-    else
-      ALPHA := 128;
-  end;
+  FC := BGRAToFPColor(BGRA(R, G, B, STP));
+  AlphaForMode(@FC, 0);
 
-  if ALPHA in [0, 128] then
+  if (FC.alpha = 0) or (FC.alpha = $8080) then
   begin
     Grid^.Canvas.Brush.COLOR := clWhite;
-    if ALPHA = 0 then
+    if FC.ALPHA = 0 then
       Rect.Bottom := Rect.Top + ((Rect.Bottom - Rect.Top) div 2)
     else
       Rect.Right := Rect.Left + ((Rect.Right - Rect.Left) div 2);

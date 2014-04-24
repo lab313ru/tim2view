@@ -494,7 +494,7 @@ object frmMain: TfrmMain
   OnCreate = FormCreate
   OnDropFiles = FormDropFiles
   Position = poScreenCenter
-  LCLVersion = '1.3'
+  LCLVersion = '1.2.0.3'
   object pnlStatus: TPanel
     Left = 0
     Height = 30
@@ -741,12 +741,12 @@ object frmMain: TfrmMain
       end
       object pnlClut: TPanel
         Left = 1
-        Height = 116
-        Top = 352
+        Height = 129
+        Top = 339
         Width = 520
         Align = alBottom
         BevelOuter = bvLowered
-        ClientHeight = 116
+        ClientHeight = 129
         ClientWidth = 520
         Color = clBtnFace
         ParentColor = False
@@ -754,7 +754,7 @@ object frmMain: TfrmMain
         Visible = False
         object grdClut: TDrawGrid
           Left = 1
-          Height = 114
+          Height = 127
           Top = 1
           Width = 518
           Align = alClient
@@ -773,14 +773,13 @@ object frmMain: TfrmMain
           TitleFont.Color = clWindowText
           TitleFont.Height = -11
           TitleFont.Name = 'Tahoma'
-          UseXORFeatures = True
           OnDblClick = grdClutDblClick
           OnDrawCell = grdClutDrawCell
         end
       end
       object imgTim: TImage
         Left = 1
-        Height = 351
+        Height = 338
         Top = 1
         Width = 520
         AntialiasingMode = amOff
