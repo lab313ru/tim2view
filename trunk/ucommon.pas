@@ -29,28 +29,10 @@ type
   PBytesArray = ^TBytesArray;
 
 function ExtractJustName(const Path: string): string;
-function Min(A, B: Integer): Integer;
-function Max(A, B: Integer): Integer;
 
 implementation
 
 uses sysutils;
-
-function Min(A, B: Integer): Integer;
-begin
-  if A < B then
-    Result := A
-  else
-    Result := B;
-end;
-
-function Max(A, B: Integer): Integer;
-begin
-  if A >= B then
-    Result := A
-  else
-    Result := B;
-end;
 
 function ExtractJustName(const Path: string): string;
 begin

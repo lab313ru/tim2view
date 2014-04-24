@@ -8,7 +8,7 @@ uses
   {$ENDIF}
   Interfaces, // this includes the LCL widgetset
   Forms, umain, edc, ucommon, ecc, ucdimage, utim, usettings, uscanresult,
-  uscanthread, ucpucount, udrawtim, BGRABitmap;
+  uscanthread, ucpucount, udrawtim, BGRABitmap, uexportimport;
 
 {$R *.res}
 

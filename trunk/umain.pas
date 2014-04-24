@@ -168,6 +168,7 @@ type
     procedure ShowTim;
     procedure ShowTimInfo(ShowInfo: Boolean);
     procedure RemoveGridSelection;
+    procedure Update(Tim, Clut, ClutInfo: Boolean);
   public
     { public declarations }
     ScanResults: TScanResultList; //List of finished scan results
@@ -180,7 +181,7 @@ var
 
 implementation
 
-uses ucdimage, ucpucount, lcltype, ucommon, LCLIntf
+uses ucdimage, ucpucount, lcltype, ucommon, LCLIntf, uexportimport, FPWritePNG
 
 {$IFDEF windows}
 ,registry
@@ -226,35 +227,44 @@ end;
 procedure TfrmMain.actStretchExecute(Sender: TObject);
 begin
   Settings.StretchMode := actStretch.Checked;
-  DrawSelTim;
+  Update(True, False, False);
 end;
 
 procedure TfrmMain.actTim2PngExecute(Sender: TObject);
+var
+  TIM: PTIM;
+  Writer: TFPWriterPNG;
 begin
-  dlgSavePNG.FileName := FormatPngName(SelectedScanResult.ScanFile, SelectedTimIdx, SelectedTimInfo.BitMode, cbbCLUT.ItemIndex);
+  TIM := SelectedTim;
+  if TIM = nil then Exit;
+
+  dlgSavePNG.FileName := FormatPngName(SelectedScanResult.ScanFile, TIM^.dwTimNumber, SelectedTimInfo.BitMode, cbbCLUT.ItemIndex);
 
   if not dlgSavePNG.Execute then Exit;
 
-  Surf^.SaveToFile(UTF8ToSys(dlgSavePNG.FileName));
+  Writer := CreatePngWriter(False);
+  SaveImage(Surf, TIMisIndexed(TIM), dlgSavePNG.FileName, Writer);
+  Writer.Free;
+  FreeTIM(TIM);
   {$IFDEF Linux}FpChmod(dlgSavePNG.FileName, &777){$IFEND}
 end;
 
 procedure TfrmMain.btnShowClutClick(Sender: TObject);
 begin
   pnlClut.Visible := not pnlClut.Visible;
-  DrawSelClut;
+  Update(False, True, False);
   actReturnFocus.Execute;
 end;
 
 procedure TfrmMain.cbbBitModeChange(Sender: TObject);
 begin
-  DrawSelTim;
+  Update(True, False, False);
 end;
 
 procedure TfrmMain.cbbTranspModeChange(Sender: TObject);
 begin
   Settings.TranspMode := cbbTranspMode.ItemIndex;
-  DrawSelTim;
+  Update(True, False, False);
 end;
 
 procedure TfrmMain.actChangeFileExecute(Sender: TObject);
@@ -266,6 +276,8 @@ begin
   lvList.ItemIndex := 0;
   lvList.Items[0].Focused := True;
   lvList.Items[0].Selected := True;
+
+  ShowTim;
 end;
 
 procedure TfrmMain.actAboutExecute(Sender: TObject);
@@ -313,8 +325,7 @@ end;
 
 procedure TfrmMain.actChangeClutIdxExecute(Sender: TObject);
 begin
-  DrawSelTim;
-  DrawSelClut;
+  Update(True, True, False);
 end;
 
 procedure TfrmMain.actCloseFileExecute(Sender: TObject);
@@ -326,9 +337,7 @@ begin
   ShowTimInfo(False);
   SetTimsListCount(0);
 
-  UpdateCLUTInfo;
-  DrawSelTim;
-  DrawSelClut;
+  Update(True, True, True);
 
   cbbFiles.Items.Delete(cbbFiles.ItemIndex);
 
@@ -362,6 +371,7 @@ var
   ScanTim: TTimInfo;
   TIM: PTIM;
   Surf_: PDrawSurf;
+  Writer: TFPWriterPNG;
 begin
   lblStatus.Caption := sStatusBarPngsExtracting;
 
@@ -370,6 +380,8 @@ begin
 
   New(Surf_);
   Surf_^ := nil;
+
+  Writer := CreatePngWriter(False);
 
   pbProgress.Position := 0;
   pbProgress.Max := SelectedScanResult.Count;
@@ -386,10 +398,10 @@ begin
     CreateDirUTF8(Path);
 
     TIM := LoadTimFromFile(FName, OFFSET, IsImage, SIZE);
-    TimToPNG(TIM, cbbCLUT.ItemIndex, Surf_, cbbTranspMode.ItemIndex);
+    Tim2Png(TIM, cbbCLUT.ItemIndex, Surf_, cbbTranspMode.ItemIndex, False);
 
     Path := Path + FormatPngName(FName, I - 1, BIT_MODE, 0);
-    Surf_^.SaveToFile(UTF8ToSys(Path));
+    SaveImage(Surf_, TIMisIndexed(TIM), Path, Writer);
     {$IFDEF Linux}FpChmod(Path, &777){$IFEND}
     Surf_^.Free;
     Surf_^ := nil;
@@ -400,6 +412,7 @@ begin
     Application.ProcessMessages;
   end;
   Dispose(Surf_);
+  Writer.Free;
   lblStatus.Caption := sStatusBarExtracted;
   pbProgress.Position := 0;
 end;
@@ -602,9 +615,7 @@ begin
 
   FreeTIM(TIM);
 
-  DrawSelTim;
-  DrawSelClut;
-
+  Update(True, True, False);
 end;
 
 procedure TfrmMain.grdClutDrawCell(Sender: TObject; aCol, aRow: Integer;
@@ -833,12 +844,10 @@ begin
   if TIM = nil then Exit;
 
   CLUTS := GetTIMClutsCount(TIM);
+  cbbCLUT.Items.Clear;
 
   cbbCLUT.Items.BeginUpdate;
-  for I := 0 to cbbCLUT.Items.Count -1 do
-    cbbCLUT.Items[i] := Format('CLUT [%.2d/%.2d]', [I + 1, CLUTS]);
-
-  for I := cbbCLUT.Items.Count + 1 to CLUTS do
+  for I := 1 to CLUTS do
     cbbCLUT.Items.Add(Format('CLUT [%.2d/%.2d]', [I, CLUTS]));
   cbbCLUT.Items.EndUpdate;
 
@@ -873,7 +882,7 @@ begin
 
   Index := cbbCLUT.ItemIndex;
 
-  TimToPNG(TIM, Index, Surf, cbbTranspMode.ItemIndex);
+  Tim2Png(TIM, Index, Surf, cbbTranspMode.ItemIndex, False);
   imgTim.Picture.Bitmap := TBitmap.Create;
   imgTim.Picture.Bitmap := Surf^.Bitmap;
   FreeTIM(TIM);
@@ -937,9 +946,7 @@ begin
   { TODO : Reset bitmode or not? }
   //cbbBitMode.ItemIndex := 0;
 
-  UpdateCLUTInfo;
-  DrawSelTim;
-  DrawSelClut;
+  Update(True, True, True);
 
   ShowTimInfo(True);
 
@@ -998,6 +1005,13 @@ begin
   hGrid.Right := -1;
   hGrid.Bottom := -1;
   grdClut.Selection := hGrid;
+end;
+
+procedure TfrmMain.Update(Tim, Clut, ClutInfo: Boolean);
+begin
+  if ClutInfo then UpdateCLUTInfo;
+  if Tim then DrawSelTim;
+  if Clut then DrawSelClut;
 end;
 
 end.
