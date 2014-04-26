@@ -28,6 +28,8 @@ type
     actExtractTIMs: TAction;
     actChangeFile: TAction;
     actChangeBackColor: TAction;
+    actPngExport: TAction;
+    actPngImport: TAction;
     actStopScan: TAction;
     actOpenLab: TAction;
     actOpenRepo: TAction;
@@ -55,6 +57,9 @@ type
     imgTim: TImage;
     lblStatus: TLabel;
     lvList: TListView;
+    mnImport: TMenuItem;
+    mnExportTim: TMenuItem;
+    mnEdit: TMenuItem;
     mnChangeBackColor2: TMenuItem;
     N8: TMenuItem;
     mnChangeBackColor: TMenuItem;
@@ -85,6 +90,7 @@ type
     N1: TMenuItem;
     N3: TMenuItem;
     N5: TMenuItem;
+    dlgOpenPNG: TOpenPictureDialog;
     pnlClut: TPanel;
     pbProgress: TProgressBar;
     pnlExtractAll: TPanel;
@@ -113,6 +119,7 @@ type
     procedure actExtractTIMsExecute(Sender: TObject);
     procedure actOpenLabExecute(Sender: TObject);
     procedure actOpenRepoExecute(Sender: TObject);
+    procedure actPngImportExecute(Sender: TObject);
     procedure actReplaceTimExecute(Sender: TObject);
     procedure actReturnFocusExecute(Sender: TObject);
     procedure actScanDirExecute(Sender: TObject);
@@ -168,7 +175,7 @@ type
     procedure ShowTim;
     procedure ShowTimInfo(ShowInfo: Boolean);
     procedure RemoveGridSelection;
-    procedure Update(Tim, Clut, ClutInfo: Boolean);
+    procedure UpdateTim(Tim, Clut, ClutInfo: Boolean);
   public
     { public declarations }
     ScanResults: TScanResultList; //List of finished scan results
@@ -227,7 +234,7 @@ end;
 procedure TfrmMain.actStretchExecute(Sender: TObject);
 begin
   Settings.StretchMode := actStretch.Checked;
-  Update(True, False, False);
+  UpdateTim(True, False, False);
 end;
 
 procedure TfrmMain.actTim2PngExecute(Sender: TObject);
@@ -242,7 +249,7 @@ begin
 
   if not dlgSavePNG.Execute then Exit;
 
-  Writer := CreatePngWriter(False);
+  Writer := CreatePngWriter((Sender as TAction) = actPngExport);
   SaveImage(Surf, TIMisIndexed(TIM), dlgSavePNG.FileName, Writer);
   Writer.Free;
   FreeTIM(TIM);
@@ -252,19 +259,19 @@ end;
 procedure TfrmMain.btnShowClutClick(Sender: TObject);
 begin
   pnlClut.Visible := not pnlClut.Visible;
-  Update(False, True, False);
+  UpdateTim(False, True, False);
   actReturnFocus.Execute;
 end;
 
 procedure TfrmMain.cbbBitModeChange(Sender: TObject);
 begin
-  Update(True, False, False);
+  UpdateTim(True, False, False);
 end;
 
 procedure TfrmMain.cbbTranspModeChange(Sender: TObject);
 begin
   Settings.TranspMode := cbbTranspMode.ItemIndex;
-  Update(True, False, False);
+  UpdateTim(True, False, False);
 end;
 
 procedure TfrmMain.actChangeFileExecute(Sender: TObject);
@@ -325,7 +332,7 @@ end;
 
 procedure TfrmMain.actChangeClutIdxExecute(Sender: TObject);
 begin
-  Update(True, True, False);
+  UpdateTim(True, True, False);
 end;
 
 procedure TfrmMain.actCloseFileExecute(Sender: TObject);
@@ -337,7 +344,7 @@ begin
   ShowTimInfo(False);
   SetTimsListCount(0);
 
-  Update(True, True, True);
+  UpdateTim(True, True, True);
 
   cbbFiles.Items.Delete(cbbFiles.ItemIndex);
 
@@ -398,7 +405,7 @@ begin
     CreateDirUTF8(Path);
 
     TIM := LoadTimFromFile(FName, OFFSET, IsImage, SIZE);
-    Tim2Png(TIM, cbbCLUT.ItemIndex, Surf_, cbbTranspMode.ItemIndex, False);
+    Tim2Png(TIM, cbbCLUT.ItemIndex, Surf_, cbbTranspMode.ItemIndex);
 
     Path := Path + FormatPngName(FName, I - 1, BIT_MODE, 0);
     SaveImage(Surf_, TIMisIndexed(TIM), Path, Writer);
@@ -481,13 +488,37 @@ begin
   OpenUrl('http://tim2view.googlecode.com');
 end;
 
+procedure TfrmMain.actPngImportExecute(Sender: TObject);
+var
+  Image: PDrawSurf;
+  TIM: PTIM;
+  ScanRes: TScanResult;
+begin
+  if not dlgOpenPNG.Execute then Exit;
+  if not LoadImage(dlgOpenPNG.FileName, Image) then Exit;
+
+  TIM := SelectedTim;
+  if TIM = nil then Exit;
+
+  Png2Tim(Image, TIM);
+  SaveTimToFile('test.tim', TIM);
+  ScanRes := SelectedScanResult;
+  ReplaceTimInFileFromMemory(ScanRes.ScanFile, TIM, SelectedTimInfo.Position, ScanRes.IsImage);
+  ShowTim;
+  FreeTIM(TIM);
+  Image^.Free;
+  Dispose(Image);
+end;
+
 procedure TfrmMain.actReplaceTimExecute(Sender: TObject);
+var
+  ScanRes: TScanResult;
 begin
   if not dlgOpenFile.Execute then Exit;
-
   if FileSize(dlgOpenFile.FileName) > cTIMMaxSize then Exit;
 
-  ReplaceTimInFile(SelectedScanResult.ScanFile, dlgOpenFile.FileName, SelectedTimInfo.Position, SelectedScanResult.IsImage);
+  ScanRes := SelectedScanResult;
+  ReplaceTimInFile(ScanRes.ScanFile, dlgOpenFile.FileName, SelectedTimInfo.Position, ScanRes.IsImage);
   ShowTim;
 end;
 
@@ -615,7 +646,7 @@ begin
 
   FreeTIM(TIM);
 
-  Update(True, True, False);
+  UpdateTim(True, True, False);
 end;
 
 procedure TfrmMain.grdClutDrawCell(Sender: TObject; aCol, aRow: Integer;
@@ -882,8 +913,7 @@ begin
 
   Index := cbbCLUT.ItemIndex;
 
-  Tim2Png(TIM, Index, Surf, cbbTranspMode.ItemIndex, False);
-  imgTim.Picture.Bitmap := TBitmap.Create;
+  Tim2Png(TIM, Index, Surf, cbbTranspMode.ItemIndex);
   imgTim.Picture.Bitmap := Surf^.Bitmap;
   FreeTIM(TIM);
 
@@ -946,7 +976,7 @@ begin
   { TODO : Reset bitmode or not? }
   //cbbBitMode.ItemIndex := 0;
 
-  Update(True, True, True);
+  UpdateTim(True, True, True);
 
   ShowTimInfo(True);
 
@@ -1007,7 +1037,7 @@ begin
   grdClut.Selection := hGrid;
 end;
 
-procedure TfrmMain.Update(Tim, Clut, ClutInfo: Boolean);
+procedure TfrmMain.UpdateTim(Tim, Clut, ClutInfo: Boolean);
 begin
   if ClutInfo then UpdateCLUTInfo;
   if Tim then DrawSelTim;
