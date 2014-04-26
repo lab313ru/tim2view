@@ -494,7 +494,7 @@ object frmMain: TfrmMain
   OnCreate = FormCreate
   OnDropFiles = FormDropFiles
   Position = poScreenCenter
-  LCLVersion = '1.2.0.3'
+  LCLVersion = '1.2.2.0'
   object pnlStatus: TPanel
     Left = 0
     Height = 30
@@ -828,11 +828,11 @@ object frmMain: TfrmMain
     DefaultExt = '.bin'
     Filter = 'All Files (*.*)|*.*'
     Options = [ofHideReadOnly, ofNoChangeDir, ofAllowMultiSelect, ofNoNetworkButton, ofEnableSizing, ofForceShowHidden]
-    left = 664
+    left = 576
     top = 448
   end
   object mmMain: TMainMenu
-    left = 600
+    left = 352
     top = 448
     object mnFile: TMenuItem
       Caption = '&File'
@@ -865,6 +865,15 @@ object frmMain: TfrmMain
       end
       object mnSaveToPNG: TMenuItem
         Action = actTim2Png
+      end
+    end
+    object mnEdit: TMenuItem
+      Caption = '&Edit'
+      object mnExportTim: TMenuItem
+        Action = actPngExport
+      end
+      object mnImport: TMenuItem
+        Action = actPngImport
       end
     end
     object mnOptions: TMenuItem
@@ -904,7 +913,7 @@ object frmMain: TfrmMain
     DefaultExt = '.png'
     Filter = 'Portable Network Graphics (*.png)|*.png'
     Options = [ofHideReadOnly, ofNoChangeDir, ofNoNetworkButton, ofEnableSizing]
-    left = 696
+    left = 688
     top = 448
   end
   object dlgSaveTIM: TSaveDialog
@@ -912,7 +921,7 @@ object frmMain: TfrmMain
     DefaultExt = '.tim'
     Filter = 'PSX TIM Files (*.tim)|*.tim|All Files (*.*)|*.*'
     Options = [ofOverwritePrompt, ofHideReadOnly, ofNoChangeDir, ofNoNetworkButton, ofEnableSizing]
-    left = 568
+    left = 608
     top = 448
   end
   object dlgColor: TColorDialog
@@ -939,11 +948,11 @@ object frmMain: TfrmMain
       'ColorS=F0FBFF'
       'ColorT=A4A0A0'
     )
-    left = 536
+    left = 496
     top = 448
   end
   object actList: TActionList
-    left = 504
+    left = 416
     top = 448
     object actScanFile: TAction
       Caption = 'Scan &File...'
@@ -1034,9 +1043,17 @@ object frmMain: TfrmMain
       Caption = '&Background Color'
       OnExecute = actChangeBackColorExecute
     end
+    object actPngImport: TAction
+      Caption = '&Import PNG to TIM...'
+      OnExecute = actPngImportExecute
+    end
+    object actPngExport: TAction
+      Caption = '&Export TIM to PNG...'
+      OnExecute = actTim2PngExecute
+    end
   end
   object pmList: TPopupMenu
-    left = 632
+    left = 448
     top = 448
     object ExtractTIM1: TMenuItem
       Action = actExtractTim
@@ -1058,7 +1075,7 @@ object frmMain: TfrmMain
     end
   end
   object pmImage: TPopupMenu
-    left = 472
+    left = 384
     top = 448
     object mnSaveAsPng: TMenuItem
       Action = actTim2Png
@@ -1079,7 +1096,15 @@ object frmMain: TfrmMain
   end
   object dlgSelectDir: TSelectDirectoryDialog
     Options = [ofNoChangeDir, ofNoNetworkButton, ofEnableSizing, ofViewDetail]
-    left = 449
-    top = 450
+    left = 528
+    top = 448
+  end
+  object dlgOpenPNG: TOpenPictureDialog
+    Title = 'Please, select PNG...'
+    DefaultExt = '.png'
+    Filter = 'Portable Network Graphics (*.png)|*.png'
+    Options = [ofHideReadOnly, ofNoChangeDir, ofNoNetworkButton, ofEnableSizing]
+    left = 656
+    top = 448
   end
 end
