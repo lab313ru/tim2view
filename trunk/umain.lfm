@@ -1,7 +1,7 @@
 object frmMain: TfrmMain
-  Left = 807
+  Left = 919
   Height = 590
-  Top = 193
+  Top = 209
   Width = 780
   HorzScrollBar.Page = 780
   HorzScrollBar.Range = 489
@@ -954,12 +954,12 @@ object frmMain: TfrmMain
     object actScanFile: TAction
       Caption = 'Scan &File...'
       OnExecute = actScanFileExecute
-      ShortCut = 116
+      ShortCut = 117
     end
     object actScanDir: TAction
       Caption = 'Scan &Directory...'
       OnExecute = actScanDirExecute
-      ShortCut = 117
+      ShortCut = 118
     end
     object actCloseFile: TAction
       Caption = 'Close &this File'
@@ -981,19 +981,20 @@ object frmMain: TfrmMain
       OnExecute = actExtractTimExecute
       ShortCut = 113
     end
+    object actPngExport: TAction
+      Caption = 'Export &PNG...'
+      OnExecute = actPngExportExecute
+      ShortCut = 115
+    end
     object actPngImport: TAction
       Caption = '&Import PNG...'
       OnExecute = actPngImportExecute
+      ShortCut = 116
     end
     object actReplaceTim: TAction
       Caption = '&Replace TIM...'
       OnExecute = actReplaceTimExecute
       ShortCut = 114
-    end
-    object actPngExport: TAction
-      Caption = 'Export &PNG...'
-      OnExecute = actPngExportExecute
-      ShortCut = 115
     end
     object actOpenRepo: TAction
       Caption = 'Tim2Vew &SVN Repo'

@@ -6,9 +6,7 @@ uses
   {$IFDEF UNIX}
   cthreads, cmem,
   {$ENDIF}
-  Interfaces, // this includes the LCL widgetset
-  Forms, umain, edc, ucommon, ecc, ucdimage, utim, usettings, uscanresult,
-  uscanthread, ucpucount, udrawtim, BGRABitmap, uexportimport;
+  Forms, umain, Interfaces;
 
 {$R *.res}
 

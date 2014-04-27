@@ -5,7 +5,7 @@ unit usettings;
 interface
 
 uses
-  Classes, SysUtils, IniFiles, Graphics;
+  SysUtils, IniFiles, Graphics;
 
 type
 
