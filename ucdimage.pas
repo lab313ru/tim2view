@@ -78,14 +78,12 @@ begin
 
   pFile := GetMemory(cSectorHeaderSize);
 
-  try
-    tmp := TFileStream.Create(Utf8ToSys(FileName), fmOpenRead or fmShareDenyWrite);
-    tmp.Read(pFile^[0], cSectorHeaderSize);
-    Result := ((Sz mod cSectorSize) = 0) and (CompareMem(@cSectorHeader, pFile, cSectorHeaderSize));
-  finally
-    tmp.free;
-    FreeMemory(pFile);
-  end;
+  tmp := TFileStream.Create(Utf8ToSys(FileName), fmOpenRead or fmShareDenyWrite);
+  tmp.Read(pFile^[0], cSectorHeaderSize);
+  Result := ((Sz mod cSectorSize) = 0) and (CompareMem(@cSectorHeader, pFile, cSectorHeaderSize));
+
+  tmp.free;
+  FreeMemory(pFile);
 end;
 
 procedure ReplaceTimInFileFromMemory(const FileName: string; TIM: PTIM;
@@ -124,7 +122,7 @@ begin
     FillChar(Sector, cSectorSize, 0);
 
     sImageStream.Read(Sector, cSectorSize);
-    sImageStream.Seek(TimStartSectorPos + cSectorHeaderSize, soBeginning);
+    sImageStream.Seek(Int64(TimStartSectorPos) + Int64(cSectorHeaderSize), soBeginning);
 
     Move(Sector.dwAddress[0], SecAddrAndMode[0], cSectorAddressSize + cSectorModeSize);
     FillChar(Sector.dwAddress[0], cSectorAddressSize + cSectorModeSize, 0);
@@ -140,7 +138,7 @@ begin
 
     sImageStream.Seek(TimStartSectorPos, soBeginning);
     sImageStream.Write(Sector, cSectorSize);
-    sImageStream.Seek(TimStartSectorPos + cSectorHeaderSize, soBeginning);
+    sImageStream.Seek(Int64(TimStartSectorPos) + Int64(cSectorHeaderSize), soBeginning);
     sImageStream.Write(SecAddrAndMode[0], cSectorAddressSize + cSectorModeSize);
 
     Inc(TimStartSectorPos, cSectorSize);
@@ -167,7 +165,7 @@ begin
 
       sImageStream.Seek(TimStartSectorPos, soBeginning);
       sImageStream.Write(Sector, cSectorSize);
-      sImageStream.Seek(TimStartSectorPos + cSectorHeaderSize, soBeginning);
+      sImageStream.Seek(Int64(TimStartSectorPos) + Int64(cSectorHeaderSize), soBeginning);
       sImageStream.Write(SecAddrAndMode[0], cSectorAddressSize + cSectorModeSize);
 
       Inc(TimStartSectorPos, cSectorSize);
@@ -195,7 +193,7 @@ begin
 
       sImageStream.Seek(TimStartSectorPos, soBeginning);
       sImageStream.Write(Sector, cSectorSize);
-      sImageStream.Seek(TimStartSectorPos + cSectorHeaderSize, soBeginning);
+      sImageStream.Seek(Int64(TimStartSectorPos) + Int64(cSectorHeaderSize), soBeginning);
       sImageStream.Write(SecAddrAndMode[0], cSectorAddressSize + cSectorModeSize);
     end;
   end;

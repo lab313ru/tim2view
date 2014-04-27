@@ -828,12 +828,12 @@ object frmMain: TfrmMain
     DefaultExt = '.bin'
     Filter = 'All Files (*.*)|*.*'
     Options = [ofHideReadOnly, ofNoChangeDir, ofAllowMultiSelect, ofNoNetworkButton, ofEnableSizing, ofForceShowHidden]
-    left = 576
-    top = 448
+    left = 560
+    top = 112
   end
   object mmMain: TMainMenu
-    left = 352
-    top = 448
+    left = 336
+    top = 112
     object mnFile: TMenuItem
       Caption = '&File'
       object mnScanFile: TMenuItem
@@ -863,16 +863,13 @@ object frmMain: TfrmMain
       object mnReplaceIn: TMenuItem
         Action = actReplaceTim
       end
-      object mnSaveToPNG: TMenuItem
-        Action = actTim2Png
+      object MenuItem1: TMenuItem
+        Caption = '-'
       end
-    end
-    object mnEdit: TMenuItem
-      Caption = '&Edit'
-      object mnExportTim: TMenuItem
+      object mnSaveToPNG: TMenuItem
         Action = actPngExport
       end
-      object mnImport: TMenuItem
+      object mnImportPng: TMenuItem
         Action = actPngImport
       end
     end
@@ -912,17 +909,17 @@ object frmMain: TfrmMain
     Title = 'Please, select filename for PNG...'
     DefaultExt = '.png'
     Filter = 'Portable Network Graphics (*.png)|*.png'
-    Options = [ofHideReadOnly, ofNoChangeDir, ofNoNetworkButton, ofEnableSizing]
-    left = 688
-    top = 448
+    Options = [ofOverwritePrompt, ofHideReadOnly, ofNoChangeDir, ofNoNetworkButton, ofEnableSizing]
+    left = 672
+    top = 112
   end
   object dlgSaveTIM: TSaveDialog
     Title = 'Please, select where to save TIM file...'
     DefaultExt = '.tim'
     Filter = 'PSX TIM Files (*.tim)|*.tim|All Files (*.*)|*.*'
     Options = [ofOverwritePrompt, ofHideReadOnly, ofNoChangeDir, ofNoNetworkButton, ofEnableSizing]
-    left = 608
-    top = 448
+    left = 592
+    top = 112
   end
   object dlgColor: TColorDialog
     Color = clBlack
@@ -948,12 +945,12 @@ object frmMain: TfrmMain
       'ColorS=F0FBFF'
       'ColorT=A4A0A0'
     )
-    left = 496
-    top = 448
+    left = 480
+    top = 112
   end
   object actList: TActionList
-    left = 416
-    top = 448
+    left = 400
+    top = 112
     object actScanFile: TAction
       Caption = 'Scan &File...'
       OnExecute = actScanFileExecute
@@ -984,14 +981,18 @@ object frmMain: TfrmMain
       OnExecute = actExtractTimExecute
       ShortCut = 113
     end
+    object actPngImport: TAction
+      Caption = '&Import PNG...'
+      OnExecute = actPngImportExecute
+    end
     object actReplaceTim: TAction
       Caption = '&Replace TIM...'
       OnExecute = actReplaceTimExecute
       ShortCut = 114
     end
-    object actTim2Png: TAction
-      Caption = 'Save as &PNG...'
-      OnExecute = actTim2PngExecute
+    object actPngExport: TAction
+      Caption = 'Export &PNG...'
+      OnExecute = actPngExportExecute
       ShortCut = 115
     end
     object actOpenRepo: TAction
@@ -1043,18 +1044,10 @@ object frmMain: TfrmMain
       Caption = '&Background Color'
       OnExecute = actChangeBackColorExecute
     end
-    object actPngImport: TAction
-      Caption = '&Import PNG to TIM...'
-      OnExecute = actPngImportExecute
-    end
-    object actPngExport: TAction
-      Caption = '&Export TIM to PNG...'
-      OnExecute = actTim2PngExecute
-    end
   end
   object pmList: TPopupMenu
-    left = 448
-    top = 448
+    left = 432
+    top = 112
     object ExtractTIM1: TMenuItem
       Action = actExtractTim
     end
@@ -1062,7 +1055,7 @@ object frmMain: TfrmMain
       Action = actReplaceTim
     end
     object SaveasPNG1: TMenuItem
-      Action = actTim2Png
+      Action = actPngExport
     end
     object N7: TMenuItem
       Caption = '-'
@@ -1075,10 +1068,10 @@ object frmMain: TfrmMain
     end
   end
   object pmImage: TPopupMenu
-    left = 384
-    top = 448
+    left = 368
+    top = 112
     object mnSaveAsPng: TMenuItem
-      Action = actTim2Png
+      Action = actPngExport
     end
     object mnSaveAsTim: TMenuItem
       Action = actExtractTim
@@ -1096,15 +1089,15 @@ object frmMain: TfrmMain
   end
   object dlgSelectDir: TSelectDirectoryDialog
     Options = [ofNoChangeDir, ofNoNetworkButton, ofEnableSizing, ofViewDetail]
-    left = 528
-    top = 448
+    left = 512
+    top = 112
   end
   object dlgOpenPNG: TOpenPictureDialog
     Title = 'Please, select PNG...'
     DefaultExt = '.png'
     Filter = 'Portable Network Graphics (*.png)|*.png'
     Options = [ofHideReadOnly, ofNoChangeDir, ofNoNetworkButton, ofEnableSizing]
-    left = 656
-    top = 448
+    left = 640
+    top = 112
   end
 end

@@ -149,7 +149,7 @@ end;
 
 function ConvertCLUTColor(COLOR: TCLUT_COLOR): word;
 begin
-  Result := (COLOR.STP shl 15) or ((COLOR.B div 8) shl 10) or ((COLOR.G div 8) shl 5) or (COLOR.R div 8);
+  Result := Word(COLOR.STP shl 15) or Word((COLOR.B div 8) shl 10) or Word((COLOR.G div 8) shl 5) or Word(COLOR.R div 8);
 end;
 
 function GetCLUTColor(TIM: PTIM; CLUT_NUM, COLOR_NUM: Integer): TCLUT_COLOR;
@@ -353,57 +353,55 @@ var
   Sector: TCDSector;
   P, TIM_FULL_SECTORS: Integer;
 begin
-  try
-    sImageStream := TFileStream.Create(UTF8ToSys(FileName), fmOpenRead or fmShareDenyWrite);
+  sImageStream := TFileStream.Create(UTF8ToSys(FileName), fmOpenRead or fmShareDenyWrite);
 
-    TimSectorNumber := Position div cSectorSize + 1;
-    TimOffsetInSector := Position mod cSectorSize - cSectorInfoSize;
-    TimStartSectorPos := (TimSectorNumber - 1) * cSectorSize;
-    FirstPartSize := cSectorDataSize - TimOffsetInSector;
+  TimSectorNumber := Position div cSectorSize + 1;
+  TimOffsetInSector := Position mod cSectorSize - cSectorInfoSize;
+  TimStartSectorPos := (TimSectorNumber - 1) * cSectorSize;
+  FirstPartSize := cSectorDataSize - TimOffsetInSector;
 
-    New(TIM_BUF);
-    P := 0;
+  New(TIM_BUF);
+  P := 0;
 
-    if SIZE < FirstPartSize then FirstPartSize := SIZE;
+  if SIZE < FirstPartSize then FirstPartSize := SIZE;
 
-    sImageStream.Seek(TimStartSectorPos, soBeginning);
+  sImageStream.Seek(TimStartSectorPos, soBeginning);
+  sImageStream.Read(Sector, cSectorSize);
+
+  Move(Sector.dwData[TimOffsetInSector], TIM_BUF^[P], FirstPartSize);
+  Inc(P, FirstPartSize);
+
+  Inc(TimStartSectorPos, cSectorSize);
+  sImageStream.Seek(TimStartSectorPos, soBeginning);
+
+  TIM_FULL_SECTORS := (SIZE - P) div cSectorDataSize;
+
+  while TIM_FULL_SECTORS > 0 do
+  begin
     sImageStream.Read(Sector, cSectorSize);
 
-    Move(Sector.dwData[TimOffsetInSector], TIM_BUF^[P], FirstPartSize);
-    Inc(P, FirstPartSize);
+    Move(Sector.dwData[0], TIM_BUF^[P], cSectorDataSize);
+    Inc(P, cSectorDataSize);
 
     Inc(TimStartSectorPos, cSectorSize);
     sImageStream.Seek(TimStartSectorPos, soBeginning);
 
-    TIM_FULL_SECTORS := (SIZE - P) div cSectorDataSize;
-
-    while TIM_FULL_SECTORS > 0 do
-    begin
-      sImageStream.Read(Sector, cSectorSize);
-
-      Move(Sector.dwData[0], TIM_BUF^[P], cSectorDataSize);
-      Inc(P, cSectorDataSize);
-
-      Inc(TimStartSectorPos, cSectorSize);
-      sImageStream.Seek(TimStartSectorPos, soBeginning);
-
-      Dec(TIM_FULL_SECTORS);
-    end;
-
-    sImageStream.Read(Sector, cSectorSize);
-
-    if SIZE > P then
-    begin
-      LastPartSize := SIZE - P;
-      Move(Sector.dwData[0], TIM_BUF^[P], LastPartSize);
-    end;
-  finally
-    P := 0;
-    Result := nil;
-    LoadTimFromBuf(TIM_BUF, Result, P);
-    sImageStream.Free;
-    Dispose(TIM_BUF);
+    Dec(TIM_FULL_SECTORS);
   end;
+
+  sImageStream.Read(Sector, cSectorSize);
+
+  if SIZE > P then
+  begin
+    LastPartSize := SIZE - P;
+    Move(Sector.dwData[0], TIM_BUF^[P], LastPartSize);
+  end;
+
+  P := 0;
+  Result := nil;
+  LoadTimFromBuf(TIM_BUF, Result, P);
+  sImageStream.Free;
+  Dispose(TIM_BUF);
 end;
 
 function LoadTimFromStream(Stream: TStream; var Position: Integer;
@@ -433,18 +431,14 @@ function LoadTimFromFile(const FileName: string; var Position: Integer;
 var
   sTIM: TFileStream;
 begin
-  if not ImageScan then
+  if ImageScan then
+    Result := LoadTimFromCDFile(FileName, Position, dwSize)
+  else
   begin
-    try
-      sTIM := TFileStream.Create(UTF8ToSys(FileName), fmOpenRead or fmShareDenyWrite);
-      Result := LoadTimFromStream(sTIM, Position, dwSize);
-    finally
-      sTIM.Free;
-    end;
-    Exit;
+    sTIM := TFileStream.Create(UTF8ToSys(FileName), fmOpenRead or fmShareDenyWrite);
+    Result := LoadTimFromStream(sTIM, Position, dwSize);
+    sTIM.Free;
   end;
-
-  Result := LoadTimFromCDFile(FileName, Position, dwSize);
 end;
 
 procedure SaveTimToFile(const FileName: string; TIM: PTIM);
