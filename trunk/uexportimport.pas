@@ -3,55 +3,44 @@ unit uexportimport;
 interface
 
 uses
-  FPWritePNG, zstream, udrawtim;
+  udrawtim;
 
-procedure SaveImage(Surf: PDrawSurf; Indexed: Boolean; const FileName: string; PngWriter: TFPWriterPNG);
-function LoadImage(const FileName: string; var Surf: PDrawSurf): Boolean;
-function CreatePngWriter(ForExport: Boolean): TFPWriterPNG;
+procedure SaveImage(const FileName: string; Surf: PDrawSurf; Indexed: Boolean);
+function LoadImage(const FileName: string): PDrawSurf;
 
 implementation
 
 uses
-  FPReadPNG, Classes, BGRABitmap, FileUtil, sysutils;
+  FPReadPNG, Classes, BGRABitmap, FileUtil, sysutils, zstream, FPWritePNG;
 
-function CreatePngWriter(ForExport: Boolean): TFPWriterPNG;
+procedure SaveImage(const FileName: string; Surf: PDrawSurf; Indexed: Boolean);
+var
+  Writer: TFPWriterPNG;
 begin
-  Result := TFPWriterPNG.Create;
-  Result.CompressionLevel := clnone;
-  Result.WordSized := False;
-  Result.UseAlpha := (not ForExport);
+  Writer := TFPWriterPNG.Create;
+  Writer.CompressionLevel := clnone;
+  Writer.UseAlpha := True;
+
+  Writer.Indexed := Indexed;
+  Surf^.SaveToFileUTF8(FileName, Writer);
+  Writer.Free;
 end;
 
-procedure SaveImage(Surf: PDrawSurf; Indexed: Boolean; const FileName: string; PngWriter: TFPWriterPNG);
-begin
-  PngWriter.Indexed := Indexed;
-  Surf^.SaveToFileUTF8(FileName, PngWriter);
-end;
-
-function LoadImage(const FileName: string; var Surf: PDrawSurf): Boolean;
+function LoadImage(const FileName: string): PDrawSurf;
 var
   Reader: TFPReaderPNG;
-  Image: TFileStream;
+  Stream: TFileStream;
 begin
-  Result := False;
-
-  try
   Reader := TFPReaderPNG.Create;
-  Image := TFileStream.Create(UTF8ToSys(FileName), fmOpenRead or fmShareDenyWrite);
-  Result := Reader.CheckContents(Image);
+  Stream := TFileStream.Create(UTF8ToSys(FileName), fmOpenRead or fmShareDenyWrite);
+  Stream.Position := 0;
 
-  if Result then
-  begin
-    New(Surf);
-    Surf^ := TBGRABitmap.Create;
-    Image.Position := 0;
-    Surf^.LoadFromStream(Image);
-  end;
-
-  finally
-    Image.Free;
-    Reader.Free;
-  end;
+  New(Result);
+  Result^ := TBGRABitmap.Create;
+  Result^.UsePalette := True;
+  Reader.ImageRead(Stream, Result^);
+  Stream.Free;
+  Reader.Free;
 end;
 
 end.

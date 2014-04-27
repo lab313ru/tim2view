@@ -89,11 +89,10 @@ var
 begin
   Synchronize(@StartScan);
 
-  try
-    if pScanResult.IsImage then
-      pSectorBufferSize := cSectorBufferSize
-    else
-      pSectorBufferSize := cClearBufferSize;
+  if pScanResult.IsImage then
+    pSectorBufferSize := cSectorBufferSize
+  else
+    pSectorBufferSize := cClearBufferSize;
 
     pClearBufferSize := cClearBufferSize;
 
@@ -122,8 +121,8 @@ begin
       begin
         if pScanResult.IsImage then
           pTimPosition := pFilePos - pRealBufSize +
-            ((pClearBufferPosition - 1) div cSectorDataSize) * cSectorSize +
-            ((pClearBufferPosition - 1) mod cSectorDataSize) + cSectorInfoSize
+          ((pClearBufferPosition - 1) div cSectorDataSize) * cSectorSize +
+          ((pClearBufferPosition - 1) mod cSectorDataSize) + cSectorInfoSize
         else
           pTimPosition := pFilePos - pRealBufSize + (pClearBufferPosition - 1);
 
@@ -147,7 +146,7 @@ begin
         begin
           if pRealBufSize >= (pSectorBufferSize div 2) then
           // Need to check file size
-            pRealBufSize := pRealBufSize - (pSectorBufferSize div 2);
+          pRealBufSize := pRealBufSize - (pSectorBufferSize div 2);
         end
         else
         begin
@@ -161,18 +160,17 @@ begin
         ClearSectorBuffer(SectorBuffer, ClearBuffer);
       end;
     end;
-  finally
-    FreeTIM(TIM);
-    FreeMemory(SectorBuffer);
-    FreeMemory(ClearBuffer);
 
-    pSrcFileStream.Free;
-    pStopScan := True;
-    pFilePos := 0;
-    pStatusText := '';
+  FreeTIM(TIM);
+  FreeMemory(SectorBuffer);
+  FreeMemory(ClearBuffer);
 
-    Synchronize(@FinishScan);
-  end;
+  pSrcFileStream.Free;
+  pStopScan := True;
+  pFilePos := 0;
+  pStatusText := '';
+
+  Synchronize(@FinishScan);
 end;
 
 procedure TScanThread.FinishScan;

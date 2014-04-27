@@ -28,7 +28,6 @@ type
     actExtractTIMs: TAction;
     actChangeFile: TAction;
     actChangeBackColor: TAction;
-    actPngExport: TAction;
     actPngImport: TAction;
     actStopScan: TAction;
     actOpenLab: TAction;
@@ -39,7 +38,7 @@ type
     actScanFile: TAction;
     actList: TActionList;
     actStretch: TAction;
-    actTim2Png: TAction;
+    actPngExport: TAction;
     btnExtractAllTims: TButton;
     btnExtractPNGs: TButton;
     btnShowClut: TButton;
@@ -57,9 +56,8 @@ type
     imgTim: TImage;
     lblStatus: TLabel;
     lvList: TListView;
-    mnImport: TMenuItem;
-    mnExportTim: TMenuItem;
-    mnEdit: TMenuItem;
+    MenuItem1: TMenuItem;
+    mnImportPng: TMenuItem;
     mnChangeBackColor2: TMenuItem;
     N8: TMenuItem;
     mnChangeBackColor: TMenuItem;
@@ -126,7 +124,7 @@ type
     procedure actScanFileExecute(Sender: TObject);
     procedure actStopScanExecute(Sender: TObject);
     procedure actStretchExecute(Sender: TObject);
-    procedure actTim2PngExecute(Sender: TObject);
+    procedure actPngExportExecute(Sender: TObject);
     procedure btnShowClutClick(Sender: TObject);
     procedure cbbBitModeChange(Sender: TObject);
     procedure cbbTranspModeChange(Sender: TObject);
@@ -156,9 +154,8 @@ type
     function FGetTimInfoByIdx(Index: Integer): TTimInfo;
     property TimInfoByIdx[Index: Integer]: TTimInfo read FGetTimInfoByIdx; //Info about tim by index
 
-    function FGetSelectedTim(NewBitMode: Integer): PTIM;
-    property SelectedTim: PTIM Index $FF read FGetSelectedTim; //Tim, selected in list
-    property SelectedTimInMode[NewBitMode: Integer]: PTIM read FGetSelectedTim; //Tim, selected in list
+    function FGetSelectedTim: PTIM;
+    property SelectedTimInMode: PTIM read FGetSelectedTim; //Tim, selected in list
 
     procedure ScanPath(const Path: string);
     procedure ScanFile(const FileName: string);
@@ -188,7 +185,7 @@ var
 
 implementation
 
-uses ucdimage, ucpucount, lcltype, ucommon, LCLIntf, uexportimport, FPWritePNG
+uses ucdimage, ucpucount, lcltype, ucommon, LCLIntf, uexportimport
 
 {$IFDEF windows}
 ,registry
@@ -237,21 +234,18 @@ begin
   UpdateTim(True, False, False);
 end;
 
-procedure TfrmMain.actTim2PngExecute(Sender: TObject);
+procedure TfrmMain.actPngExportExecute(Sender: TObject);
 var
   TIM: PTIM;
-  Writer: TFPWriterPNG;
 begin
-  TIM := SelectedTim;
+  TIM := SelectedTimInMode;
   if TIM = nil then Exit;
 
   dlgSavePNG.FileName := FormatPngName(SelectedScanResult.ScanFile, TIM^.dwTimNumber, SelectedTimInfo.BitMode, cbbCLUT.ItemIndex);
 
   if not dlgSavePNG.Execute then Exit;
 
-  Writer := CreatePngWriter((Sender as TAction) = actPngExport);
-  SaveImage(Surf, TIMisIndexed(TIM), dlgSavePNG.FileName, Writer);
-  Writer.Free;
+  SaveImage(dlgSavePNG.FileName, Surf, TIMisIndexed(TIM));
   FreeTIM(TIM);
   {$IFDEF Linux}FpChmod(dlgSavePNG.FileName, &777){$IFEND}
 end;
@@ -265,6 +259,17 @@ end;
 
 procedure TfrmMain.cbbBitModeChange(Sender: TObject);
 begin
+  case cbbBitMode.ItemIndex of
+    1: cbbBitMode.Tag := NativeInt(cTIM4C);
+    2: cbbBitMode.Tag := NativeInt(cTIM4NC);
+    3: cbbBitMode.Tag := NativeInt(cTIM8C);
+    4: cbbBitMode.Tag := NativeInt(cTIM8NC);
+    5: cbbBitMode.Tag := NativeInt(cTIM16NC);
+    6: cbbBitMode.Tag := NativeInt(cTIM24NC);
+    else
+      cbbBitMode.Tag := NativeInt($FF);
+  end;
+
   UpdateTim(True, False, False);
 end;
 
@@ -284,7 +289,7 @@ begin
   lvList.Items[0].Focused := True;
   lvList.Items[0].Selected := True;
 
-  ShowTim;
+  //ShowTim;
 end;
 
 procedure TfrmMain.actAboutExecute(Sender: TObject);
@@ -377,18 +382,15 @@ var
   IsImage: Boolean;
   ScanTim: TTimInfo;
   TIM: PTIM;
-  Surf_: PDrawSurf;
-  Writer: TFPWriterPNG;
+  PNG: PDrawSurf;
 begin
   lblStatus.Caption := sStatusBarPngsExtracting;
 
   FName := SelectedScanResult.ScanFile;
   IsImage := SelectedScanResult.IsImage;
 
-  New(Surf_);
-  Surf_^ := nil;
-
-  Writer := CreatePngWriter(False);
+  New(PNG);
+  PNG^ := nil;
 
   pbProgress.Position := 0;
   pbProgress.Max := SelectedScanResult.Count;
@@ -405,21 +407,20 @@ begin
     CreateDirUTF8(Path);
 
     TIM := LoadTimFromFile(FName, OFFSET, IsImage, SIZE);
-    Tim2Png(TIM, cbbCLUT.ItemIndex, Surf_, cbbTranspMode.ItemIndex);
+    Tim2Png(TIM, cbbCLUT.ItemIndex, PNG, cbbTranspMode.ItemIndex);
 
     Path := Path + FormatPngName(FName, I - 1, BIT_MODE, 0);
-    SaveImage(Surf_, TIMisIndexed(TIM), Path, Writer);
+    SaveImage(Path, PNG, TIMisIndexed(TIM));
     {$IFDEF Linux}FpChmod(Path, &777){$IFEND}
-    Surf_^.Free;
-    Surf_^ := nil;
+    PNG^.Free;
+    PNG^ := nil;
 
     FreeTIM(TIM);
 
     pbProgress.Position := I;
     Application.ProcessMessages;
   end;
-  Dispose(Surf_);
-  Writer.Free;
+  Dispose(PNG);
   lblStatus.Caption := sStatusBarExtracted;
   pbProgress.Position := 0;
 end;
@@ -432,7 +433,7 @@ begin
 
   if not dlgSaveTIM.Execute then Exit;
 
-  TIM := SelectedTim;
+  TIM := SelectedTimInMode;
   SaveTimToFile(dlgSaveTIM.FileName, TIM);
   {$IFDEF Linux}FpChmod(dlgSaveTIM.FileName, &777){$IFEND}
   FreeTIM(TIM);
@@ -495,13 +496,12 @@ var
   ScanRes: TScanResult;
 begin
   if not dlgOpenPNG.Execute then Exit;
-  if not LoadImage(dlgOpenPNG.FileName, Image) then Exit;
 
-  TIM := SelectedTim;
+  TIM := SelectedTimInMode;
   if TIM = nil then Exit;
 
+  Image := LoadImage(dlgOpenPNG.FileName);
   Png2Tim(Image, TIM);
-  SaveTimToFile('test.tim', TIM);
   ScanRes := SelectedScanResult;
   ReplaceTimInFileFromMemory(ScanRes.ScanFile, TIM, SelectedTimInfo.Position, ScanRes.IsImage);
   ShowTim;
@@ -561,6 +561,8 @@ procedure TfrmMain.FormCreate(Sender: TObject);
 begin
   Settings := TSettings.Create(ExtractFilePath(ParamStrUTF8(0)));
 
+  cbbBitMode.Tag := NativeInt($FF);
+
   actStretch.Checked := Settings.StretchMode;
   cbbTranspMode.ItemIndex := Settings.TranspMode;
   LastDir := Settings.LastDir;
@@ -598,7 +600,7 @@ var
   R, G, B: Byte;
   CLUT_COLOR: TCLUT_COLOR;
 begin
-  TIM := SelectedTim;
+  TIM := SelectedTimInMode;
   if TIM = nil then Exit;
 
   SELECTED_CELL := grdClut.Row * grdClut.ColCount + grdClut.Col;
@@ -654,7 +656,7 @@ procedure TfrmMain.grdClutDrawCell(Sender: TObject; aCol, aRow: Integer;
 var
   TIM: PTIM;
 begin
-  TIM := SelectedTim;
+  TIM := SelectedTimInMode;
   if TIM = nil then Exit;
 
   if not TIMHasCLUT(TIM) then
@@ -712,7 +714,7 @@ begin
   Result := SelectedScanResult.ScanTim[Index];
 end;
 
-function TfrmMain.FGetSelectedTim(NewBitMode: Integer): PTIM;
+function TfrmMain.FGetSelectedTim: PTIM;
 var
   P: Integer;
 begin
@@ -723,8 +725,8 @@ begin
   P := SelectedTimInfo.Position;
   Result := LoadTimFromFile(SelectedScanResult.ScanFile, P, SelectedScanResult.IsImage, SelectedTimInfo.Size);
 
-  if NewBitMode = $FF then Exit;
-  Result^.HEAD^.bBPP := NewBitMode;
+  if Integer(cbbBitMode.Tag) = $FF then Exit;
+  Result^.HEAD^.bBPP := Integer(cbbBitMode.Tag);
 end;
 
 function TfrmMain.CheckForFileOpened(const FileName: string): boolean;
@@ -818,7 +820,7 @@ begin
   actCloseFiles.Enabled := cbbFiles.Enabled;
   actReplaceTim.Enabled := (lvList.Selected <> nil) and (lvList.Selected.Index <> -1);
 
-  actTim2Png.Enabled := (Surf^ <> nil) and actReplaceTim.Enabled;
+  actPngExport.Enabled := (Surf^ <> nil) and actReplaceTim.Enabled;
   actExtractTim.Enabled := actReplaceTim.Enabled;
 
   pnlImageOptions.Enabled := actReplaceTim.Enabled;
@@ -871,7 +873,7 @@ var
   TIM: PTIM;
   I, CLUTS: Word;
 begin
-  TIM := SelectedTim;
+  TIM := SelectedTimInMode;
   if TIM = nil then Exit;
 
   CLUTS := GetTIMClutsCount(TIM);
@@ -892,28 +894,13 @@ end;
 procedure TfrmMain.DrawSelTim;
 var
   TIM: PTIM;
-  Index: Integer;
-  mode: Byte;
 begin
   imgTim.Picture.Bitmap := nil;
 
-  case cbbBitMode.ItemIndex of
-    1: mode := cTIM4C;
-    2: mode := cTIM4NC;
-    3: mode := cTIM8C;
-    4: mode := cTIM8NC;
-    5: mode := cTIM16NC;
-    6: mode := cTIM24NC;
-  else
-    mode := $FF;
-  end;
-
-  TIM := SelectedTimInMode[mode];
+  TIM := SelectedTimInMode;
   if TIM = nil then Exit;
 
-  Index := cbbCLUT.ItemIndex;
-
-  Tim2Png(TIM, Index, Surf, cbbTranspMode.ItemIndex);
+  Tim2Png(TIM, cbbCLUT.ItemIndex, Surf, cbbTranspMode.ItemIndex);
   imgTim.Picture.Bitmap := Surf^.Bitmap;
   FreeTIM(TIM);
 
@@ -928,7 +915,7 @@ begin
 
   ClearGrid(@grdClut);
 
-  TIM := SelectedTim;
+  TIM := SelectedTimInMode;
   if TIM = nil then
   begin
     grdClut.ColCount := 1;
@@ -995,7 +982,7 @@ begin
   if not ShowInfo then Exit;
 
   TimInfo := SelectedTimInfo;
-  TIM := SelectedTim;
+  TIM := SelectedTimInMode;
 
   I := 0;
 

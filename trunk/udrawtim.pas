@@ -92,17 +92,17 @@ begin
     CC := GetCLUTColor(TIM, CLUT_NUM, I - 1);
     if I <= COUNT then
     begin
-      R := CC.R;
-      G := CC.G;
-      B := CC.B;
+      R := CC.R + ((I - 1) and %00000011) shl 1 + CC.STP;
+      G := CC.G + ((I - 1) and %00011100) shr 2;
+      B := CC.B + ((I - 1) and %11100000) shr 5;
       A := CC.STP;
     end
     else
     begin
-      R := 0;
-      G := 0;
-      B := 0;
-      A := 1;
+      R := ((I - 1) and %00000011) shl 1 + CC.STP;
+      G := ((I - 1) and %00011100) shr 2;
+      B := ((I - 1) and %11100000) shr 5;
+      A := 0;
     end;
 
     FC := BGRAToFPColor(BGRA(R, G, B, A));
@@ -209,7 +209,8 @@ begin
     for X := 1 to RW do
     begin
       case TIM^.HEAD^.bBPP of
-        cTIM4C, cTIM4NC, cTIM8C, cTIM8NC: Surf^.Pixels[X - 1, Y - 1] := INDEXES^[IDX] mod COLORS;
+        cTIM4C, cTIM4NC, cTIM8C, cTIM8NC:
+          Surf^.Pixels[X - 1, Y - 1] := INDEXES^[IDX] mod COLORS;
         cTIM16C, cTIM16NC, cTIMMix:
           begin
             CW := 0;
@@ -243,7 +244,7 @@ procedure Png2Tim(Image: PDrawSurf; Dest: PTIM);
 var
   IW, IH, X, Y, CW: Word;
   TData: PTIMDataArray;
-  IDX, POS, C: Integer;
+  POS: Integer;
   CC: TCLUT_COLOR;
   PC: TBGRAPixel;
   FC: TFPColor;
@@ -253,33 +254,29 @@ begin
   IH := Image^.Height;
 
   TData := @Dest^.DATA^[SizeOf(TTIMHeader) + GetTIMCLUTSize(Dest) + SizeOf(TIMAGEHeader)];
-  { TODO : Fix colors finding. }
 
   POS := 0;
-  for Y := 1 to IH do
+  for Y := 0 to IH-1 do
     case Dest^.HEAD^.bBPP of
       cTIM4C, cTIM4NC:
-        for X := 1 to (IW div 2) do
+        for X := 0 to (IW div 2)-1 do
         begin
-          IDX := Image^.Pixels[X - 1, Y - 1];
-          TData^[POS] := (IDX and $F);
-          IDX := Image^.Pixels[X, Y - 1];
-          TData^[POS] := TData^[0] + (IDX and $F0);
+          TData^[POS] := Byte(Image^.Pixels[X * 2, Y]);
+          TData^[POS] := (Byte(Image^.Pixels[X * 2 + 1, Y]) shl 4) and $F0 + TData^[POS];
           Inc(POS);
         end;
 
       cTIM8C, cTIM8NC:
-        for X := 1 to IW do
+        for X := 0 to IW-1 do
         begin
-          C := Image^.Pixels[X - 1, Y - 1];
-          TData^[POS] := Byte(C);
+          TData^[POS] := Byte(Image^.Pixels[X, Y]);
           Inc(POS);
         end;
 
       cTIM16C, cTIM16NC:
-        for X := 1 to IW do
+        for X := 0 to IW-1 do
         begin
-          FC := Image^.Colors[X - 1, Y - 1];
+          FC := Image^.Colors[X, Y];
           CC.STP := StpFromAlpha(@FC);
           PC := FPColorToBGRA(FC);
           CC.R := PC.red;
@@ -293,16 +290,16 @@ begin
         end;
 
       cTIM24C, cTIM24NC:
-        for X := 1 to IW do
+        for X := 0 to IW-1 do
         begin
-          FC := Image^.Colors[X - 1, Y - 1];
+          FC := Image^.Colors[X, Y];
           PC := FPColorToBGRA(FC);
           CD := (PC.blue shl 16) + (PC.green shl 8) + PC.red;
 
           Move(CD, TData^[POS], 3);
           Inc(POS, 3);
 
-          if Odd(IW) and ((IW - X) = 0) then
+          if Odd(IW) and ((IW - X + 1) = 0) then
           begin
             TData^[POS] := 0;
             Inc(POS);

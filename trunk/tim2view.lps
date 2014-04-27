@@ -3,13 +3,13 @@
   <ProjectSession>
     <PathDelim Value="\"/>
     <Version Value="9"/>
-    <BuildModes Active="Default"/>
-    <Units Count="19">
+    <BuildModes Active="Win Release x86"/>
+    <Units Count="15">
       <Unit0>
         <Filename Value="tim2view.lpr"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="tim2view"/>
-        <EditorIndex Value="15"/>
+        <EditorIndex Value="11"/>
         <WindowIndex Value="0"/>
         <TopLine Value="1"/>
         <CursorPos X="46" Y="15"/>
@@ -25,8 +25,8 @@
         <UnitName Value="umain"/>
         <EditorIndex Value="0"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="912"/>
-        <CursorPos X="48" Y="918"/>
+        <TopLine Value="489"/>
+        <CursorPos X="63" Y="499"/>
         <UsageCount Value="816"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
@@ -55,7 +55,7 @@
         <EditorIndex Value="4"/>
         <WindowIndex Value="0"/>
         <TopLine Value="14"/>
-        <CursorPos X="15" Y="35"/>
+        <CursorPos X="35" Y="6"/>
         <UsageCount Value="816"/>
         <Loaded Value="True"/>
       </Unit4>
@@ -65,8 +65,8 @@
         <UnitName Value="utim"/>
         <EditorIndex Value="7"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="130"/>
-        <CursorPos X="1" Y="148"/>
+        <TopLine Value="185"/>
+        <CursorPos X="1" Y="204"/>
         <UsageCount Value="816"/>
         <Loaded Value="True"/>
       </Unit5>
@@ -76,8 +76,8 @@
         <UnitName Value="ucdimage"/>
         <EditorIndex Value="1"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="189"/>
-        <CursorPos X="1" Y="204"/>
+        <TopLine Value="112"/>
+        <CursorPos X="50" Y="117"/>
         <UsageCount Value="816"/>
         <Loaded Value="True"/>
       </Unit6>
@@ -96,7 +96,7 @@
         <Filename Value="uscanresult.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="uscanresult"/>
-        <EditorIndex Value="16"/>
+        <EditorIndex Value="12"/>
         <WindowIndex Value="0"/>
         <TopLine Value="51"/>
         <CursorPos X="1" Y="67"/>
@@ -109,8 +109,8 @@
         <UnitName Value="uscanthread"/>
         <EditorIndex Value="6"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="79"/>
-        <CursorPos X="76" Y="98"/>
+        <TopLine Value="155"/>
+        <CursorPos X="36" Y="168"/>
         <UsageCount Value="816"/>
         <Loaded Value="True"/>
       </Unit9>
@@ -132,8 +132,8 @@
         <IsVisibleTab Value="True"/>
         <EditorIndex Value="8"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="177"/>
-        <CursorPos X="51" Y="198"/>
+        <TopLine Value="234"/>
+        <CursorPos X="61" Y="245"/>
         <UsageCount Value="816"/>
         <Loaded Value="True"/>
       </Unit11>
@@ -149,10 +149,10 @@
       <Unit13>
         <Filename Value="todos.inc"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="14"/>
+        <EditorIndex Value="10"/>
         <WindowIndex Value="0"/>
         <TopLine Value="1"/>
-        <CursorPos X="31" Y="2"/>
+        <CursorPos X="20" Y="1"/>
         <UsageCount Value="802"/>
         <Loaded Value="True"/>
       </Unit13>
@@ -160,53 +160,13 @@
         <Filename Value="uexportimport.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="uexportimport"/>
-        <EditorIndex Value="10"/>
-        <WindowIndex Value="0"/>
-        <TopLine Value="1"/>
-        <CursorPos X="76" Y="22"/>
-        <UsageCount Value="41"/>
-        <Loaded Value="True"/>
-      </Unit14>
-      <Unit15>
-        <Filename Value="bgrabitmap\bgrabitmaptypes.pas"/>
-        <UnitName Value="BGRABitmapTypes"/>
-        <EditorIndex Value="12"/>
-        <WindowIndex Value="0"/>
-        <TopLine Value="1336"/>
-        <CursorPos X="1" Y="1343"/>
-        <UsageCount Value="16"/>
-        <Loaded Value="True"/>
-      </Unit15>
-      <Unit16>
-        <Filename Value="bgrabitmap\bgradefaultbitmap.pas"/>
-        <UnitName Value="BGRADefaultBitmap"/>
         <EditorIndex Value="9"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="548"/>
-        <CursorPos X="1" Y="570"/>
-        <UsageCount Value="12"/>
+        <TopLine Value="13"/>
+        <CursorPos X="52" Y="19"/>
+        <UsageCount Value="53"/>
         <Loaded Value="True"/>
-      </Unit16>
-      <Unit17>
-        <Filename Value="C:\Lazarus\fpc\2.6.4\source\packages\fcl-image\src\fpreadpng.pp"/>
-        <UnitName Value="FPReadPNG"/>
-        <EditorIndex Value="11"/>
-        <WindowIndex Value="0"/>
-        <TopLine Value="241"/>
-        <CursorPos X="46" Y="17"/>
-        <UsageCount Value="11"/>
-        <Loaded Value="True"/>
-      </Unit17>
-      <Unit18>
-        <Filename Value="bgrabitmap\bgrareadpng.pas"/>
-        <UnitName Value="BGRAReadPng"/>
-        <EditorIndex Value="13"/>
-        <WindowIndex Value="0"/>
-        <TopLine Value="141"/>
-        <CursorPos X="1" Y="161"/>
-        <UsageCount Value="10"/>
-        <Loaded Value="True"/>
-      </Unit18>
+      </Unit14>
     </Units>
     <General>
       <ActiveWindowIndexAtStart Value="0"/>
@@ -225,24 +185,38 @@
         <Kind Value="bpkSource"/>
         <WatchScope Value="wpsLocal"/>
         <WatchKind Value="wpkWrite"/>
-        <Source Value="umain.pas"/>
-        <Line Value="503"/>
+        <Source Value="c:\Lazarus\fpc\2.6.2\source\packages\fcl-image\src\fppalette.inc"/>
+        <Line Value="159"/>
       </Item2>
       <Item3>
         <Kind Value="bpkSource"/>
         <WatchScope Value="wpsLocal"/>
         <WatchKind Value="wpkWrite"/>
-        <Source Value="c:\Lazarus\fpc\2.6.2\source\packages\fcl-image\src\fppalette.inc"/>
-        <Line Value="159"/>
+        <Source Value="umain.pas"/>
+        <Line Value="361"/>
       </Item3>
       <Item4>
         <Kind Value="bpkSource"/>
         <WatchScope Value="wpsLocal"/>
         <WatchKind Value="wpkWrite"/>
-        <Source Value="udrawtim.pas"/>
-        <Line Value="258"/>
+        <Source Value="umain.pas"/>
+        <Line Value="767"/>
       </Item4>
     </BreakPoints>
+    <Watches Count="3">
+      <Item1>
+        <Expression Value="IDX"/>
+        <DisplayStyle Value="wdfHex"/>
+      </Item1>
+      <Item2>
+        <Expression Value="TData^[POS]"/>
+        <DisplayStyle Value="wdfHex"/>
+      </Item2>
+      <Item3>
+        <Expression Value="IDX_INT"/>
+        <DisplayStyle Value="wdfHex"/>
+      </Item3>
+    </Watches>
   </Debugging>
   <EditorMacros Count="0"/>
 </CONFIG>
