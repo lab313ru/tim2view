@@ -23,11 +23,11 @@
       <UseVersionInfo Value="True"/>
       <AutoIncrementBuild Value="True"/>
       <MajorVersionNr Value="1"/>
-      <RevisionNr Value="74"/>
-      <BuildNr Value="2"/>
+      <RevisionNr Value="75"/>
+      <BuildNr Value="4"/>
       <StringTable CompanyName="Lab 313" FileDescription="The best TIMs tool ever!:)" ProductVersion=""/>
     </VersionInfo>
-    <BuildModes Count="5">
+    <BuildModes Count="6">
       <Item1 Name="Debug" Default="True"/>
       <Item2 Name="Win Release x86">
         <CompilerOptions>
@@ -38,7 +38,7 @@
           </Target>
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir);bgrabitmap"/>
-            <OtherUnitFiles Value="bgrabitmap"/>
+            <OtherUnitFiles Value="lazpaint\bgrabitmap"/>
             <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
           </SearchPaths>
           <Parsing>
@@ -82,7 +82,7 @@
           </Target>
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir);bgrabitmap"/>
-            <OtherUnitFiles Value="bgrabitmap"/>
+            <OtherUnitFiles Value="lazpaint\bgrabitmap"/>
             <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
           </SearchPaths>
           <Parsing>
@@ -126,7 +126,7 @@
           </Target>
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir);bgrabitmap"/>
-            <OtherUnitFiles Value="bgrabitmap"/>
+            <OtherUnitFiles Value="lazpaint\bgrabitmap"/>
             <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
           </SearchPaths>
           <Parsing>
@@ -170,7 +170,7 @@
           </Target>
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir);bgrabitmap"/>
-            <OtherUnitFiles Value="bgrabitmap"/>
+            <OtherUnitFiles Value="lazpaint\bgrabitmap"/>
             <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
           </SearchPaths>
           <Parsing>
@@ -205,6 +205,50 @@
           </Other>
         </CompilerOptions>
       </Item5>
+      <Item6 Name="Mac Release x86">
+        <CompilerOptions>
+          <Version Value="11"/>
+          <PathDelim Value="\"/>
+          <Target>
+            <Filename Value="output\tim2view_$(TargetOS)"/>
+          </Target>
+          <SearchPaths>
+            <IncludeFiles Value="$(ProjOutDir);bgrabitmap"/>
+            <OtherUnitFiles Value="lazpaint\bgrabitmap"/>
+            <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
+          </SearchPaths>
+          <Parsing>
+            <SyntaxOptions>
+              <UseAnsiStrings Value="False"/>
+            </SyntaxOptions>
+          </Parsing>
+          <CodeGeneration>
+            <SmartLinkUnit Value="True"/>
+            <TargetCPU Value="i386"/>
+            <TargetOS Value="win32"/>
+            <Optimizations>
+              <OptimizationLevel Value="3"/>
+            </Optimizations>
+          </CodeGeneration>
+          <Linking>
+            <Debugging>
+              <GenerateDebugInfo Value="False"/>
+            </Debugging>
+            <LinkSmart Value="True"/>
+            <Options>
+              <Win32>
+                <GraphicApplication Value="True"/>
+              </Win32>
+            </Options>
+          </Linking>
+          <Other>
+            <CompilerMessages>
+              <MsgFileName Value=""/>
+            </CompilerMessages>
+            <CompilerPath Value="$(CompPath)"/>
+          </Other>
+        </CompilerOptions>
+      </Item6>
     </BuildModes>
     <PublishOptions>
       <Version Value="2"/>
@@ -307,7 +351,7 @@
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir);bgrabitmap"/>
-      <OtherUnitFiles Value="bgrabitmap"/>
+      <OtherUnitFiles Value="lazpaint\bgrabitmap"/>
       <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
     <Parsing>

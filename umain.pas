@@ -5,10 +5,10 @@ unit umain;
 interface
 
 uses
-  Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, ActnList,
+  Classes, SysUtils, FileUtil, Forms, Dialogs, ActnList,
   Menus, StdCtrls, ExtCtrls, ComCtrls, Grids, ExtDlgs,
 
-  uscanresult, uscanthread, usettings, utim, udrawtim;
+  uscanresult, uscanthread, usettings, utim, udrawtim, types;
 
 {$INCLUDE todos.inc}
 
@@ -185,7 +185,8 @@ var
 
 implementation
 
-uses ucdimage, ucpucount, lcltype, ucommon, LCLIntf, uexportimport
+uses ucdimage, ucpucount, lcltype, ucommon, LCLIntf, uexportimport,
+  FPimage
 
 {$IFDEF windows}
 ,registry
@@ -237,17 +238,20 @@ end;
 procedure TfrmMain.actPngExportExecute(Sender: TObject);
 var
   TIM: PTIM;
+  Image: PDrawSurf;
 begin
   TIM := SelectedTimInMode;
   if TIM = nil then Exit;
 
   dlgSavePNG.FileName := FormatPngName(SelectedScanResult.ScanFile, TIM^.dwTimNumber, SelectedTimInfo.BitMode, cbbCLUT.ItemIndex);
-
   if not dlgSavePNG.Execute then Exit;
 
-  SaveImage(dlgSavePNG.FileName, Surf, TIMisIndexed(TIM));
+  Tim2Png(TIM, cbbCLUT.ItemIndex, Image, cbbTranspMode.ItemIndex, True);
+  SaveImage(dlgSavePNG.FileName, Image, TIMisIndexed(TIM));
   FreeTIM(TIM);
-  {$IFDEF Linux}FpChmod(dlgSavePNG.FileName, &777){$IFEND}
+  Image^.Free;
+  Dispose(Image);
+  {$IFDEF Linux}FpChmod(dlgSavePNG.FileName, &777);{$IFEND}
 end;
 
 procedure TfrmMain.btnShowClutClick(Sender: TObject);
@@ -382,15 +386,15 @@ var
   IsImage: Boolean;
   ScanTim: TTimInfo;
   TIM: PTIM;
-  PNG: PDrawSurf;
+  Image: PDrawSurf;
 begin
   lblStatus.Caption := sStatusBarPngsExtracting;
 
   FName := SelectedScanResult.ScanFile;
   IsImage := SelectedScanResult.IsImage;
 
-  New(PNG);
-  PNG^ := nil;
+  New(Image);
+  Image^ := nil;
 
   pbProgress.Position := 0;
   pbProgress.Max := SelectedScanResult.Count;
@@ -407,20 +411,20 @@ begin
     CreateDirUTF8(Path);
 
     TIM := LoadTimFromFile(FName, OFFSET, IsImage, SIZE);
-    Tim2Png(TIM, cbbCLUT.ItemIndex, PNG, cbbTranspMode.ItemIndex);
+    Tim2Png(TIM, cbbCLUT.ItemIndex, Image, cbbTranspMode.ItemIndex, False);
 
     Path := Path + FormatPngName(FName, I - 1, BIT_MODE, 0);
-    SaveImage(Path, PNG, TIMisIndexed(TIM));
-    {$IFDEF Linux}FpChmod(Path, &777){$IFEND}
-    PNG^.Free;
-    PNG^ := nil;
+    SaveImage(Path, Image, TIMisIndexed(TIM));
+    {$IFDEF Linux}FpChmod(Path, &777);{$IFEND}
+    Image^.Free;
+    Image^ := nil;
 
     FreeTIM(TIM);
 
     pbProgress.Position := I;
     Application.ProcessMessages;
   end;
-  Dispose(PNG);
+  Dispose(Image);
   lblStatus.Caption := sStatusBarExtracted;
   pbProgress.Position := 0;
 end;
@@ -435,7 +439,7 @@ begin
 
   TIM := SelectedTimInMode;
   SaveTimToFile(dlgSaveTIM.FileName, TIM);
-  {$IFDEF Linux}FpChmod(dlgSaveTIM.FileName, &777){$IFEND}
+  {$IFDEF Linux}FpChmod(dlgSaveTIM.FileName, &777);{$IFEND}
   FreeTIM(TIM);
 end;
 
@@ -469,7 +473,7 @@ begin
     TIM := LoadTimFromFile(FName, OFFSET, IsImage, SIZE);
     Path := Path + FormatTimName(FName, I - 1, BIT_MODE);
     SaveTimToFile(Path, TIM);
-    {$IFDEF Linux}FpChmod(Path, &777){$IFEND}
+    {$IFDEF Linux}FpChmod(Path, &777);{$IFEND}
     FreeTIM(TIM);
 
     pbProgress.Position := I;
@@ -553,7 +557,6 @@ begin
 
   Surf^.Free;
   Dispose(Surf);
-
   Settings.Free;
 end;
 
@@ -821,6 +824,7 @@ begin
   actReplaceTim.Enabled := (lvList.Selected <> nil) and (lvList.Selected.Index <> -1);
 
   actPngExport.Enabled := (Surf^ <> nil) and actReplaceTim.Enabled;
+  actPngImport.Enabled := actReplaceTim.Enabled;
   actExtractTim.Enabled := actReplaceTim.Enabled;
 
   pnlImageOptions.Enabled := actReplaceTim.Enabled;
@@ -895,13 +899,14 @@ procedure TfrmMain.DrawSelTim;
 var
   TIM: PTIM;
 begin
+  imgTim.Picture.Bitmap.FreeImage;
   imgTim.Picture.Bitmap := nil;
 
   TIM := SelectedTimInMode;
   if TIM = nil then Exit;
 
-  Tim2Png(TIM, cbbCLUT.ItemIndex, Surf, cbbTranspMode.ItemIndex);
-  imgTim.Picture.Bitmap := Surf^.Bitmap;
+  Tim2Png(TIM, cbbCLUT.ItemIndex, Surf, cbbTranspMode.ItemIndex, False);
+  imgTim.Picture.Bitmap.Assign(Surf^.Bitmap);
   FreeTIM(TIM);
 
   imgTim.Stretch := actStretch.Checked;

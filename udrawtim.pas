@@ -11,7 +11,7 @@ type
   PDrawGrid = ^TDrawGrid;
 
 
-procedure Tim2Png(TIM: PTIM; CLUT_NUM: Integer; Surf: PDrawSurf; TranspMode: Byte);
+procedure Tim2Png(TIM: PTIM; CLUT_NUM: Integer; Image: PDrawSurf; TranspMode: Byte; ForExport: Boolean);
 procedure Png2Tim(Image: PDrawSurf; Dest: PTIM);
 procedure DrawClutCell(TIM: PTIM; CLUT_NUM: Integer; Grid: PDrawGrid; X, Y: Integer);
 procedure DrawClut(TIM: PTIM; CLUT_NUM: Integer; Grid: PDrawGrid);
@@ -69,7 +69,7 @@ begin
   end
 end;
 
-procedure PrepareClut(TIM: PTIM; CLUT_NUM: Integer; Pal: PFPPalette; TranspMode: Integer);
+procedure PrepareClut(TIM: PTIM; CLUT_NUM: Integer; Pal: PFPPalette; TranspMode: Integer; ForExport: Boolean);
 var
   I, COUNT: Integer;
   CC: TCLUT_COLOR;
@@ -92,17 +92,24 @@ begin
     CC := GetCLUTColor(TIM, CLUT_NUM, I - 1);
     if I <= COUNT then
     begin
-      R := CC.R + ((I - 1) and %00000011) shl 1 + CC.STP;
-      G := CC.G + ((I - 1) and %00011100) shr 2;
-      B := CC.B + ((I - 1) and %11100000) shr 5;
+      R := CC.R;
+      G := CC.G;
+      B := CC.B;
       A := CC.STP;
     end
     else
     begin
-      R := ((I - 1) and %00000011) shl 1 + CC.STP;
-      G := ((I - 1) and %00011100) shr 2;
-      B := ((I - 1) and %11100000) shr 5;
+      R := 0;
+      G := 0;
+      B := 0;
       A := 0;
+    end;
+
+    if ForExport then
+    begin
+      R := R + ((I - 1) and %00000011);
+      G := G + ((I - 1) and %00011100) shr 2;
+      B := B + ((I - 1) and %11100000) shr 5;
     end;
 
     FC := BGRAToFPColor(BGRA(R, G, B, A));
@@ -175,7 +182,7 @@ begin
       ClearCanvas(@Grid^.Canvas, Grid^.CellRect(X - 1, Y - 1));
 end;
 
-procedure Tim2Png(TIM: PTIM; CLUT_NUM: Integer; Surf: PDrawSurf; TranspMode: Byte);
+procedure Tim2Png(TIM: PTIM; CLUT_NUM: Integer; Image: PDrawSurf; TranspMode: Byte; ForExport: Boolean);
 var
   RW, RH, CW: Word;
   INDEXES: PIMAGE_INDEXES;
@@ -188,14 +195,14 @@ begin
   RW := GetTimRealWidth(TIM);
   RH := GetTimHeight(TIM);
 
-  if (Surf^ <> nil) then Surf^.Free;
+  if (Image^ <> nil) then Image^.Free;
 
-  Surf^ := TBGRABitmap.Create(RW, RH);
-  Surf^.UsePalette := not(TIM^.HEAD^.bBPP in [cTIM16NC, cTIM24NC]);
+  Image^ := TBGRABitmap.Create(RW, RH);
+  Image^.UsePalette := not(TIM^.HEAD^.bBPP in [cTIM16NC, cTIM24NC]);
 
-  PAL := @(Surf^.Palette);
+  PAL := @(Image^.Palette);
 
-  PrepareClut(TIM, CLUT_NUM, PAL, TranspMode);
+  PrepareClut(TIM, CLUT_NUM, PAL, TranspMode, ForExport);
   INDEXES := PrepareIMAGE(TIM);
 
   COLORS := GetTimColorsCount(TIM);
@@ -210,7 +217,7 @@ begin
     begin
       case TIM^.HEAD^.bBPP of
         cTIM4C, cTIM4NC, cTIM8C, cTIM8NC:
-          Surf^.Pixels[X - 1, Y - 1] := INDEXES^[IDX] mod COLORS;
+          Image^.Pixels[X - 1, Y - 1] := INDEXES^[IDX] mod COLORS;
         cTIM16C, cTIM16NC, cTIMMix:
           begin
             CW := 0;
@@ -220,7 +227,7 @@ begin
             FC := BGRAToFPColor(BGRA(CC.R, CC.G, CC.B, CC.STP));
             AlphaForMode(@FC, TranspMode);
 
-            Surf^.Colors[X - 1, Y - 1] := FC;
+            Image^.Colors[X - 1, Y - 1] := FC;
           end;
         cTIM24C, cTIM24NC:
           begin
@@ -229,7 +236,7 @@ begin
             R := (INDEX and $FF);
             G := ((INDEX and $FF00) shr 8);
             B := ((INDEX and $FF0000) shr 16);
-            Surf^.Colors[X - 1, Y - 1] := BGRAToFPColor(BGRA(R, G, B, 255));
+            Image^.Colors[X - 1, Y - 1] := BGRAToFPColor(BGRA(R, G, B, 255));
           end;
       else
         Break;
