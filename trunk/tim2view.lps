@@ -3,7 +3,7 @@
   <ProjectSession>
     <PathDelim Value="\"/>
     <Version Value="9"/>
-    <BuildModes Active="Debug"/>
+    <BuildModes Active="Win Release x86"/>
     <Units Count="15">
       <Unit0>
         <Filename Value="tim2view.lpr"/>
@@ -23,10 +23,11 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="umain"/>
+        <IsVisibleTab Value="True"/>
         <EditorIndex Value="0"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="890"/>
-        <CursorPos X="50" Y="901"/>
+        <TopLine Value="235"/>
+        <CursorPos X="49" Y="244"/>
         <UsageCount Value="816"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
@@ -50,7 +51,6 @@
         <Filename Value="ucommon.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="ucommon"/>
-        <IsVisibleTab Value="True"/>
         <EditorIndex Value="3"/>
         <WindowIndex Value="0"/>
         <TopLine Value="1"/>
@@ -159,8 +159,8 @@
         <EditorIndex Value="6"/>
         <WindowIndex Value="0"/>
         <TopLine Value="7"/>
-        <CursorPos X="69" Y="16"/>
-        <UsageCount Value="56"/>
+        <CursorPos X="20" Y="16"/>
+        <UsageCount Value="57"/>
         <Loaded Value="True"/>
       </Unit14>
     </Units>

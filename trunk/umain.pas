@@ -246,6 +246,8 @@ begin
   dlgSavePNG.FileName := FormatPngName(SelectedScanResult.ScanFile, TIM^.dwTimNumber, SelectedTimInfo.BitMode, cbbCLUT.ItemIndex);
   if not dlgSavePNG.Execute then Exit;
 
+  New(Image);
+  Image := nil;
   Tim2Png(TIM, cbbCLUT.ItemIndex, Image, cbbTranspMode.ItemIndex, True);
   SaveImage(dlgSavePNG.FileName, Image, TIMisIndexed(TIM));
   FreeTIM(TIM);
@@ -414,7 +416,7 @@ begin
     Tim2Png(TIM, cbbCLUT.ItemIndex, Image, cbbTranspMode.ItemIndex, False);
 
     Path := Path + FormatPngName(FName, I - 1, BIT_MODE, 0);
-    SaveImage(Path, Image, TIMisIndexed(TIM));
+    SaveImage(Path, Image, False);
     {$IFDEF Linux}FpChmod(Path, &777);{$IFEND}
     Image^.Free;
     Image^ := nil;
