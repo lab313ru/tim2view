@@ -206,6 +206,7 @@ begin
   INDEXES := PrepareIMAGE(TIM);
 
   COLORS := GetTimColorsCount(TIM);
+  COLORS := ifthen(COLORS = 0, 256, COLORS);
   IDX := 0;
 
   R := 0;

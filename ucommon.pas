@@ -3,7 +3,7 @@ unit ucommon;
 interface
 
 const
-  cProgramName = 'Tim2View SVN.r77 by [Lab 313] (for ' +
+  cProgramName = 'Tim2View SVN.r79 by [Lab 313] (for ' +
   {$IFDEF Linux}'Linux' + {$IFEND}
   {$IFDEF Darwin}'Mac OS X' + {$IFEND}
   {$IFDEF Windows}'Windows' + {$IFEND}

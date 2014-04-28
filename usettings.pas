@@ -79,7 +79,7 @@ end;
 
 function TSettings.FBackColorRead: TColor;
 begin
-  Result := FIniFile.ReadInteger(sMain, 'BackColor', clBtnFace);
+  Result := FIniFile.ReadInteger(sMain, 'BackColor', clFuchsia);
 end;
 
 procedure TSettings.FBitModeWrite(Mode: Integer);

@@ -247,7 +247,7 @@ begin
   if not dlgSavePNG.Execute then Exit;
 
   New(Image);
-  Image := nil;
+  Image^ := nil;
   Tim2Png(TIM, cbbCLUT.ItemIndex, Image, cbbTranspMode.ItemIndex, True);
   SaveImage(dlgSavePNG.FileName, Image, TIMisIndexed(TIM));
   FreeTIM(TIM);
@@ -294,8 +294,7 @@ begin
   lvList.ItemIndex := 0;
   lvList.Items[0].Focused := True;
   lvList.Items[0].Selected := True;
-
-  //ShowTim;
+  lvList.Items[0].MakeVisible(False);
 end;
 
 procedure TfrmMain.actAboutExecute(Sender: TObject);
