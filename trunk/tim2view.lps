@@ -26,8 +26,8 @@
         <IsVisibleTab Value="True"/>
         <EditorIndex Value="0"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="235"/>
-        <CursorPos X="49" Y="244"/>
+        <TopLine Value="288"/>
+        <CursorPos X="36" Y="297"/>
         <UsageCount Value="816"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
@@ -54,7 +54,7 @@
         <EditorIndex Value="3"/>
         <WindowIndex Value="0"/>
         <TopLine Value="1"/>
-        <CursorPos X="35" Y="6"/>
+        <CursorPos X="56" Y="8"/>
         <UsageCount Value="816"/>
         <Loaded Value="True"/>
       </Unit4>
@@ -86,8 +86,8 @@
         <UnitName Value="usettings"/>
         <EditorIndex Value="9"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="81"/>
-        <CursorPos X="55" Y="92"/>
+        <TopLine Value="80"/>
+        <CursorPos X="67" Y="88"/>
         <UsageCount Value="816"/>
         <Loaded Value="True"/>
       </Unit7>
@@ -130,8 +130,8 @@
         <UnitName Value="udrawtim"/>
         <EditorIndex Value="5"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="6"/>
-        <CursorPos X="49" Y="14"/>
+        <TopLine Value="222"/>
+        <CursorPos X="72" Y="238"/>
         <UsageCount Value="816"/>
         <Loaded Value="True"/>
       </Unit11>
@@ -160,7 +160,7 @@
         <WindowIndex Value="0"/>
         <TopLine Value="7"/>
         <CursorPos X="20" Y="16"/>
-        <UsageCount Value="57"/>
+        <UsageCount Value="67"/>
         <Loaded Value="True"/>
       </Unit14>
     </Units>
