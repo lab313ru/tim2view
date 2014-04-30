@@ -1,16 +1,16 @@
 object frmMain: TfrmMain
   Left = 919
-  Height = 590
+  Height = 647
   Top = 209
-  Width = 780
+  Width = 790
   HorzScrollBar.Page = 780
   HorzScrollBar.Range = 489
   VertScrollBar.Page = 570
   VertScrollBar.Range = 344
   ActiveControl = pnlList
   AllowDropFiles = True
-  ClientHeight = 570
-  ClientWidth = 780
+  ClientHeight = 627
+  ClientWidth = 790
   Color = clBtnFace
   Font.Color = clWindowText
   Font.Height = -11
@@ -498,12 +498,12 @@ object frmMain: TfrmMain
   object pnlStatus: TPanel
     Left = 0
     Height = 30
-    Top = 517
-    Width = 780
+    Top = 574
+    Width = 790
     Align = alBottom
     BevelOuter = bvLowered
     ClientHeight = 30
-    ClientWidth = 780
+    ClientWidth = 790
     TabOrder = 2
     object lblStatus: TLabel
       Left = 76
@@ -519,7 +519,7 @@ object frmMain: TfrmMain
       Left = 258
       Height = 28
       Top = 1
-      Width = 521
+      Width = 531
       Align = alRight
       Anchors = [akTop, akLeft, akRight, akBottom]
       Smooth = True
@@ -540,7 +540,7 @@ object frmMain: TfrmMain
     Left = 0
     Height = 21
     Top = 0
-    Width = 780
+    Width = 790
     Align = alTop
     DropDownCount = 30
     Enabled = False
@@ -552,33 +552,33 @@ object frmMain: TfrmMain
   end
   object pnlMain: TPanel
     Left = 0
-    Height = 496
+    Height = 553
     Top = 21
-    Width = 780
+    Width = 790
     Align = alClient
     BevelOuter = bvNone
-    ClientHeight = 496
-    ClientWidth = 780
+    ClientHeight = 553
+    ClientWidth = 790
     TabOrder = 1
     object splMain: TSplitter
       Left = 253
-      Height = 496
+      Height = 553
       Top = 0
       Width = 5
     end
     object pnlList: TPanel
       Left = 0
-      Height = 496
+      Height = 553
       Top = 0
       Width = 253
       Align = alLeft
       BevelOuter = bvNone
-      ClientHeight = 496
+      ClientHeight = 553
       ClientWidth = 253
       TabOrder = 0
       object lvList: TListView
         Left = 0
-        Height = 468
+        Height = 525
         Top = 28
         Width = 253
         Align = alClient
@@ -646,31 +646,31 @@ object frmMain: TfrmMain
     end
     object pnlImage: TPanel
       Left = 258
-      Height = 496
+      Height = 553
       Top = 0
-      Width = 522
+      Width = 532
       Align = alClient
       BevelOuter = bvLowered
-      ClientHeight = 496
-      ClientWidth = 522
+      ClientHeight = 553
+      ClientWidth = 532
       Color = clBtnFace
       ParentColor = False
       TabOrder = 1
       object pnlImageOptions: TPanel
         Left = 1
         Height = 27
-        Top = 468
-        Width = 520
+        Top = 525
+        Width = 530
         Align = alBottom
         AutoSize = True
         BevelOuter = bvLowered
         ClientHeight = 27
-        ClientWidth = 520
+        ClientWidth = 530
         Color = clBtnFace
         ParentColor = False
         TabOrder = 0
         object btnShowClut: TButton
-          Left = 466
+          Left = 476
           Height = 23
           Top = 2
           Width = 52
@@ -712,7 +712,7 @@ object frmMain: TfrmMain
           Align = alLeft
           BorderSpacing.Around = 1
           ItemHeight = 13
-          ItemIndex = 0
+          ItemIndex = 1
           Items.Strings = (
             'Full transparence'
             'Black Transparence'
@@ -723,10 +723,10 @@ object frmMain: TfrmMain
           OnCloseUp = actReturnFocusExecute
           Style = csDropDownList
           TabOrder = 2
-          Text = 'Full transparence'
+          Text = 'Black Transparence'
         end
         object cbbCLUT: TComboBox
-          Left = 356
+          Left = 366
           Height = 21
           Top = 2
           Width = 109
@@ -741,22 +741,22 @@ object frmMain: TfrmMain
       end
       object pnlClut: TPanel
         Left = 1
-        Height = 129
-        Top = 339
-        Width = 520
+        Height = 157
+        Top = 368
+        Width = 530
         Align = alBottom
         BevelOuter = bvLowered
-        ClientHeight = 129
-        ClientWidth = 520
+        ClientHeight = 157
+        ClientWidth = 530
         Color = clBtnFace
         ParentColor = False
         TabOrder = 1
         Visible = False
         object grdClut: TDrawGrid
           Left = 1
-          Height = 127
+          Height = 116
           Top = 1
-          Width = 518
+          Width = 528
           Align = alClient
           AutoEdit = False
           ColCount = 1
@@ -775,13 +775,26 @@ object frmMain: TfrmMain
           TitleFont.Name = 'Tahoma'
           OnDblClick = grdClutDblClick
           OnDrawCell = grdClutDrawCell
+          OnKeyUp = grdClutKeyUp
+        end
+        object lblClutHint: TLabel
+          Left = 1
+          Height = 39
+          Top = 117
+          Width = 528
+          Align = alBottom
+          Alignment = taCenter
+          Caption = 'Press "Space" key to invert Transparence bit.'#13#10'H-splitted color = black transparent.'#13#10'V-splitted color = non-black transparent.'
+          Layout = tlCenter
+          ParentColor = False
+          WordWrap = True
         end
       end
       object imgTim: TImage
         Left = 1
-        Height = 338
+        Height = 367
         Top = 1
-        Width = 520
+        Width = 530
         AntialiasingMode = amOff
         Align = alClient
         Center = True
@@ -793,8 +806,8 @@ object frmMain: TfrmMain
   object sbMain: TStatusBar
     Left = 0
     Height = 23
-    Top = 547
-    Width = 780
+    Top = 604
+    Width = 790
     Panels = <    
       item
         Width = 50

@@ -49,7 +49,7 @@ end;
 
 function TSettings.FTranspModeRead: Integer;
 begin
-  Result := FIniFile.ReadInteger(sMain, 'TranspMode', 0);
+  Result := FIniFile.ReadInteger(sMain, 'TranspMode', 1);
 end;
 
 procedure TSettings.FStretchModeWrite(Value: Boolean);

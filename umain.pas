@@ -8,7 +8,7 @@ uses
   Classes, SysUtils, FileUtil, Forms, Dialogs, ActnList,
   Menus, StdCtrls, ExtCtrls, ComCtrls, Grids, ExtDlgs,
 
-  uscanresult, uscanthread, usettings, utim, udrawtim, types;
+  uscanresult, uscanthread, usettings, utim, udrawtim, types, Controls;
 
 {$INCLUDE todos.inc}
 
@@ -54,6 +54,7 @@ type
     ExtractTIM1: TMenuItem;
     grdClut: TDrawGrid;
     imgTim: TImage;
+    lblClutHint: TLabel;
     lblStatus: TLabel;
     lvList: TListView;
     MenuItem1: TMenuItem;
@@ -133,6 +134,7 @@ type
     procedure FormDropFiles(Sender: TObject; const FileNames: array of string);
     procedure grdClutDblClick(Sender: TObject);
     procedure grdClutDrawCell(Sender: TObject; aCol, aRow: Integer; aRect: TRect; aState: TGridDrawState);
+    procedure grdClutKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure lvListData(Sender: TObject; Item: TListItem);
     procedure lvListSelectItem(Sender: TObject; Item: TListItem; Selected: Boolean);
   private
@@ -672,6 +674,39 @@ begin
   DrawClutCell(TIM, cbbCLUT.ItemIndex, @grdClut, ACol, ARow);
 
   FreeTIM(TIM);
+end;
+
+procedure TfrmMain.grdClutKeyUp(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+var
+  TIM: PTIM;
+  SELECTED_CELL, CLUT_NUM: Integer;
+  CLUT_COLOR: TCLUT_COLOR;
+begin
+  if Key <> VK_SPACE then Exit;
+
+  TIM := SelectedTimInMode;
+  if TIM = nil then Exit;
+
+  SELECTED_CELL := grdClut.Row * grdClut.ColCount + grdClut.Col;
+
+  if SELECTED_CELL >= GetTimColorsCount(TIM) then
+  begin
+    FreeTIM(TIM);
+    Exit;
+  end;
+
+  CLUT_NUM := cbbCLUT.ItemIndex;
+  CLUT_COLOR := GetCLUTColor(TIM, CLUT_NUM, SELECTED_CELL);
+  CLUT_COLOR.STP := CLUT_COLOR.STP xor 1;
+
+  WriteCLUTColor(TIM, CLUT_NUM, SELECTED_CELL, CLUT_COLOR);
+
+  ReplaceTimInFileFromMemory(SelectedScanResult.ScanFile, TIM, SelectedTimInfo.Position, SelectedScanResult.IsImage);
+
+  FreeTIM(TIM);
+
+  UpdateTim(True, True, False);
 end;
 
 procedure TfrmMain.lvListData(Sender: TObject; Item: TListItem);
