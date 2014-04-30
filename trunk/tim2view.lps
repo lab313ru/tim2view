@@ -3,7 +3,7 @@
   <ProjectSession>
     <PathDelim Value="\"/>
     <Version Value="9"/>
-    <BuildModes Active="Win Release x86"/>
+    <BuildModes Active="Debug"/>
     <Units Count="15">
       <Unit0>
         <Filename Value="tim2view.lpr"/>
@@ -23,11 +23,10 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="umain"/>
-        <IsVisibleTab Value="True"/>
         <EditorIndex Value="0"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="288"/>
-        <CursorPos X="36" Y="297"/>
+        <TopLine Value="677"/>
+        <CursorPos X="41" Y="684"/>
         <UsageCount Value="816"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
@@ -51,10 +50,11 @@
         <Filename Value="ucommon.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="ucommon"/>
+        <IsVisibleTab Value="True"/>
         <EditorIndex Value="3"/>
         <WindowIndex Value="0"/>
         <TopLine Value="1"/>
-        <CursorPos X="56" Y="8"/>
+        <CursorPos X="35" Y="6"/>
         <UsageCount Value="816"/>
         <Loaded Value="True"/>
       </Unit4>
@@ -86,8 +86,8 @@
         <UnitName Value="usettings"/>
         <EditorIndex Value="9"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="80"/>
-        <CursorPos X="67" Y="88"/>
+        <TopLine Value="41"/>
+        <CursorPos X="60" Y="56"/>
         <UsageCount Value="816"/>
         <Loaded Value="True"/>
       </Unit7>
@@ -108,8 +108,8 @@
         <UnitName Value="uscanthread"/>
         <EditorIndex Value="8"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="1"/>
-        <CursorPos X="43" Y="6"/>
+        <TopLine Value="169"/>
+        <CursorPos X="64" Y="197"/>
         <UsageCount Value="816"/>
         <Loaded Value="True"/>
       </Unit9>
@@ -130,8 +130,8 @@
         <UnitName Value="udrawtim"/>
         <EditorIndex Value="5"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="222"/>
-        <CursorPos X="72" Y="238"/>
+        <TopLine Value="333"/>
+        <CursorPos X="43" Y="357"/>
         <UsageCount Value="816"/>
         <Loaded Value="True"/>
       </Unit11>
@@ -160,7 +160,7 @@
         <WindowIndex Value="0"/>
         <TopLine Value="7"/>
         <CursorPos X="20" Y="16"/>
-        <UsageCount Value="67"/>
+        <UsageCount Value="69"/>
         <Loaded Value="True"/>
       </Unit14>
     </Units>

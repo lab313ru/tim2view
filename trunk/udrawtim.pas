@@ -351,7 +351,11 @@ begin
 
   if (FC.alpha = 0) or (FC.alpha = $8080) then
   begin
-    Grid^.Canvas.Brush.COLOR := clWhite;
+    if (R + G + B)/3 > 128 then
+      Grid^.Canvas.Brush.COLOR := clBlack
+    else
+      Grid^.Canvas.Brush.COLOR := clWhite;
+
     if FC.ALPHA = 0 then
       Rect.Bottom := Rect.Top + ((Rect.Bottom - Rect.Top) div 2)
     else
