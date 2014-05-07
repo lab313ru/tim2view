@@ -1,7 +1,7 @@
 object frmMain: TfrmMain
-  Left = 919
-  Height = 647
-  Top = 209
+  Left = 1092
+  Height = 668
+  Top = 213
   Width = 790
   HorzScrollBar.Page = 780
   HorzScrollBar.Range = 489
@@ -9,7 +9,7 @@ object frmMain: TfrmMain
   VertScrollBar.Range = 344
   ActiveControl = pnlList
   AllowDropFiles = True
-  ClientHeight = 622
+  ClientHeight = 643
   ClientWidth = 790
   Color = clBtnFace
   Font.Color = clWindowText
@@ -498,7 +498,7 @@ object frmMain: TfrmMain
   object pnlStatus: TPanel
     Left = 0
     Height = 30
-    Top = 571
+    Top = 613
     Width = 790
     Align = alBottom
     BevelOuter = bvLowered
@@ -552,33 +552,33 @@ object frmMain: TfrmMain
   end
   object pnlMain: TPanel
     Left = 0
-    Height = 543
+    Height = 585
     Top = 28
     Width = 790
     Align = alClient
     BevelOuter = bvNone
-    ClientHeight = 543
+    ClientHeight = 585
     ClientWidth = 790
     TabOrder = 1
     object splMain: TSplitter
       Left = 253
-      Height = 543
+      Height = 585
       Top = 0
       Width = 5
     end
     object pnlList: TPanel
       Left = 0
-      Height = 543
+      Height = 585
       Top = 0
       Width = 253
       Align = alLeft
       BevelOuter = bvNone
-      ClientHeight = 543
+      ClientHeight = 585
       ClientWidth = 253
       TabOrder = 0
       object lvList: TListView
         Left = 0
-        Height = 515
+        Height = 372
         Top = 28
         Width = 253
         Align = alClient
@@ -648,15 +648,72 @@ object frmMain: TfrmMain
           TabOrder = 1
         end
       end
+      object tblTimInfo: TStringGrid
+        Left = 0
+        Height = 185
+        Top = 400
+        Width = 253
+        Align = alBottom
+        AutoEdit = False
+        AutoFillColumns = True
+        ColCount = 2
+        DefaultRowHeight = 20
+        Enabled = False
+        Flat = True
+        Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goSmoothScroll]
+        RowCount = 9
+        TabOrder = 2
+        TitleFont.Color = clWindowText
+        TitleFont.Height = -11
+        TitleFont.Name = 'Tahoma'
+        Visible = False
+        ColWidths = (
+          102
+          150
+        )
+        Cells = (
+          10
+          0
+          0
+          'Field'
+          0
+          1
+          'Position'
+          0
+          2
+          'Version'
+          0
+          3
+          'Good'
+          0
+          5
+          'VRAM (X/Y)'
+          0
+          6
+          'Colors Count'
+          0
+          8
+          'VRAM (X/Y)'
+          1
+          0
+          'Value'
+          1
+          4
+          'CLUT'
+          1
+          7
+          'IMAGE'
+        )
+      end
     end
     object pnlImage: TPanel
       Left = 258
-      Height = 543
+      Height = 585
       Top = 0
       Width = 532
       Align = alClient
       BevelOuter = bvLowered
-      ClientHeight = 543
+      ClientHeight = 585
       ClientWidth = 532
       Color = clBtnFace
       ParentColor = False
@@ -664,7 +721,7 @@ object frmMain: TfrmMain
       object pnlImageOptions: TPanel
         Left = 1
         Height = 32
-        Top = 510
+        Top = 552
         Width = 530
         Align = alBottom
         AutoSize = True
@@ -746,12 +803,12 @@ object frmMain: TfrmMain
       end
       object pnlClut: TPanel
         Left = 1
-        Height = 165
-        Top = 345
+        Height = 192
+        Top = 360
         Width = 530
         Align = alBottom
         BevelOuter = bvLowered
-        ClientHeight = 165
+        ClientHeight = 192
         ClientWidth = 530
         Color = clBtnFace
         ParentColor = False
@@ -759,7 +816,7 @@ object frmMain: TfrmMain
         Visible = False
         object grdClut: TDrawGrid
           Left = 1
-          Height = 115
+          Height = 125
           Top = 1
           Width = 528
           Align = alClient
@@ -784,12 +841,12 @@ object frmMain: TfrmMain
         end
         object lblClutHint: TLabel
           Left = 1
-          Height = 48
-          Top = 116
+          Height = 65
+          Top = 126
           Width = 528
           Align = alBottom
           Alignment = taCenter
-          Caption = 'Press "Space" key to invert Transparence bit.'#13#10'H-splitted color = black transparent.'#13#10'V-splitted color = non-black transparent.'
+          Caption = 'Double-click to change color.'#10'Press "Space" key to invert Transparence bit.'#13#10'H-splitted color = black transparent.'#13#10'V-splitted color = non-black transparent.'
           Layout = tlCenter
           ParentColor = False
           WordWrap = True
@@ -797,7 +854,7 @@ object frmMain: TfrmMain
       end
       object imgTim: TImage
         Left = 1
-        Height = 344
+        Height = 359
         Top = 1
         Width = 530
         AntialiasingMode = amOff
@@ -807,39 +864,6 @@ object frmMain: TfrmMain
         Proportional = True
       end
     end
-  end
-  object sbMain: TStatusBar
-    Left = 0
-    Height = 21
-    Top = 601
-    Width = 790
-    Panels = <    
-      item
-        Width = 50
-      end    
-      item
-        Width = 50
-      end    
-      item
-        Width = 50
-      end    
-      item
-        Width = 50
-      end    
-      item
-        Width = 50
-      end    
-      item
-        Width = 50
-      end    
-      item
-        Width = 50
-      end    
-      item
-        Width = 50
-      end>
-    SimplePanel = False
-    SizeGrip = False
   end
   object dlgOpenFile: TOpenDialog
     Title = 'Please, select File...'
@@ -898,6 +922,11 @@ object frmMain: TfrmMain
       end
       object N8: TMenuItem
         Caption = '-'
+      end
+      object mnShowTimInfo: TMenuItem
+        Action = actShowTimInfo
+        AutoCheck = True
+        ShowAlwaysCheckable = True
       end
       object mnStretchImage: TMenuItem
         Action = actStretch
@@ -1062,6 +1091,11 @@ object frmMain: TfrmMain
     object actChangeBackColor: TAction
       Caption = '&Background Color'
       OnExecute = actChangeBackColorExecute
+    end
+    object actShowTimInfo: TAction
+      AutoCheck = True
+      Caption = '&Show Tim Info'
+      OnExecute = actShowTimInfoExecute
     end
   end
   object pmList: TPopupMenu

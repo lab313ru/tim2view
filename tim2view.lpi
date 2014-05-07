@@ -24,7 +24,7 @@
       <AutoIncrementBuild Value="True"/>
       <MajorVersionNr Value="1"/>
       <RevisionNr Value="80"/>
-      <BuildNr Value="6"/>
+      <BuildNr Value="10"/>
       <StringTable CompanyName="Lab 313" FileDescription="The best TIMs tool ever!:)" ProductVersion=""/>
     </VersionInfo>
     <BuildModes Count="6">
@@ -365,6 +365,7 @@
         <OverflowChecks Value="True"/>
         <StackChecks Value="True"/>
       </Checks>
+      <VerifyObjMethodCallValidity Value="True"/>
     </CodeGeneration>
     <Linking>
       <Debugging>

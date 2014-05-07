@@ -23,8 +23,8 @@
         <UnitName Value="umain"/>
         <EditorIndex Value="0"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="787"/>
-        <CursorPos X="42" Y="802"/>
+        <TopLine Value="128"/>
+        <CursorPos X="83" Y="136"/>
         <UsageCount Value="816"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
@@ -48,9 +48,10 @@
         <Filename Value="ucommon.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="ucommon"/>
+        <IsVisibleTab Value="True"/>
         <EditorIndex Value="3"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="17"/>
+        <TopLine Value="1"/>
         <CursorPos X="20" Y="35"/>
         <UsageCount Value="816"/>
         <Loaded Value="True"/>
@@ -83,8 +84,8 @@
         <UnitName Value="usettings"/>
         <EditorIndex Value="9"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="41"/>
-        <CursorPos X="60" Y="56"/>
+        <TopLine Value="83"/>
+        <CursorPos X="75" Y="99"/>
         <UsageCount Value="816"/>
         <Loaded Value="True"/>
       </Unit7>
@@ -94,7 +95,7 @@
         <UnitName Value="uscanresult"/>
         <EditorIndex Value="7"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="35"/>
+        <TopLine Value="54"/>
         <CursorPos X="79" Y="80"/>
         <UsageCount Value="816"/>
         <Loaded Value="True"/>
@@ -105,8 +106,8 @@
         <UnitName Value="uscanthread"/>
         <EditorIndex Value="8"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="178"/>
-        <CursorPos X="72" Y="197"/>
+        <TopLine Value="172"/>
+        <CursorPos X="3" Y="187"/>
         <UsageCount Value="816"/>
         <Loaded Value="True"/>
       </Unit9>
@@ -144,11 +145,10 @@
       <Unit13>
         <Filename Value="todos.inc"/>
         <IsPartOfProject Value="True"/>
-        <IsVisibleTab Value="True"/>
         <EditorIndex Value="1"/>
         <WindowIndex Value="0"/>
         <TopLine Value="1"/>
-        <CursorPos X="44" Y="3"/>
+        <CursorPos X="20" Y="1"/>
         <UsageCount Value="802"/>
         <Loaded Value="True"/>
       </Unit13>
@@ -160,7 +160,7 @@
         <WindowIndex Value="0"/>
         <TopLine Value="7"/>
         <CursorPos X="20" Y="16"/>
-        <UsageCount Value="72"/>
+        <UsageCount Value="77"/>
         <Loaded Value="True"/>
       </Unit14>
     </Units>
@@ -169,7 +169,7 @@
     </General>
   </ProjectSession>
   <Debugging>
-    <BreakPoints Count="3">
+    <BreakPoints Count="2">
       <Item1>
         <Kind Value="bpkSource"/>
         <WatchScope Value="wpsLocal"/>
@@ -184,13 +184,6 @@
         <Source Value="c:\Lazarus\fpc\2.6.2\source\packages\fcl-image\src\fppalette.inc"/>
         <Line Value="159"/>
       </Item2>
-      <Item3>
-        <Kind Value="bpkSource"/>
-        <WatchScope Value="wpsLocal"/>
-        <WatchKind Value="wpkWrite"/>
-        <Source Value="umain.pas"/>
-        <Line Value="797"/>
-      </Item3>
     </BreakPoints>
     <Watches Count="3">
       <Item1>

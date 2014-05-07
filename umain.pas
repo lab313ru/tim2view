@@ -28,6 +28,7 @@ type
     actExtractTIMs: TAction;
     actChangeFile: TAction;
     actChangeBackColor: TAction;
+    actShowTimInfo: TAction;
     actPngImport: TAction;
     actStopScan: TAction;
     actOpenLab: TAction;
@@ -58,6 +59,7 @@ type
     lblStatus: TLabel;
     lvList: TListView;
     MenuItem1: TMenuItem;
+    mnShowTimInfo: TMenuItem;
     mnImportPng: TMenuItem;
     mnChangeBackColor2: TMenuItem;
     N8: TMenuItem;
@@ -104,7 +106,7 @@ type
     SaveasPNG1: TMenuItem;
     dlgSelectDir: TSelectDirectoryDialog;
     splMain: TSplitter;
-    sbMain: TStatusBar;
+    tblTimInfo: TStringGrid;
     procedure actAboutExecute(Sender: TObject);
     procedure actAssocTimsExecute(Sender: TObject);
     procedure actChangeBackColorExecute(Sender: TObject);
@@ -123,6 +125,7 @@ type
     procedure actReturnFocusExecute(Sender: TObject);
     procedure actScanDirExecute(Sender: TObject);
     procedure actScanFileExecute(Sender: TObject);
+    procedure actShowTimInfoExecute(Sender: TObject);
     procedure actStopScanExecute(Sender: TObject);
     procedure actStretchExecute(Sender: TObject);
     procedure actPngExportExecute(Sender: TObject);
@@ -164,6 +167,7 @@ type
     procedure ScanDirectory(const Directory: string);
     procedure CheckButtonsAndMainMenu;
     procedure ScanFinished(Sender: TObject);
+    procedure BeforeScan(MaxProgress: Integer);
     procedure SetTimsListCount(Count: Integer);
     procedure UpdateCLUTInfo;
     procedure DrawSelTim;
@@ -212,6 +216,12 @@ begin
     ScanPath(dlgOpenFile.Files.Strings[I - 1]);
 end;
 
+procedure TfrmMain.actShowTimInfoExecute(Sender: TObject);
+begin
+  Settings.InfoVisible := (Sender as TAction).Checked;
+  tblTimInfo.Visible := (Sender as TAction).Checked;
+end;
+
 procedure TfrmMain.actStopScanExecute(Sender: TObject);
 var
   I: Integer;
@@ -232,7 +242,7 @@ end;
 
 procedure TfrmMain.actStretchExecute(Sender: TObject);
 begin
-  Settings.StretchMode := actStretch.Checked;
+  Settings.StretchMode := (Sender as TAction).Checked;
   UpdateTim(True, False, False);
 end;
 
@@ -579,6 +589,7 @@ begin
   LastDir := Settings.LastDir;
   cbbBitMode.ItemIndex := Settings.BitMode;
   pnlImage.Color := Settings.BackColor;
+  actShowTimInfo.Checked := Settings.InfoVisible;
 
   ScanThreads := TScanThreadList.Create(False); //False - to able scan thread remove itself from this list
   ScanResults := TScanResultList.Create(False);
@@ -810,6 +821,7 @@ begin
 
     if StartedScans < GetLogicalCpuCount then
     begin
+      BeforeScan(ScanThreads.Last.FileLength);
       ScanThreads.Last.Start;
       Inc(StartedScans);
     end;
@@ -848,6 +860,10 @@ begin
   pnlList.Enabled := cbbFiles.Enabled;
   actCloseFile.Enabled := cbbFiles.Enabled;
   actCloseFiles.Enabled := cbbFiles.Enabled;
+
+  actScanFile.Enabled := ScanThreads.Count = 0;
+  actScanDir.Enabled := ScanThreads.Count = 0;
+
   actReplaceTim.Enabled := (lvList.Selected <> nil) and (lvList.Selected.Index <> -1);
 
   actPngExport.Enabled := (Surf^ <> nil) and actReplaceTim.Enabled;
@@ -862,7 +878,6 @@ var
   I: Integer;
 begin
   ScanThreads.Remove(Sender as TScanThread);
-
   Dec(StartedScans);
 
   if ScanThreads.Count <> 0 then
@@ -870,6 +885,7 @@ begin
     for I := 1 to ScanThreads.Count do
       if ScanThreads[I - 1].Suspended and (not ScanThreads[I - 1].StopScan) then
       begin
+        BeforeScan(ScanThreads[I - 1].FileLength);
         ScanThreads[I - 1].Start;
         Inc(StartedScans);
         Exit;
@@ -877,7 +893,7 @@ begin
     Exit;
   end;
 
-  if ScanResults.Count <> 0 then SetTimsListCount(ScanResults.Last.Count);
+  if ScanThreads.Count <> 0 then SetTimsListCount(ScanResults.Last.Count);
 
   CheckButtonsAndMainMenu;
 
@@ -889,6 +905,18 @@ begin
 
   actStopScan.Enabled := False;
   actStopScan.Tag := NativeInt(True);
+end;
+
+procedure TfrmMain.BeforeScan(MaxProgress: Integer);
+begin
+  cbbFiles.Enabled := False;
+  pnlList.Enabled := False;
+
+  actScanFile.Enabled := False;
+  actScanDir.Enabled := False;
+
+  pbProgress.Max := MaxProgress;
+  pbProgress.Position := 0;
 end;
 
 procedure TfrmMain.SetTimsListCount(Count: Integer);
@@ -1004,43 +1032,33 @@ end;
 
 procedure TfrmMain.ShowTimInfo(ShowInfo: Boolean);
 var
-  I: Integer;
   TIM: PTIM;
   TimInfo: TTimInfo;
 begin
-  for I := 1 to sbMain.Panels.Count do
-    sbMain.Panels[I - 1].Text := '';
+  tblTimInfo.Cells[1, 1] := '';
+  tblTimInfo.Cells[1, 2] := '';
+  tblTimInfo.Cells[1, 3] := '';
+  tblTimInfo.Cells[1, 5] := '';
+  tblTimInfo.Cells[1, 6] := '';
+  tblTimInfo.Cells[1, 8] := '';
 
   if not ShowInfo then Exit;
 
   TimInfo := SelectedTimInfo;
   TIM := SelectedTimInMode;
 
-  I := 0;
+  tblTimInfo.Cells[1, 1] := Format('0x%x', [TimInfo.Position]);
 
-  sbMain.Panels[I].Text := Format('Pos: 0x%x', [TimInfo.Position]);
-  sbMain.Panels[I].Width := Canvas.GetTextWidth(sbMain.Panels[I].Text) + 8; Inc(I);
-  sbMain.Panels[I].Text := Format('Ver: %d', [GetTimVersion(TIM)]);
-  sbMain.Panels[I].Width := Canvas.GetTextWidth(sbMain.Panels[I].Text) + 8; Inc(I);
-  sbMain.Panels[I].Text := Format('Good: %s', [TIMIsGoodStr(TIM)]);
-  sbMain.Panels[I].Width := Canvas.GetTextWidth(sbMain.Panels[I].Text) + 8; Inc(I);
+  tblTimInfo.Cells[1, 2] := Format('%d', [GetTimVersion(TIM)]);
+  tblTimInfo.Cells[1, 3] := Format('%s', [TIMIsGoodStr(TIM)]);
 
   if TIMHasCLUT(TIM) then
   begin
-    sbMain.Panels[I].Alignment := taRightJustify;
-    sbMain.Panels[I].Text := 'CLUT:';
-    sbMain.Panels[I].Width := Canvas.GetTextWidth(sbMain.Panels[I].Text) + 20; Inc(I);
-    sbMain.Panels[I].Text := Format('X/Y: %dx%d', [GetTimClutVRAMX(TIM), GetTimClutVRAMY(TIM)]);
-    sbMain.Panels[I].Width := Canvas.GetTextWidth(sbMain.Panels[I].Text) + 8; Inc(I);
-    sbMain.Panels[I].Text := Format('Colors: %d', [GetTimColorsCount(TIM)]);
-    sbMain.Panels[I].Width := Canvas.GetTextWidth(sbMain.Panels[I].Text) + 8; Inc(I);
+    tblTimInfo.Cells[1, 5] := Format('%dx%d', [GetTimClutVRAMX(TIM), GetTimClutVRAMY(TIM)]);
+    tblTimInfo.Cells[1, 6] := Format('%d', [GetTimColorsCount(TIM)]);
   end;
 
-  sbMain.Panels[I].Alignment := taRightJustify;
-  sbMain.Panels[I].Text := 'IMAGE:';
-  sbMain.Panels[I].Width := Canvas.GetTextWidth(sbMain.Panels[I].Text) + 20; Inc(I);
-  sbMain.Panels[I].Text := Format('X/Y: %dx%d', [GetTimImageVRAMX(TIM), GetTimImageVRAMY(TIM)]);
-  sbMain.Panels[I].Width := Canvas.GetTextWidth(sbMain.Panels[I].Text) + 8; Inc(I);
+  tblTimInfo.Cells[1, 8] := Format('%dx%d', [GetTimImageVRAMX(TIM), GetTimImageVRAMY(TIM)]);
 
   FreeTIM(TIM);
 end;

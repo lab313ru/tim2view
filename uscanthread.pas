@@ -20,7 +20,6 @@ type
     pSrcFileStream: TFileStream;
     pStopScan: boolean;
     procedure SetStatusText;
-    procedure StartScan;
     procedure FinishScan;
     procedure UpdateProgressBar;
     procedure AddResult(TIM: PTIM);
@@ -31,6 +30,7 @@ type
     constructor Create(const FileToScan: string; ImageScan: boolean; Results: PScanResultList);
     //property Started: boolean read pStarted write pStarted;
     property StopScan: boolean read pStopScan write pStopScan;
+    property FileLength: Integer read pFileSize;
   end;
   TScanThreadList = specialize TFPGObjectList<TScanThread>;
 
@@ -89,8 +89,6 @@ var
   pScanFinished: boolean;
   pRealBufSize, pTimPosition, pTIMNumber: Integer;
 begin
-  Synchronize(@StartScan);
-
   if pScanResult.IsImage then
     pSectorBufferSize := cSectorBufferSize
   else
@@ -187,7 +185,10 @@ begin
   end;
 
   if not CheckForFileOpened(pResults, pScanResult.ScanFile) then
-    pResults^.Add(pScanResult)
+  begin
+    pResults^.Add(pScanResult);
+    frmMain.cbbFiles.Items.Add(pScanResult.ScanFile);
+  end
   else
     pScanResult.Free;
 end;
@@ -195,15 +196,6 @@ end;
 procedure TScanThread.SetStatusText;
 begin
   frmMain.lblStatus.Caption := pStatusText;
-end;
-
-procedure TScanThread.StartScan;
-begin
-  frmMain.cbbFiles.Enabled := False;
-  frmMain.pnlList.Enabled := False;
-
-  frmMain.pbProgress.Max := FileSize(pScanResult.ScanFile);
-  frmMain.pbProgress.Position := 0;
 end;
 
 procedure TScanThread.UpdateProgressBar;
