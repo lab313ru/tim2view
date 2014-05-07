@@ -23,8 +23,8 @@
         <UnitName Value="umain"/>
         <EditorIndex Value="0"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="128"/>
-        <CursorPos X="83" Y="136"/>
+        <TopLine Value="188"/>
+        <CursorPos X="40" Y="199"/>
         <UsageCount Value="816"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
@@ -52,7 +52,7 @@
         <EditorIndex Value="3"/>
         <WindowIndex Value="0"/>
         <TopLine Value="1"/>
-        <CursorPos X="20" Y="35"/>
+        <CursorPos X="47" Y="13"/>
         <UsageCount Value="816"/>
         <Loaded Value="True"/>
       </Unit4>
@@ -84,8 +84,8 @@
         <UnitName Value="usettings"/>
         <EditorIndex Value="9"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="83"/>
-        <CursorPos X="75" Y="99"/>
+        <TopLine Value="41"/>
+        <CursorPos X="44" Y="52"/>
         <UsageCount Value="816"/>
         <Loaded Value="True"/>
       </Unit7>
