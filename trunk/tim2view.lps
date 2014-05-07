@@ -23,8 +23,8 @@
         <UnitName Value="umain"/>
         <EditorIndex Value="0"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="540"/>
-        <CursorPos X="66" Y="556"/>
+        <TopLine Value="295"/>
+        <CursorPos X="66" Y="308"/>
         <UsageCount Value="816"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
@@ -48,11 +48,10 @@
         <Filename Value="ucommon.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="ucommon"/>
-        <IsVisibleTab Value="True"/>
         <EditorIndex Value="3"/>
         <WindowIndex Value="0"/>
         <TopLine Value="1"/>
-        <CursorPos X="35" Y="6"/>
+        <CursorPos X="70" Y="9"/>
         <UsageCount Value="816"/>
         <Loaded Value="True"/>
       </Unit4>
@@ -62,8 +61,8 @@
         <UnitName Value="utim"/>
         <EditorIndex Value="10"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="185"/>
-        <CursorPos X="1" Y="204"/>
+        <TopLine Value="244"/>
+        <CursorPos X="82" Y="311"/>
         <UsageCount Value="816"/>
         <Loaded Value="True"/>
       </Unit5>
@@ -126,10 +125,11 @@
         <Filename Value="udrawtim.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="udrawtim"/>
+        <IsVisibleTab Value="True"/>
         <EditorIndex Value="5"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="1"/>
-        <CursorPos X="15" Y="6"/>
+        <TopLine Value="92"/>
+        <CursorPos X="58" Y="103"/>
         <UsageCount Value="816"/>
         <Loaded Value="True"/>
       </Unit11>
@@ -148,7 +148,7 @@
         <EditorIndex Value="1"/>
         <WindowIndex Value="0"/>
         <TopLine Value="1"/>
-        <CursorPos X="20" Y="1"/>
+        <CursorPos X="31" Y="3"/>
         <UsageCount Value="802"/>
         <Loaded Value="True"/>
       </Unit13>
@@ -160,7 +160,7 @@
         <WindowIndex Value="0"/>
         <TopLine Value="7"/>
         <CursorPos X="20" Y="16"/>
-        <UsageCount Value="77"/>
+        <UsageCount Value="83"/>
         <Loaded Value="True"/>
       </Unit14>
     </Units>

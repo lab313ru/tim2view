@@ -381,9 +381,9 @@ begin
   for Y := 1 to ROWS do
     for X := 1 to COLS do
     begin
-      ClearCanvas(@Grid^.Canvas, Grid^.CellRect(X - 1, Y - 1));
+      //ClearCanvas(@Grid^.Canvas, Grid^.CellRect(X - 1, Y - 1));
       DrawClutCell(TIM, CLUT_NUM, Grid, X - 1, Y - 1);
     end;
 end;
 
-end.
+end.

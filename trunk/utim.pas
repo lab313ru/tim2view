@@ -238,6 +238,16 @@ begin
   Result := (TIM^.HEAD^.bBPP in cTIMCLUT);
 end;
 
+function CheckCLUTVramX(TIM: PTIM): Boolean;
+begin
+  Result := (TIM^.CLUT^.wVRAMX + TIM^.CLUT^.wColorsCount) <= cCLUTColorsMax;
+end;
+
+function CheckCLUTVramY(TIM: PTIM): Boolean;
+begin
+  Result := (TIM^.CLUT^.wVRAMY + TIM^.CLUT^.wClutsCount) <= cCLUTCountMax;
+end;
+
 function CheckCLUTColors(TIM: PTIM): Boolean;
 begin
   Result := (TIM^.CLUT^.wColorsCount >= 1) and (TIM^.CLUT^.wColorsCount <= cCLUTColorsMax);
@@ -267,9 +277,7 @@ end;
 
 function CheckCLUT(TIM: PTIM): Boolean;
 begin
-  Result := (CheckCLUTColors(TIM) and CheckCLUTCount(TIM)
-    // Need to Check CLUT^.dwSize
-    );
+  Result := CheckCLUTColors(TIM) and CheckCLUTCount(TIM) and CheckCLUTVramX(TIM) and CheckCLUTVramY(TIM);
 end;
 
 function CheckTIMSize(TIM: PTIM): Boolean;
@@ -282,15 +290,31 @@ begin
   Result := (TIM^.IMAGE^.dwSize = GetTIMIMAGESize(TIM));
 end;
 
+function CheckIMAGEWidth(TIM: PTIM): Boolean;
+begin
+  Result := (TIM^.IMAGE^.wWidth >= 1) and (TIM^.IMAGE^.wWidth <= cIMAGEWidthMax);
+end;
+
+function CheckIMAGEHeight(TIM: PTIM): Boolean;
+begin
+  Result := (TIM^.IMAGE^.wHeight >= 1) and (TIM^.IMAGE^.wHeight <= cIMAGEHeightMax);
+end;
+
+function CheckIMAGEVramX(TIM: PTIM): Boolean;
+begin
+  Result := (TIM^.IMAGE^.wVRAMX + TIM^.IMAGE^.wWidth) <= cCLUTColorsMax;
+end;
+
+function CheckIMAGEVramY(TIM: PTIM): Boolean;
+begin
+  Result := (TIM^.IMAGE^.wVRAMY + TIM^.IMAGE^.wHeight) <= cCLUTCountMax;
+end;
+
 function CheckIMAGE(TIM: PTIM): Boolean;
 begin
-  Result := False;
+  Result := CheckIMAGEWidth(TIM) and CheckIMAGEHeight(TIM) and CheckIMAGEVramX(TIM) and CheckIMAGEVramY(TIM);
 
-  if (TIM^.IMAGE^.wWidth = 0) or (TIM^.IMAGE^.wHeight = 0) then Exit;
-
-  if (TIM^.IMAGE^.wWidth > cIMAGEWidthMax) or (TIM^.IMAGE^.wHeight > cIMAGEHeightMax) then Exit;
-
-  Result := (not(TIM^.HEAD^.bBPP in cTIMWrongBads)) or TIMIsGood(TIM);
+  Result := Result and ((not(TIM^.HEAD^.bBPP in cTIMWrongBads)) or TIMIsGood(TIM));
 end;
 
 procedure ClearTIM(TIM: PTIM);
@@ -570,4 +594,4 @@ begin
   Result := TIM^.IMAGE^.wVRAMY;
 end;
 
-end.
+end.
