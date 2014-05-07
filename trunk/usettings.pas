@@ -24,6 +24,8 @@ type
       function  FBackColorRead(): TColor;
       procedure FBitModeWrite(Mode: Integer);
       function  FBitModeRead(): Integer;
+      procedure FInfoVisibleWrite(Value: Boolean);
+      function  FInfoVisibleRead(): Boolean;
     public
       constructor Create(const DirPath: string);
       destructor Destroy; override;
@@ -32,6 +34,7 @@ type
       property LastDir: string read FLastDirRead write FLastDirWrite;
       property BackColor: TColor read FBackColorRead write FBackColorWrite;
       property BitMode: Integer read FBitModeRead write FBitModeWrite;
+      property InfoVisible: Boolean read FInfoVisibleRead write FInfoVisibleWrite;
   end;
 
 implementation
@@ -92,6 +95,16 @@ begin
   Result := FIniFile.ReadInteger(sMain, 'BitMode', 0);
 end;
 
+procedure TSettings.FInfoVisibleWrite(Value: Boolean);
+begin
+  FIniFile.WriteBool(sMain, 'InfoVisible', Value);
+end;
+
+function TSettings.FInfoVisibleRead: Boolean;
+begin
+  Result := FIniFile.ReadBool(sMain, 'InfoVisible', False);
+end;
+
 constructor TSettings.Create(const DirPath: string);
 begin
   inherited Create;
@@ -107,4 +120,4 @@ begin
 end;
 
 end.
-
+
