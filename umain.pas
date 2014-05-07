@@ -193,10 +193,6 @@ implementation
 uses ucdimage, ucpucount, lcltype, ucommon, LCLIntf, uexportimport,
   FPimage
 
-{$IFDEF windows}
-,registry
-{$IFEND}
-
 {$IFDEF Linux}
 ,BaseUnix
 {$IFEND}
@@ -320,33 +316,8 @@ begin
 end;
 
 procedure TfrmMain.actAssocTimsExecute(Sender: TObject);
-{$IFDEF windows}
-var
-  reg: TRegistry;
 begin
-  reg := TRegistry.Create;
-
-  try
-    reg.RootKey := HKEY_CURRENT_USER;
-    reg.OpenKey('Software\Classes\.tim', True);
-    reg.WriteString('', 'TimFile');
-    reg.CloseKey;
-
-    reg.OpenKey('Software\Classes\TimFile', True);
-    reg.WriteString('', 'Tim File Format');
-    reg.CloseKey;
-    reg.OpenKey('Software\Classes\TimFile\DefaultIcon', True);
-    reg.WriteString('', '"' + ParamStrUTF8(0) +'",0');
-    reg.CloseKey;
-    reg.OpenKey('Software\Classes\TimFile\shell\Open\Command', True);
-    reg.WriteString('', '"' + ParamStrUTF8(0) + '" "%1"');
-    reg.CloseKey;
-  finally
-    reg.Free;
-  end;
-{$ELSE}
-begin
-{$ENDIF}
+  Settings.AssociateWithTims;
 end;
 
 procedure TfrmMain.actChangeBackColorExecute(Sender: TObject);
@@ -1082,4 +1053,4 @@ begin
 end;
 
 end.
-
+

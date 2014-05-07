@@ -29,6 +29,9 @@ type
     public
       constructor Create(const DirPath: string);
       destructor Destroy; override;
+
+      procedure AssociateWithTims;
+
       property TranspMode: Integer read FTranspModeRead write FTranspModeWrite;
       property StretchMode: Boolean read FStretchModeRead write FStretchModeWrite;
       property LastDir: string read FLastDirRead write FLastDirWrite;
@@ -39,11 +42,46 @@ type
 
 implementation
 
-uses FileUtil;
+uses FileUtil
+
+{$IFDEF windows}
+,registry
+{$IFEND}
+;
 
 const sMain = 'main';
 
 { TSettings }
+
+procedure TSettings.AssociateWithTims;
+{$IFDEF windows}
+var
+  reg: TRegistry;
+begin
+  reg := TRegistry.Create;
+
+  try
+    reg.RootKey := HKEY_CURRENT_USER;
+    reg.OpenKey('Software\Classes\.tim', True);
+    reg.WriteString('', 'TimFile');
+    reg.CloseKey;
+
+    reg.OpenKey('Software\Classes\TimFile', True);
+    reg.WriteString('', 'Tim File Format');
+    reg.CloseKey;
+    reg.OpenKey('Software\Classes\TimFile\DefaultIcon', True);
+    reg.WriteString('', '"' + ParamStr(0) +'",0');
+    reg.CloseKey;
+    reg.OpenKey('Software\Classes\TimFile\shell\Open\Command', True);
+    reg.WriteString('', '"' + ParamStr(0) + '" "%1"');
+    reg.CloseKey;
+  finally
+    reg.Free;
+  end;
+{$ELSE}
+begin
+{$ENDIF}
+end;
 
 procedure TSettings.FTranspModeWrite(Value: Integer);
 begin
@@ -82,7 +120,7 @@ end;
 
 function TSettings.FBackColorRead: TColor;
 begin
-  Result := FIniFile.ReadInteger(sMain, 'BackColor', clFuchsia);
+  Result := FIniFile.ReadInteger(sMain, 'BackColor', clBtnFace);
 end;
 
 procedure TSettings.FBitModeWrite(Mode: Integer);
@@ -102,7 +140,7 @@ end;
 
 function TSettings.FInfoVisibleRead: Boolean;
 begin
-  Result := FIniFile.ReadBool(sMain, 'InfoVisible', False);
+  Result := FIniFile.ReadBool(sMain, 'InfoVisible', True);
 end;
 
 constructor TSettings.Create(const DirPath: string);
@@ -120,4 +158,4 @@ begin
 end;
 
 end.
-
+
