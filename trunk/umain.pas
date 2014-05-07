@@ -551,7 +551,7 @@ end;
 
 procedure TfrmMain.FormCreate(Sender: TObject);
 begin
-  Settings := TSettings.Create(ExtractFilePath(ParamStrUTF8(0)));
+  Settings := TSettings.Create(ExtractFilePath(ParamStr(0)));
 
   cbbBitMode.Tag := NativeInt($FF);
 
