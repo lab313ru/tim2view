@@ -293,7 +293,13 @@ begin
 
   actReturnFocus.Execute;
   if lvList.Items.Count = 0 then Exit;
+
+  //if lvList.Selected <> nil then
+  //  lvList.Selected.Index := -1;
+  lvList.ItemIndex:= -1;
+  lvList.Update;
   lvList.ItemIndex := 0;
+
   lvList.Items[0].Focused := True;
   lvList.Items[0].Selected := True;
   lvList.Items[0].MakeVisible(False);
@@ -719,9 +725,9 @@ begin
   H := TimInfoByIdx[Item.Index].Height;
 
   Item.Caption := Format('%.6d', [Item.Index + 1]);
-  Item.SubItems.Add(Format('%.3dx%.3d', [W, H]));
   Item.SubItems.Add(Format('%.2d', [TimInfoByIdx[Item.Index].BitMode]));
   Item.SubItems.Add(Format('%.2d', [TimInfoByIdx[Item.Index].Cluts]));
+  Item.SubItems.Add(Format('%.3dx%.3d', [W, H]));
 end;
 
 procedure TfrmMain.lvListSelectItem(Sender: TObject; Item: TListItem;
@@ -1073,4 +1079,4 @@ begin
 end;
 
 end.
-
+

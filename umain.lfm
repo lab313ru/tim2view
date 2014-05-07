@@ -9,7 +9,7 @@ object frmMain: TfrmMain
   VertScrollBar.Range = 344
   ActiveControl = pnlList
   AllowDropFiles = True
-  ClientHeight = 627
+  ClientHeight = 622
   ClientWidth = 790
   Color = clBtnFace
   Font.Color = clWindowText
@@ -498,7 +498,7 @@ object frmMain: TfrmMain
   object pnlStatus: TPanel
     Left = 0
     Height = 30
-    Top = 574
+    Top = 571
     Width = 790
     Align = alBottom
     BevelOuter = bvLowered
@@ -538,13 +538,13 @@ object frmMain: TfrmMain
   end
   object cbbFiles: TComboBox
     Left = 0
-    Height = 21
+    Height = 28
     Top = 0
     Width = 790
     Align = alTop
     DropDownCount = 30
     Enabled = False
-    ItemHeight = 13
+    ItemHeight = 0
     OnChange = actChangeFileExecute
     OnCloseUp = actReturnFocusExecute
     Style = csDropDownList
@@ -552,33 +552,33 @@ object frmMain: TfrmMain
   end
   object pnlMain: TPanel
     Left = 0
-    Height = 553
-    Top = 21
+    Height = 543
+    Top = 28
     Width = 790
     Align = alClient
     BevelOuter = bvNone
-    ClientHeight = 553
+    ClientHeight = 543
     ClientWidth = 790
     TabOrder = 1
     object splMain: TSplitter
       Left = 253
-      Height = 553
+      Height = 543
       Top = 0
       Width = 5
     end
     object pnlList: TPanel
       Left = 0
-      Height = 553
+      Height = 543
       Top = 0
       Width = 253
       Align = alLeft
       BevelOuter = bvNone
-      ClientHeight = 553
+      ClientHeight = 543
       ClientWidth = 253
       TabOrder = 0
       object lvList: TListView
         Left = 0
-        Height = 525
+        Height = 515
         Top = 28
         Width = 253
         Align = alClient
@@ -589,18 +589,21 @@ object frmMain: TfrmMain
           end        
           item
             Alignment = taCenter
-            Caption = 'W x H'
-            Width = 70
-          end        
-          item
-            Alignment = taCenter
+            AutoSize = True
             Caption = 'BPP'
             Width = 35
           end        
           item
             Alignment = taCenter
+            AutoSize = True
             Caption = 'CLUTs'
-            Width = 57
+            Width = 47
+          end        
+          item
+            Alignment = taCenter
+            AutoSize = True
+            Caption = 'W x H'
+            Width = 91
           end>
         ColumnClick = False
         GridLines = True
@@ -608,6 +611,7 @@ object frmMain: TfrmMain
         PopupMenu = pmList
         ReadOnly = True
         RowSelect = True
+        ScrollBars = ssAutoBoth
         TabOrder = 0
         ToolTips = False
         ViewStyle = vsReport
@@ -646,32 +650,32 @@ object frmMain: TfrmMain
     end
     object pnlImage: TPanel
       Left = 258
-      Height = 553
+      Height = 543
       Top = 0
       Width = 532
       Align = alClient
       BevelOuter = bvLowered
-      ClientHeight = 553
+      ClientHeight = 543
       ClientWidth = 532
       Color = clBtnFace
       ParentColor = False
       TabOrder = 1
       object pnlImageOptions: TPanel
         Left = 1
-        Height = 27
-        Top = 525
+        Height = 32
+        Top = 510
         Width = 530
         Align = alBottom
         AutoSize = True
         BevelOuter = bvLowered
-        ClientHeight = 27
+        ClientHeight = 32
         ClientWidth = 530
         Color = clBtnFace
         ParentColor = False
         TabOrder = 0
         object btnShowClut: TButton
           Left = 476
-          Height = 23
+          Height = 28
           Top = 2
           Width = 52
           Align = alRight
@@ -682,12 +686,12 @@ object frmMain: TfrmMain
         end
         object cbbBitMode: TComboBox
           Left = 2
-          Height = 21
+          Height = 28
           Top = 2
           Width = 159
           Align = alLeft
           BorderSpacing.Around = 1
-          ItemHeight = 13
+          ItemHeight = 0
           ItemIndex = 0
           Items.Strings = (
             'Real'
@@ -706,12 +710,12 @@ object frmMain: TfrmMain
         end
         object cbbTranspMode: TComboBox
           Left = 162
-          Height = 21
+          Height = 28
           Top = 2
-          Width = 136
+          Width = 150
           Align = alLeft
           BorderSpacing.Around = 1
-          ItemHeight = 13
+          ItemHeight = 0
           ItemIndex = 1
           Items.Strings = (
             'Full transparence'
@@ -727,13 +731,13 @@ object frmMain: TfrmMain
         end
         object cbbCLUT: TComboBox
           Left = 366
-          Height = 21
+          Height = 28
           Top = 2
           Width = 109
           Align = alRight
           BorderSpacing.Around = 1
           DropDownCount = 16
-          ItemHeight = 13
+          ItemHeight = 0
           OnChange = actChangeClutIdxExecute
           Style = csDropDownList
           TabOrder = 3
@@ -741,12 +745,12 @@ object frmMain: TfrmMain
       end
       object pnlClut: TPanel
         Left = 1
-        Height = 157
-        Top = 368
+        Height = 165
+        Top = 345
         Width = 530
         Align = alBottom
         BevelOuter = bvLowered
-        ClientHeight = 157
+        ClientHeight = 165
         ClientWidth = 530
         Color = clBtnFace
         ParentColor = False
@@ -754,7 +758,7 @@ object frmMain: TfrmMain
         Visible = False
         object grdClut: TDrawGrid
           Left = 1
-          Height = 116
+          Height = 115
           Top = 1
           Width = 528
           Align = alClient
@@ -779,8 +783,8 @@ object frmMain: TfrmMain
         end
         object lblClutHint: TLabel
           Left = 1
-          Height = 39
-          Top = 117
+          Height = 48
+          Top = 116
           Width = 528
           Align = alBottom
           Alignment = taCenter
@@ -792,7 +796,7 @@ object frmMain: TfrmMain
       end
       object imgTim: TImage
         Left = 1
-        Height = 367
+        Height = 344
         Top = 1
         Width = 530
         AntialiasingMode = amOff
@@ -805,8 +809,8 @@ object frmMain: TfrmMain
   end
   object sbMain: TStatusBar
     Left = 0
-    Height = 23
-    Top = 604
+    Height = 21
+    Top = 601
     Width = 790
     Panels = <    
       item
@@ -1114,4 +1118,4 @@ object frmMain: TfrmMain
     left = 640
     top = 112
   end
-end
+end
