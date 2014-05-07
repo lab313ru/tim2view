@@ -179,7 +179,6 @@ type
     { public declarations }
     ScanResults: TScanResultList; //List of finished scan results
     ScanThreads: TScanThreadList; //List of currently started scans
-    function CheckForFileOpened(const FileName: string): boolean;
   end;
 
 var
@@ -774,20 +773,6 @@ begin
   Result^.HEAD^.bBPP := Integer(cbbBitMode.Tag);
 end;
 
-function TfrmMain.CheckForFileOpened(const FileName: string): boolean;
-var
-  I: Integer;
-begin
-  Result := False;
-
-  for I := 1 to ScanResults.Count do
-    if ScanResults[I - 1].ScanFile = FileName then
-    begin
-      Result := True;
-      Exit;
-    end;
-end;
-
 procedure TfrmMain.ScanPath(const Path: string);
 begin
   if Path = '' then Exit;
@@ -806,7 +791,7 @@ begin
   LastDir := ExtractFilePath(FileName);
   Settings.LastDir := LastDir;
 
-  if CheckForFileOpened(FileName) then
+  if CheckForFileOpened(@ScanResults, FileName) then
   begin
     cbbFiles.ItemIndex := cbbFiles.Items.IndexOf(FileName);
     actChangeFile.Execute;
@@ -818,7 +803,7 @@ begin
 
   if not Boolean(actStopScan.Tag) then
   begin
-    ScanThreads.Add(TScanThread.Create(FileName, GetImageScan(FileName)));
+    ScanThreads.Add(TScanThread.Create(FileName, GetImageScan(FileName), @ScanResults));
     ScanThreads.Last.FreeOnTerminate := True;
     ScanThreads.Last.Priority := tpNormal;
     ScanThreads.Last.OnTerminate := @ScanFinished;

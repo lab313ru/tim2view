@@ -10,6 +10,7 @@ type
   private
     { Private declarations }
     pScanResult: TScanResult;
+    pResults: PScanResultList;
     pFileSize: Integer;
     pFilePos: Integer;
     pStatusText: string;
@@ -27,7 +28,7 @@ type
   protected
     procedure Execute; override;
   public
-    constructor Create(const FileToScan: string; ImageScan: boolean);
+    constructor Create(const FileToScan: string; ImageScan: boolean; Results: PScanResultList);
     //property Started: boolean read pStarted write pStarted;
     property StopScan: boolean read pStopScan write pStopScan;
   end;
@@ -44,7 +45,7 @@ const
 
   { TScanThread }
 
-constructor TScanThread.Create(const FileToScan: string; ImageScan: boolean);
+constructor TScanThread.Create(const FileToScan: string; ImageScan: boolean; Results: PScanResultList);
 begin
   inherited Create(True);
   FreeOnTerminate := True;
@@ -57,6 +58,7 @@ begin
   pScanResult := TScanResult.Create;
   pScanResult.ScanFile := FileToScan;
   pScanResult.IsImage := ImageScan;
+  pResults := Results;
 end;
 
 procedure TScanThread.AddResult(TIM: PTIM);
@@ -170,7 +172,7 @@ begin
   pFilePos := 0;
   pStatusText := '';
 
-  Synchronize(@FinishScan);
+  FinishScan;
 end;
 
 procedure TScanThread.FinishScan;
@@ -184,11 +186,8 @@ begin
     Exit;
   end;
 
-  if not frmMain.CheckForFileOpened(pScanResult.ScanFile) then
-  begin
-    frmMain.ScanResults.Add(pScanResult);
-    frmMain.cbbFiles.Items.Add(pScanResult.ScanFile);
-  end
+  if not CheckForFileOpened(pResults, pScanResult.ScanFile) then
+    pResults^.Add(pScanResult)
   else
     pScanResult.Free;
 end;
@@ -230,4 +229,4 @@ begin
   end;
 end;
 
-end.
+end.

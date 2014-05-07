@@ -1,2 +1,3 @@
 { TODO : Zooming? }
-{ TODO : Add different PNG output for Export. }
+{ TODO : Add file to filelist }
+{ TODO : StartScan - remove refs to umain }
