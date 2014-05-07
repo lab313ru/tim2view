@@ -23,7 +23,7 @@
       <UseVersionInfo Value="True"/>
       <AutoIncrementBuild Value="True"/>
       <MajorVersionNr Value="1"/>
-      <RevisionNr Value="84"/>
+      <RevisionNr Value="85"/>
       <StringTable CompanyName="Lab 313" FileDescription="The best TIMs tool ever!:)" ProductVersion=""/>
     </VersionInfo>
     <BuildModes Count="6">
@@ -346,7 +346,7 @@
     <Version Value="11"/>
     <PathDelim Value="\"/>
     <Target>
-      <Filename Value="output\tim2view_$(TargetOS)"/>
+      <Filename Value="руссиш\tim2view_$(TargetOS)"/>
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir);bgrabitmap"/>
@@ -364,7 +364,6 @@
         <OverflowChecks Value="True"/>
         <StackChecks Value="True"/>
       </Checks>
-      <VerifyObjMethodCallValidity Value="True"/>
     </CodeGeneration>
     <Linking>
       <Debugging>
