@@ -584,8 +584,9 @@ object frmMain: TfrmMain
         Align = alClient
         Columns = <        
           item
+            AutoSize = True
             Caption = '# / 0'
-            Width = 60
+            Width = 41
           end        
           item
             Alignment = taCenter
@@ -603,7 +604,7 @@ object frmMain: TfrmMain
             Alignment = taCenter
             AutoSize = True
             Caption = 'W x H'
-            Width = 91
+            Width = 128
           end>
         ColumnClick = False
         GridLines = True

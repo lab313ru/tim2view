@@ -39,6 +39,9 @@ type
       property ScanTim[index: Integer]: TTimInfo read fGetTim write fSetTim;
   end;
   TScanResultList = specialize TFPGObjectList<TScanResult>;
+  PScanResultList = ^TScanResultList;
+
+  function CheckForFileOpened(ScanResults: PScanResultList; const FileName: string): boolean;
 
 implementation
 
@@ -77,4 +80,18 @@ begin
   pTims[Index] := Value;
 end;
 
-end.
+function CheckForFileOpened(ScanResults: PScanResultList; const FileName: string): boolean;
+var
+  I: Integer;
+begin
+  Result := False;
+
+  for I := 1 to ScanResults^.Count do
+    if ScanResults^[I - 1].ScanFile = FileName then
+    begin
+      Result := True;
+      Exit;
+    end;
+end;
+
+end.
