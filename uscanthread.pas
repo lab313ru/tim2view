@@ -65,6 +65,7 @@ procedure TScanThread.AddResult(TIM: PTIM);
 var
   ScanTim: TTimInfo;
 begin
+  ScanTim.Magic := TIM^.HEAD^.bMagic;
   ScanTim.Position := TIM^.dwTimPosition;
   ScanTim.Size := TIM^.dwSIZE;
   ScanTim.Width := GetTimRealWidth(TIM);
@@ -221,4 +222,4 @@ begin
   end;
 end;
 
-end.
+end.

@@ -26,11 +26,20 @@ type
       function  FBitModeRead(): Integer;
       procedure FInfoVisibleWrite(Value: Boolean);
       function  FInfoVisibleRead(): Boolean;
+
+      {$IFDEF windows}
+      function FGetSendtoShortcutPath: WideString;
+      procedure FCreateSendtoShortcut;
+      function FSendtoShortcutExists: Boolean;
+      {$IFEND}
     public
       constructor Create(const DirPath: string);
       destructor Destroy; override;
 
-      procedure AssociateWithTims;
+      {$IFDEF windows}
+      procedure AddToSendTo(Delete: Boolean);
+      property SendToShortcutExists: Boolean read FSendtoShortcutExists;
+      {$IFEND}
 
       property TranspMode: Integer read FTranspModeRead write FTranspModeWrite;
       property StretchMode: Boolean read FStretchModeRead write FStretchModeWrite;
@@ -45,43 +54,70 @@ implementation
 uses FileUtil
 
 {$IFDEF windows}
-,registry
+,windows, shlobj {for special folders}, ActiveX, ComObj
 {$IFEND}
 ;
 
-const sMain = 'main';
+const
+  sMain = 'main';
+  sSendtoShortcut : string = 'Open in Tim2View';
 
 { TSettings }
 
-procedure TSettings.AssociateWithTims;
+procedure TSettings.AddToSendTo(Delete: Boolean);
 {$IFDEF windows}
 var
-  reg: TRegistry;
+  path: string;
 begin
-  reg := TRegistry.Create;
-
-  try
-    reg.RootKey := HKEY_CURRENT_USER;
-    reg.OpenKey('Software\Classes\.tim', True);
-    reg.WriteString('', 'TimFile');
-    reg.CloseKey;
-
-    reg.OpenKey('Software\Classes\TimFile', True);
-    reg.WriteString('', 'Tim File Format');
-    reg.CloseKey;
-    reg.OpenKey('Software\Classes\TimFile\DefaultIcon', True);
-    reg.WriteString('', '"' + ParamStr(0) +'",0');
-    reg.CloseKey;
-    reg.OpenKey('Software\Classes\TimFile\shell\Open\Command', True);
-    reg.WriteString('', '"' + ParamStr(0) + '" "%1"');
-    reg.CloseKey;
-  finally
-    reg.Free;
-  end;
+  if Delete then
+  begin
+    path := UTF8Encode(FGetSendtoShortcutPath);
+    DeleteFile(PChar(Utf8ToSys(path)));
+  end
+  else
+    FCreateSendtoShortcut;
 {$ELSE}
 begin
 {$ENDIF}
 end;
+
+{$IFDEF windows}
+function TSettings.FGetSendtoShortcutPath: WideString;
+var
+  PIDL: PItemIDList;
+  InFolder: array[0..MAX_PATH] of Char;
+begin
+  SHGetSpecialFolderLocation(0, CSIDL_SENDTO, PIDL);
+  SHGetPathFromIDList(PIDL, InFolder);
+  Result := InFolder + PathDelim + UTF8ToSys(sSendtoShortcut)+'.lnk';
+end;
+
+procedure TSettings.FCreateSendtoShortcut;
+var
+  IObject: IUnknown;
+  ISLink: IShellLink;
+  IPFile: IPersistFile;
+  TargetPath: string;
+begin
+  { Creates an instance of IShellLink }
+  IObject := CreateComObject(CLSID_ShellLink);
+  ISLink := IObject as IShellLink;
+  IPFile := IObject as IPersistFile;
+
+  TargetPath := ParamStr(0);
+  ISLink.SetPath(pChar(TargetPath));
+  ISLink.SetArguments(pChar(''));
+  ISLink.SetWorkingDirectory(pChar(ExtractFilePath(TargetPath)));
+
+  { Create the link }
+  IPFile.Save(PWChar(FGetSendtoShortcutPath), false);
+end;
+
+function TSettings.FSendtoShortcutExists: Boolean;
+begin
+  Result := FileExists(FGetSendtoShortcutPath);
+end;
+{$ENDIF}
 
 procedure TSettings.FTranspModeWrite(Value: Integer);
 begin

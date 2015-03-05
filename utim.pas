@@ -7,6 +7,9 @@ uses
 
 const
   cTIMMagic = $10;
+  cCLTMagic = $11;
+  cPXLMagic = $12;
+  cMagics = [cTIMMagic, cCLTMagic, cPXLMagic];
   cTIM4C = $08;
   cTIM4NC = $00;
   cTIM4 = [cTIM4C, cTIM4NC];
@@ -19,12 +22,16 @@ const
   cTIM24C = $0B;
   cTIM24NC = $03;
   cTIM24 = [cTIM24C, cTIM24NC];
-  cTIMMix = $04;
+  cTIMMixC = $0C;
+  cTIMMixNC = $04;
+  cTIMMix = [cTIMMixC, cTIMMixNC];
   cTIMVersions = [$00, $01];
-  cTIMWrongBads = [cTIM4NC, cTIM8NC, cTIMMix];
-  cTIMCLUT = [cTIM4C, cTIM8C, cTIM16C, cTIM24C];
-  cTIMNOCLUT = [cTIM4NC, cTIM8NC, cTIM16NC, cTIM24NC, cTIMMix];
-  cTIMBpp = [cTIM4C, cTIM8C, cTIM16C, cTIM24C, cTIM4NC, cTIM8NC, cTIM16NC, cTIM24NC, cTIMMix];
+  cTIMWrongBads = [cTIM4NC, cTIM8NC];
+  cTIMGoodCLTs = [cTIM16NC];
+  cTIMGoodPXLs = [cTIM4NC, cTIM8NC];
+  cTIMCLUT = [cTIM4C, cTIM8C, cTIM16C, cTIM24C, cTIMMixC];
+  cTIMNOCLUT = [cTIM4NC, cTIM8NC, cTIM16NC, cTIM24NC, cTIMMixNC];
+  cTIMBpp = [cTIM4C, cTIM8C, cTIM16C, cTIM24C, cTIMMixC, cTIM4NC, cTIM8NC, cTIM16NC, cTIM24NC, cTIMMixNC];
 
 type
   TTIMHeader = packed record // TIM Header (8 bytes)
@@ -34,7 +41,7 @@ type
     bReserved2: byte; // Reserved byte 2 (1 byte)
     bBPP: Integer; // Bit per Pixel  (4 bytes)
     // variants:
-    // [$08, $09, $0A, $0B, $02, $03, $00, $01]
+    // [$08, $09, $0A, $0B, $0C, $00, $01, $02, $03, $04]
   end;
   PTIMHeader = ^TTIMHeader;
 
@@ -112,6 +119,7 @@ function GetTimRealWidth(TIM: PTIM): word;
 function GetTimHeight(TIM: PTIM): word;
 function TIMIsGood(TIM: PTIM): Boolean;
 function TIMIsGoodStr(TIM: PTIM): string;
+function TIMTypeStr(Magic: Byte): string;
 function LoadTimFromBuf(BUFFER: pointer; var TIM: PTIM; var Position: Integer): Boolean;
 function LoadTimFromFile(const FileName: string; var Position: Integer; ImageScan: Boolean; dwSize: Integer): PTIM;
 procedure SaveTimToFile(const FileName: string; TIM: PTIM);
@@ -198,7 +206,6 @@ end;
 function GetTIMCLUTSize(TIM: PTIM): Integer;
 begin
   Result := 0;
-
   if not TIMHasCLUT(TIM) then Exit;
   Result := TIM^.CLUT^.wColorsCount * TIM^.CLUT^.wClutsCount * 2 + SizeOf(TCLUTHeader);
 end;
@@ -220,7 +227,7 @@ end;
 
 function CheckMagic(TIM: PTIM): Boolean;
 begin
-  Result := (TIM^.HEAD^.bMagic = cTIMMagic);
+  Result := (TIM^.HEAD^.bMagic in cMagics);
 end;
 
 function CheckBpp(TIM: PTIM): Boolean;
@@ -263,7 +270,7 @@ begin
   case TIM^.HEAD^.bBPP of
     cTIM4C, cTIM4NC: Result := (TIM^.IMAGE^.wWidth * 4) and $FFFF;
     cTIM8C, cTIM8NC: Result := (TIM^.IMAGE^.wWidth * 2) and $FFFF;
-    cTIM16C, cTIM16NC, cTIMMix: Result := TIM^.IMAGE^.wWidth;
+    cTIM16C, cTIM16NC, cTIMMixC, cTIMMixNC: Result := TIM^.IMAGE^.wWidth;
     cTIM24C, cTIM24NC: Result := (Round(TIM^.IMAGE^.wWidth * 2 / 3)) and $FFFF;
   else
     Result := 0;
@@ -278,6 +285,11 @@ end;
 function CheckCLUT(TIM: PTIM): Boolean;
 begin
   Result := CheckCLUTColors(TIM) and CheckCLUTCount(TIM) and CheckCLUTVramX(TIM) and CheckCLUTVramY(TIM);
+end;
+
+function TIMIsNotWrongBad(TIM: PTIM): Boolean;
+begin
+  Result := (not(TIM^.HEAD^.bBPP in cTIMWrongBads)) or TIMIsGood(TIM);
 end;
 
 function CheckTIMSize(TIM: PTIM): Boolean;
@@ -313,8 +325,26 @@ end;
 function CheckIMAGE(TIM: PTIM): Boolean;
 begin
   Result := CheckIMAGEWidth(TIM) and CheckIMAGEHeight(TIM) and CheckIMAGEVramX(TIM) and CheckIMAGEVramY(TIM);
+end;
 
-  Result := Result and ((not(TIM^.HEAD^.bBPP in cTIMWrongBads)) or TIMIsGood(TIM));
+function CheckTIM(TIM: PTIM): Boolean;
+begin
+  Result := (TIM^.HEAD^.bMagic = cTIMMagic);
+end;
+
+function CheckCLT(TIM: PTIM): Boolean;
+begin
+  Result := (TIM^.HEAD^.bMagic = cCLTMagic) and (TIM^.HEAD^.bBPP in cTIMGoodCLTs);
+end;
+
+function CheckPXL(TIM: PTIM): Boolean;
+begin
+  Result := (TIM^.HEAD^.bMagic = cPXLMagic) and (TIM^.HEAD^.bBPP in cTIMGoodPXLs);
+end;
+
+function CheckTimCltPxl(TIM: PTIM): Boolean;
+begin
+  Result := (CheckTIM(TIM) or CheckCLT(TIM) or CheckPXL(TIM)) and CheckIMAGE(TIM) and TIMIsNotWrongBad(TIM);
 end;
 
 procedure ClearTIM(TIM: PTIM);
@@ -328,6 +358,17 @@ end;
 function TIMIsGoodStr(TIM: PTIM): string;
 begin
   if TIMIsGood(TIM) then Result := 'Yes' else Result := 'No';
+end;
+
+function TIMTypeStr(Magic: Byte): string;
+begin
+  case Magic of
+    cTIMMagic: Result := 'tim';
+    cCLTMagic: Result := 'clt';
+    cPXLMagic: Result := 'pxl';
+  else
+    Result := 'unk';
+  end;
 end;
 
 function LoadTimFromBuf(BUFFER: pointer; var TIM: PTIM; var Position: Integer): Boolean;
@@ -356,7 +397,7 @@ begin
 
   Move(PBytesArray(BUFFER)^[P], TIM^.IMAGE^, SizeOf(TIMAGEHeader));
 
-  if not CheckIMAGE(TIM) then Exit;
+  if not CheckTimCltPxl(TIM) then Exit;
   if not CheckTIMSize(TIM) then Exit;
 
   TIM^.dwSize := GetTIMSize(TIM);
@@ -527,7 +568,7 @@ begin
     Result := 24;
     Exit;
   end;
-  if (TIM^.HEAD^.bBPP = cTIMMix) then
+  if (TIM^.HEAD^.bBPP in cTIMMix) then
   begin
     Result := 16;
     Exit;
@@ -594,4 +635,4 @@ begin
   Result := TIM^.IMAGE^.wVRAMY;
 end;
 
-end.
+end.

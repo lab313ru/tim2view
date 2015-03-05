@@ -3,14 +3,11 @@
   <ProjectSession>
     <PathDelim Value="\"/>
     <Version Value="9"/>
-    <BuildModes Active="Debug"/>
+    <BuildModes Active="Win Release x86"/>
     <Units Count="15">
       <Unit0>
         <Filename Value="tim2view.lpr"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="tim2view"/>
-        <WindowIndex Value="0"/>
-        <TopLine Value="1"/>
         <CursorPos X="46" Y="13"/>
         <UsageCount Value="816"/>
       </Unit0>
@@ -21,10 +18,9 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="umain"/>
-        <EditorIndex Value="0"/>
-        <WindowIndex Value="0"/>
-        <TopLine Value="295"/>
-        <CursorPos X="66" Y="308"/>
+        <IsVisibleTab Value="True"/>
+        <TopLine Value="691"/>
+        <CursorPos X="81" Y="710"/>
         <UsageCount Value="816"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
@@ -32,16 +28,12 @@
       <Unit2>
         <Filename Value="edc.pas"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="edc"/>
         <UsageCount Value="816"/>
       </Unit2>
       <Unit3>
         <Filename Value="ecc.pas"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="ecc"/>
-        <WindowIndex Value="0"/>
         <TopLine Value="13"/>
-        <CursorPos X="1" Y="1"/>
         <UsageCount Value="816"/>
       </Unit3>
       <Unit4>
@@ -49,9 +41,8 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="ucommon"/>
         <EditorIndex Value="3"/>
-        <WindowIndex Value="0"/>
-        <TopLine Value="1"/>
-        <CursorPos X="70" Y="9"/>
+        <TopLine Value="15"/>
+        <CursorPos X="73" Y="11"/>
         <UsageCount Value="816"/>
         <Loaded Value="True"/>
       </Unit4>
@@ -60,9 +51,8 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="utim"/>
         <EditorIndex Value="10"/>
-        <WindowIndex Value="0"/>
-        <TopLine Value="244"/>
-        <CursorPos X="82" Y="311"/>
+        <TopLine Value="420"/>
+        <CursorPos Y="401"/>
         <UsageCount Value="816"/>
         <Loaded Value="True"/>
       </Unit5>
@@ -71,7 +61,6 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="ucdimage"/>
         <EditorIndex Value="2"/>
-        <WindowIndex Value="0"/>
         <TopLine Value="112"/>
         <CursorPos X="50" Y="117"/>
         <UsageCount Value="816"/>
@@ -82,9 +71,8 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="usettings"/>
         <EditorIndex Value="9"/>
-        <WindowIndex Value="0"/>
-        <TopLine Value="132"/>
-        <CursorPos X="1" Y="150"/>
+        <TopLine Value="58"/>
+        <CursorPos X="35" Y="63"/>
         <UsageCount Value="816"/>
         <Loaded Value="True"/>
       </Unit7>
@@ -93,9 +81,8 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="uscanresult"/>
         <EditorIndex Value="7"/>
-        <WindowIndex Value="0"/>
-        <TopLine Value="54"/>
-        <CursorPos X="79" Y="80"/>
+        <TopLine Value="56"/>
+        <CursorPos Y="71"/>
         <UsageCount Value="816"/>
         <Loaded Value="True"/>
       </Unit8>
@@ -104,9 +91,8 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="uscanthread"/>
         <EditorIndex Value="8"/>
-        <WindowIndex Value="0"/>
-        <TopLine Value="172"/>
-        <CursorPos X="3" Y="187"/>
+        <TopLine Value="18"/>
+        <CursorPos X="37" Y="68"/>
         <UsageCount Value="816"/>
         <Loaded Value="True"/>
       </Unit9>
@@ -115,7 +101,6 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="ucpucount"/>
         <EditorIndex Value="4"/>
-        <WindowIndex Value="0"/>
         <TopLine Value="19"/>
         <CursorPos X="87" Y="34"/>
         <UsageCount Value="816"/>
@@ -125,19 +110,14 @@
         <Filename Value="udrawtim.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="udrawtim"/>
-        <IsVisibleTab Value="True"/>
         <EditorIndex Value="5"/>
-        <WindowIndex Value="0"/>
-        <TopLine Value="92"/>
-        <CursorPos X="58" Y="103"/>
+        <CursorPos X="15" Y="212"/>
         <UsageCount Value="816"/>
         <Loaded Value="True"/>
       </Unit11>
       <Unit12>
         <Filename Value="bgrabitmap\bgrabitmap.pas"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="BGRABitmap"/>
-        <WindowIndex Value="0"/>
         <TopLine Value="54"/>
         <CursorPos X="3" Y="69"/>
         <UsageCount Value="816"/>
@@ -146,8 +126,6 @@
         <Filename Value="todos.inc"/>
         <IsPartOfProject Value="True"/>
         <EditorIndex Value="1"/>
-        <WindowIndex Value="0"/>
-        <TopLine Value="1"/>
         <CursorPos X="31" Y="3"/>
         <UsageCount Value="802"/>
         <Loaded Value="True"/>
@@ -157,19 +135,15 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="uexportimport"/>
         <EditorIndex Value="6"/>
-        <WindowIndex Value="0"/>
         <TopLine Value="7"/>
-        <CursorPos X="20" Y="16"/>
-        <UsageCount Value="83"/>
+        <CursorPos X="32" Y="35"/>
+        <UsageCount Value="96"/>
         <Loaded Value="True"/>
       </Unit14>
     </Units>
-    <General>
-      <ActiveWindowIndexAtStart Value="0"/>
-    </General>
   </ProjectSession>
   <Debugging>
-    <BreakPoints Count="2">
+    <BreakPoints Count="3">
       <Item1>
         <Kind Value="bpkSource"/>
         <WatchScope Value="wpsLocal"/>
@@ -184,6 +158,13 @@
         <Source Value="c:\Lazarus\fpc\2.6.2\source\packages\fcl-image\src\fppalette.inc"/>
         <Line Value="159"/>
       </Item2>
+      <Item3>
+        <Kind Value="bpkSource"/>
+        <WatchScope Value="wpsLocal"/>
+        <WatchKind Value="wpkWrite"/>
+        <Source Value="usettings.pas"/>
+        <Line Value="74"/>
+      </Item3>
     </BreakPoints>
     <Watches Count="3">
       <Item1>
@@ -200,5 +181,4 @@
       </Item3>
     </Watches>
   </Debugging>
-  <EditorMacros Count="0"/>
 </CONFIG>
