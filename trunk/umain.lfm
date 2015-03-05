@@ -604,7 +604,7 @@ object frmMain: TfrmMain
             Alignment = taCenter
             AutoSize = True
             Caption = 'Type'
-            Width = 37
+            Width = 36
           end        
           item
             Alignment = taCenter

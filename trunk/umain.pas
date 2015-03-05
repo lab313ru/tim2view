@@ -557,8 +557,7 @@ begin
 
   cbbBitMode.Tag := NativeInt($FF);
 
-  actAddToSendto.Checked := Settings.SendToShortcutExists;
-
+  {$IFDEF windows}actAddToSendto.Checked := Settings.SendToShortcutExists;{$ENDIF}
   actStretch.Checked := Settings.StretchMode;
   cbbTranspMode.ItemIndex := Settings.TranspMode;
   LastDir := Settings.LastDir;

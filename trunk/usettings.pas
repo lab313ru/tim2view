@@ -55,7 +55,7 @@ uses FileUtil
 
 {$IFDEF windows}
 ,windows, shlobj {for special folders}, ActiveX, ComObj
-{$IFEND}
+{$ENDIF}
 ;
 
 const
