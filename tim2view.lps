@@ -18,9 +18,8 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="umain"/>
-        <IsVisibleTab Value="True"/>
-        <TopLine Value="691"/>
-        <CursorPos X="81" Y="710"/>
+        <TopLine Value="554"/>
+        <CursorPos X="59" Y="566"/>
         <UsageCount Value="816"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
@@ -40,9 +39,9 @@
         <Filename Value="ucommon.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="ucommon"/>
+        <IsVisibleTab Value="True"/>
         <EditorIndex Value="3"/>
-        <TopLine Value="15"/>
-        <CursorPos X="73" Y="11"/>
+        <CursorPos X="71" Y="11"/>
         <UsageCount Value="816"/>
         <Loaded Value="True"/>
       </Unit4>
@@ -51,7 +50,7 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="utim"/>
         <EditorIndex Value="10"/>
-        <TopLine Value="420"/>
+        <TopLine Value="384"/>
         <CursorPos Y="401"/>
         <UsageCount Value="816"/>
         <Loaded Value="True"/>
@@ -71,8 +70,7 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="usettings"/>
         <EditorIndex Value="9"/>
-        <TopLine Value="58"/>
-        <CursorPos X="35" Y="63"/>
+        <CursorPos X="15" Y="59"/>
         <UsageCount Value="816"/>
         <Loaded Value="True"/>
       </Unit7>
@@ -137,7 +135,7 @@
         <EditorIndex Value="6"/>
         <TopLine Value="7"/>
         <CursorPos X="32" Y="35"/>
-        <UsageCount Value="96"/>
+        <UsageCount Value="98"/>
         <Loaded Value="True"/>
       </Unit14>
     </Units>
