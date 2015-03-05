@@ -14,6 +14,9 @@
       <MainUnit Value="0"/>
       <Title Value="tim2view"/>
       <UseXPManifest Value="True"/>
+      <XPManifest>
+        <DpiAware Value="True"/>
+      </XPManifest>
       <Icon Value="0"/>
     </General>
     <i18n>
@@ -23,8 +26,8 @@
       <UseVersionInfo Value="True"/>
       <AutoIncrementBuild Value="True"/>
       <MajorVersionNr Value="1"/>
-      <RevisionNr Value="86"/>
-      <BuildNr Value="1"/>
+      <RevisionNr Value="88"/>
+      <BuildNr Value="12"/>
       <StringTable CompanyName="Lab 313" FileDescription="The best TIMs tool ever!:)" ProductVersion=""/>
     </VersionInfo>
     <BuildModes Count="6">
@@ -65,12 +68,6 @@
               </Win32>
             </Options>
           </Linking>
-          <Other>
-            <CompilerMessages>
-              <MsgFileName Value=""/>
-            </CompilerMessages>
-            <CompilerPath Value="$(CompPath)"/>
-          </Other>
         </CompilerOptions>
       </Item2>
       <Item3 Name="Win Release x64">
@@ -109,12 +106,6 @@
               </Win32>
             </Options>
           </Linking>
-          <Other>
-            <CompilerMessages>
-              <MsgFileName Value=""/>
-            </CompilerMessages>
-            <CompilerPath Value="$(CompPath)"/>
-          </Other>
         </CompilerOptions>
       </Item3>
       <Item4 Name="Linux Release x86">
@@ -153,12 +144,6 @@
               </Win32>
             </Options>
           </Linking>
-          <Other>
-            <CompilerMessages>
-              <MsgFileName Value=""/>
-            </CompilerMessages>
-            <CompilerPath Value="$(CompPath)"/>
-          </Other>
         </CompilerOptions>
       </Item4>
       <Item5 Name="Linux Release x64">
@@ -197,12 +182,6 @@
               </Win32>
             </Options>
           </Linking>
-          <Other>
-            <CompilerMessages>
-              <MsgFileName Value=""/>
-            </CompilerMessages>
-            <CompilerPath Value="$(CompPath)"/>
-          </Other>
         </CompilerOptions>
       </Item5>
       <Item6 Name="Mac Release x86">
@@ -241,12 +220,6 @@
               </Win32>
             </Options>
           </Linking>
-          <Other>
-            <CompilerMessages>
-              <MsgFileName Value=""/>
-            </CompilerMessages>
-            <CompilerPath Value="$(CompPath)"/>
-          </Other>
         </CompilerOptions>
       </Item6>
     </BuildModes>
@@ -267,7 +240,6 @@
       <Unit0>
         <Filename Value="tim2view.lpr"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="tim2view"/>
       </Unit0>
       <Unit1>
         <Filename Value="umain.pas"/>
@@ -280,12 +252,10 @@
       <Unit2>
         <Filename Value="edc.pas"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="edc"/>
       </Unit2>
       <Unit3>
         <Filename Value="ecc.pas"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="ecc"/>
       </Unit3>
       <Unit4>
         <Filename Value="ucommon.pas"/>
@@ -330,7 +300,6 @@
       <Unit12>
         <Filename Value="bgrabitmap\bgrabitmap.pas"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="BGRABitmap"/>
       </Unit12>
       <Unit13>
         <Filename Value="todos.inc"/>
@@ -376,12 +345,6 @@
         </Win32>
       </Options>
     </Linking>
-    <Other>
-      <CompilerMessages>
-        <MsgFileName Value=""/>
-      </CompilerMessages>
-      <CompilerPath Value="$(CompPath)"/>
-    </Other>
   </CompilerOptions>
   <Debugging>
     <Exceptions Count="3">
@@ -396,4 +359,4 @@
       </Item3>
     </Exceptions>
   </Debugging>
-</CONFIG>
+</CONFIG>

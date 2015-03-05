@@ -219,7 +219,7 @@ begin
       case TIM^.HEAD^.bBPP of
         cTIM4C, cTIM4NC, cTIM8C, cTIM8NC:
           Image^.Pixels[X - 1, Y - 1] := INDEXES^[IDX] mod COLORS;
-        cTIM16C, cTIM16NC, cTIMMix:
+        cTIM16C, cTIM16NC, cTIMMixC, cTIMMixNC:
           begin
             CW := 0;
             Move(INDEXES^[IDX], CW, 2);
@@ -386,4 +386,4 @@ begin
     end;
 end;
 
-end.
+end.

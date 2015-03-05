@@ -9,7 +9,7 @@ object frmMain: TfrmMain
   VertScrollBar.Range = 344
   ActiveControl = pnlList
   AllowDropFiles = True
-  ClientHeight = 643
+  ClientHeight = 648
   ClientWidth = 790
   Color = clBtnFace
   Font.Color = clWindowText
@@ -494,11 +494,11 @@ object frmMain: TfrmMain
   OnCreate = FormCreate
   OnDropFiles = FormDropFiles
   Position = poScreenCenter
-  LCLVersion = '1.2.2.0'
+  LCLVersion = '1.4.0.2'
   object pnlStatus: TPanel
     Left = 0
     Height = 30
-    Top = 613
+    Top = 618
     Width = 790
     Align = alBottom
     BevelOuter = bvLowered
@@ -538,13 +538,13 @@ object frmMain: TfrmMain
   end
   object cbbFiles: TComboBox
     Left = 0
-    Height = 28
+    Height = 21
     Top = 0
     Width = 790
     Align = alTop
     DropDownCount = 30
     Enabled = False
-    ItemHeight = 0
+    ItemHeight = 13
     OnChange = actChangeFileExecute
     OnCloseUp = actReturnFocusExecute
     Style = csDropDownList
@@ -552,33 +552,33 @@ object frmMain: TfrmMain
   end
   object pnlMain: TPanel
     Left = 0
-    Height = 585
-    Top = 28
+    Height = 597
+    Top = 21
     Width = 790
     Align = alClient
     BevelOuter = bvNone
-    ClientHeight = 585
+    ClientHeight = 597
     ClientWidth = 790
     TabOrder = 1
     object splMain: TSplitter
       Left = 253
-      Height = 585
+      Height = 597
       Top = 0
       Width = 5
     end
     object pnlList: TPanel
       Left = 0
-      Height = 585
+      Height = 597
       Top = 0
       Width = 253
       Align = alLeft
       BevelOuter = bvNone
-      ClientHeight = 585
+      ClientHeight = 597
       ClientWidth = 253
       TabOrder = 0
       object lvList: TListView
         Left = 0
-        Height = 372
+        Height = 384
         Top = 28
         Width = 253
         Align = alClient
@@ -586,25 +586,31 @@ object frmMain: TfrmMain
           item
             AutoSize = True
             Caption = '# / 0'
-            Width = 41
+            Width = 249
           end        
           item
             Alignment = taCenter
             AutoSize = True
             Caption = 'BPP'
-            Width = 35
+            Width = 30
           end        
           item
             Alignment = taCenter
             AutoSize = True
             Caption = 'CLUTs'
-            Width = 47
+            Width = 42
+          end        
+          item
+            Alignment = taCenter
+            AutoSize = True
+            Caption = 'Type'
+            Width = 37
           end        
           item
             Alignment = taCenter
             AutoSize = True
             Caption = 'W x H'
-            Width = 128
+            Width = 41
           end>
         ColumnClick = False
         OwnerData = True
@@ -633,7 +639,7 @@ object frmMain: TfrmMain
           Height = 26
           Top = 1
           Width = 100
-          Action = actExtractPNGs
+          Action = actExtractPngs
           Align = alRight
           TabOrder = 0
         end
@@ -642,7 +648,7 @@ object frmMain: TfrmMain
           Height = 26
           Top = 1
           Width = 100
-          Action = actExtractTIMs
+          Action = actExtractFiles
           Align = alLeft
           TabOrder = 1
         end
@@ -650,7 +656,7 @@ object frmMain: TfrmMain
       object tblTimInfo: TStringGrid
         Left = 0
         Height = 185
-        Top = 400
+        Top = 412
         Width = 253
         Align = alBottom
         AutoEdit = False
@@ -706,32 +712,32 @@ object frmMain: TfrmMain
     end
     object pnlImage: TPanel
       Left = 258
-      Height = 585
+      Height = 597
       Top = 0
       Width = 532
       Align = alClient
       BevelOuter = bvLowered
-      ClientHeight = 585
+      ClientHeight = 597
       ClientWidth = 532
       Color = clBtnFace
       ParentColor = False
       TabOrder = 1
       object pnlImageOptions: TPanel
         Left = 1
-        Height = 32
-        Top = 552
+        Height = 27
+        Top = 569
         Width = 530
         Align = alBottom
         AutoSize = True
         BevelOuter = bvLowered
-        ClientHeight = 32
+        ClientHeight = 27
         ClientWidth = 530
         Color = clBtnFace
         ParentColor = False
         TabOrder = 0
         object btnShowClut: TButton
           Left = 476
-          Height = 28
+          Height = 23
           Top = 2
           Width = 52
           Align = alRight
@@ -742,12 +748,12 @@ object frmMain: TfrmMain
         end
         object cbbBitMode: TComboBox
           Left = 2
-          Height = 28
+          Height = 21
           Top = 2
           Width = 159
           Align = alLeft
           BorderSpacing.Around = 1
-          ItemHeight = 0
+          ItemHeight = 13
           ItemIndex = 0
           Items.Strings = (
             'Real'
@@ -766,12 +772,12 @@ object frmMain: TfrmMain
         end
         object cbbTranspMode: TComboBox
           Left = 162
-          Height = 28
+          Height = 21
           Top = 2
           Width = 150
           Align = alLeft
           BorderSpacing.Around = 1
-          ItemHeight = 0
+          ItemHeight = 13
           ItemIndex = 1
           Items.Strings = (
             'Full transparence'
@@ -787,13 +793,13 @@ object frmMain: TfrmMain
         end
         object cbbCLUT: TComboBox
           Left = 366
-          Height = 28
+          Height = 21
           Top = 2
           Width = 109
           Align = alRight
           BorderSpacing.Around = 1
           DropDownCount = 16
-          ItemHeight = 0
+          ItemHeight = 13
           OnChange = actChangeClutIdxExecute
           Style = csDropDownList
           TabOrder = 3
@@ -802,7 +808,7 @@ object frmMain: TfrmMain
       object pnlClut: TPanel
         Left = 1
         Height = 192
-        Top = 360
+        Top = 377
         Width = 530
         Align = alBottom
         BevelOuter = bvLowered
@@ -814,7 +820,7 @@ object frmMain: TfrmMain
         Visible = False
         object grdClut: TDrawGrid
           Left = 1
-          Height = 125
+          Height = 138
           Top = 1
           Width = 528
           Align = alClient
@@ -839,8 +845,8 @@ object frmMain: TfrmMain
         end
         object lblClutHint: TLabel
           Left = 1
-          Height = 65
-          Top = 126
+          Height = 52
+          Top = 139
           Width = 528
           Align = alBottom
           Alignment = taCenter
@@ -852,7 +858,7 @@ object frmMain: TfrmMain
       end
       object imgTim: TImage
         Left = 1
-        Height = 359
+        Height = 376
         Top = 1
         Width = 530
         AntialiasingMode = amOff
@@ -895,13 +901,13 @@ object frmMain: TfrmMain
         Action = actExit
       end
     end
-    object mnTIM: TMenuItem
-      Caption = '&TIM'
+    object mnImage: TMenuItem
+      Caption = '&Image'
       object mnSaveTIM: TMenuItem
-        Action = actExtractTim
+        Action = actExtractFile
       end
       object mnReplaceIn: TMenuItem
-        Action = actReplaceTim
+        Action = actReplaceFile
       end
       object MenuItem1: TMenuItem
         Caption = '-'
@@ -916,13 +922,14 @@ object frmMain: TfrmMain
     object mnOptions: TMenuItem
       Caption = '&Options'
       object mnAssociate: TMenuItem
-        Action = actAssocTims
+        Action = actAddToSendto
+        AutoCheck = True
       end
       object N8: TMenuItem
         Caption = '-'
       end
       object mnShowTimInfo: TMenuItem
-        Action = actShowTimInfo
+        Action = actShowFileInfo
         AutoCheck = True
         ShowAlwaysCheckable = True
       end
@@ -958,10 +965,11 @@ object frmMain: TfrmMain
     left = 672
     top = 112
   end
-  object dlgSaveTIM: TSaveDialog
+  object dlgSaveFile: TSaveDialog
     Title = 'Please, select where to save TIM file...'
     DefaultExt = '.tim'
-    Filter = 'PSX TIM Files (*.tim)|*.tim|All Files (*.*)|*.*'
+    Filter = 'PSX TIM Files (*.tim)|*.tim|PSX CLT Files (*.clt)|*.clt|PSX PXL Files (*.pxl)|*.pxl|All Files (*.*)|*.*'
+    FilterIndex = 0
     Options = [ofOverwritePrompt, ofHideReadOnly, ofNoChangeDir, ofNoNetworkButton, ofEnableSizing]
     left = 592
     top = 112
@@ -1021,9 +1029,9 @@ object frmMain: TfrmMain
       OnExecute = actExitExecute
       ShortCut = 121
     end
-    object actExtractTim: TAction
-      Caption = '&Extract TIM...'
-      OnExecute = actExtractTimExecute
+    object actExtractFile: TAction
+      Caption = '&Extract File...'
+      OnExecute = actExtractFileExecute
       ShortCut = 113
     end
     object actPngExport: TAction
@@ -1036,9 +1044,9 @@ object frmMain: TfrmMain
       OnExecute = actPngImportExecute
       ShortCut = 116
     end
-    object actReplaceTim: TAction
-      Caption = '&Replace TIM...'
-      OnExecute = actReplaceTimExecute
+    object actReplaceFile: TAction
+      Caption = '&Replace File...'
+      OnExecute = actReplaceFileExecute
       ShortCut = 114
     end
     object actOpenRepo: TAction
@@ -1058,18 +1066,19 @@ object frmMain: TfrmMain
       Caption = '&Stretch Image'
       OnExecute = actStretchExecute
     end
-    object actAssocTims: TAction
-      Caption = '&Open TIMs with T2V'
-      OnExecute = actAssocTimsExecute
+    object actAddToSendto: TAction
+      AutoCheck = True
+      Caption = '&SendTo Shortcut for Tim2View'
+      OnExecute = actAddToSendtoExecute
     end
-    object actExtractTIMs: TAction
-      Caption = 'Extract all &TIMs'
-      OnExecute = actExtractTIMsExecute
+    object actExtractFiles: TAction
+      Caption = 'Extract all &Files'
+      OnExecute = actExtractFilesExecute
       ShortCut = 8305
     end
-    object actExtractPNGs: TAction
+    object actExtractPngs: TAction
       Caption = '&Extract all PNGs'
-      OnExecute = actExtractPNGsExecute
+      OnExecute = actExtractPngsExecute
       ShortCut = 8307
     end
     object actChangeClutIdx: TAction
@@ -1090,20 +1099,20 @@ object frmMain: TfrmMain
       Caption = '&Background Color'
       OnExecute = actChangeBackColorExecute
     end
-    object actShowTimInfo: TAction
+    object actShowFileInfo: TAction
       AutoCheck = True
-      Caption = '&Show Tim Info'
-      OnExecute = actShowTimInfoExecute
+      Caption = '&Show File Info'
+      OnExecute = actShowFileInfoExecute
     end
   end
   object pmList: TPopupMenu
     left = 432
     top = 112
     object ExtractTIM1: TMenuItem
-      Action = actExtractTim
+      Action = actExtractFile
     end
     object ReplaceTIM1: TMenuItem
-      Action = actReplaceTim
+      Action = actReplaceFile
     end
     object SaveasPNG1: TMenuItem
       Action = actPngExport
@@ -1112,10 +1121,10 @@ object frmMain: TfrmMain
       Caption = '-'
     end
     object mnExtractAllTims2: TMenuItem
-      Action = actExtractTIMs
+      Action = actExtractFiles
     end
     object mnExtractAllPngs2: TMenuItem
-      Action = actExtractPNGs
+      Action = actExtractPngs
     end
   end
   object pmImage: TPopupMenu
@@ -1125,7 +1134,7 @@ object frmMain: TfrmMain
       Action = actPngExport
     end
     object mnSaveAsTim: TMenuItem
-      Action = actExtractTim
+      Action = actExtractFile
     end
     object N5: TMenuItem
       Caption = '-'
@@ -1151,4 +1160,4 @@ object frmMain: TfrmMain
     left = 640
     top = 112
   end
-end
+end

@@ -6,6 +6,7 @@ uses fgl;
 
 type
   TTimInfo = record
+    Magic: Byte;
     Position: Integer;
     Size: Integer;
     Width: Integer;
@@ -94,4 +95,4 @@ begin
     end;
 end;
 
-end.
+end.
