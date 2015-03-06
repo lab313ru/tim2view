@@ -105,7 +105,10 @@ type
     IMAGE: PIMAGEHeader;
     dwSize: Integer;
     DATA: PTIMDataArray;
-    bGOOD: Boolean;
+
+    UseExtClut: Boolean;
+    ExtCLUT: PCLUTHeader;
+    ExtCLUT_DATA: PCLUT_COLORS;
   end;
 
   PTIM = ^TTIM;
@@ -149,15 +152,15 @@ uses
 
 function ConvertTIMColor(COLOR: word): TCLUT_COLOR;
 begin
-  Result.R := (COLOR and $1F) * 8;
-  Result.G := ((COLOR and $3E0) shr 5) * 8;
-  Result.B := ((COLOR and $7C00) shr 10) * 8;
+  Result.R := (COLOR and $1F) shl 3;
+  Result.G := ((COLOR and $3E0) shr 5) shl 3;
+  Result.B := ((COLOR and $7C00) shr 10) shl 3;
   Result.STP := ((COLOR and $8000) shr 15);
 end;
 
 function ConvertCLUTColor(COLOR: TCLUT_COLOR): word;
 begin
-  Result := Word(COLOR.STP shl 15) or Word((COLOR.B div 8) shl 10) or Word((COLOR.G div 8) shl 5) or Word(COLOR.R div 8);
+  Result := Word(COLOR.STP shl 15) or Word((COLOR.B shr 3) shl 10) or Word((COLOR.G shr 3) shl 5) or Word(COLOR.R shr 3);
 end;
 
 function GetCLUTColor(TIM: PTIM; CLUT_NUM, COLOR_NUM: Integer): TCLUT_COLOR;
@@ -167,16 +170,19 @@ var
 begin
   if (TIM^.HEAD^.bBPP in [cTIM4NC, cTIM8NC]) then
   begin
-    Result.R := random($20) * 8;
-    Result.G := random($20) * 8;
-    Result.B := random($20) * 8;
+    Result.R := random($20) shl 3;
+    Result.G := random($20) shl 3;
+    Result.B := random($20) shl 3;
     Result.STP := 1;
     Exit;
   end;
 
   CLUT_OFFSET := CLUT_NUM * GetTimColorsCount(TIM) * 2;
 
-  Move(TIM^.DATA^[SizeOf(TTIMHeader) + SizeOf(TCLUTHeader) + COLOR_NUM * 2 + CLUT_OFFSET], COLOR, 2);
+  if (not TIM^.UseExtClut) then
+    Move(TIM^.DATA^[SizeOf(TTIMHeader) + SizeOf(TCLUTHeader) + COLOR_NUM * 2 + CLUT_OFFSET], COLOR, 2)
+  else
+    Move(TIM^.ExtCLUT_DATA^[COLOR_NUM * 2 + CLUT_OFFSET], COLOR, sizeof(TCLUT_COLOR));
 
   Result := ConvertTIMColor(COLOR);
 end;
@@ -207,7 +213,7 @@ function GetTIMCLUTSize(TIM: PTIM): Integer;
 begin
   Result := 0;
   if not TIMHasCLUT(TIM) then Exit;
-  Result := TIM^.CLUT^.wColorsCount * TIM^.CLUT^.wClutsCount * 2 + SizeOf(TCLUTHeader);
+  Result := GetTimColorsCount(TIM) * GetTimClutsCount(TIM) * 2 + SizeOf(TCLUTHeader);
 end;
 
 function GetTIMIMAGESize(TIM: PTIM): Integer;
@@ -247,22 +253,22 @@ end;
 
 function CheckCLUTVramX(TIM: PTIM): Boolean;
 begin
-  Result := (TIM^.CLUT^.wVRAMX + TIM^.CLUT^.wColorsCount) <= cCLUTColorsMax;
+  Result := (GetTimClutVRAMX(TIM) + GetTimColorsCount(TIM)) <= cCLUTColorsMax;
 end;
 
 function CheckCLUTVramY(TIM: PTIM): Boolean;
 begin
-  Result := (TIM^.CLUT^.wVRAMY + TIM^.CLUT^.wClutsCount) <= cCLUTCountMax;
+  Result := (GetTimClutVRAMY(TIM) + GetTimClutsCount(TIM)) <= cCLUTCountMax;
 end;
 
 function CheckCLUTColors(TIM: PTIM): Boolean;
 begin
-  Result := (TIM^.CLUT^.wColorsCount >= 1) and (TIM^.CLUT^.wColorsCount <= cCLUTColorsMax);
+  Result := (GetTimColorsCount(TIM) >= 1) and (GetTimColorsCount(TIM) <= cCLUTColorsMax);
 end;
 
 function CheckCLUTCount(TIM: PTIM): Boolean;
 begin
-  Result := (TIM^.CLUT^.wClutsCount >= 1) and (TIM^.CLUT^.wClutsCount <= cCLUTCountMax);
+  Result := (GetTimClutsCount(TIM) >= 1) and (GetTimClutsCount(TIM) <= cCLUTCountMax);
 end;
 
 function IWidthToRWidth(TIM: PTIM): word;
@@ -401,9 +407,12 @@ begin
   if not CheckTIMSize(TIM) then Exit;
 
   TIM^.dwSize := GetTIMSize(TIM);
-  TIM^.bGOOD := TIMIsGood(TIM);
 
   Move(PBytesArray(BUFFER)^[TIM_POS], TIM^.DATA^[0], TIM^.dwSize);
+
+  TIM^.UseExtClut := False;
+  TIM^.ExtCLUT := nil;
+  TIM^.ExtCLUT_DATA := nil;
 
   Result := True;
 end;
@@ -527,7 +536,9 @@ begin
   Result^.dwSize := 0;
   Result^.dwTimPosition := 0;
   Result^.dwTimNumber := 0;
-  Result^.bGOOD := False;
+  Result^.UseExtClut := False;
+  Result^.ExtCLUT := nil;
+  Result^.ExtCLUT_DATA := nil;
   New(Result^.DATA);
   ClearTIM(Result);
 end;
@@ -592,12 +603,18 @@ end;
 
 function GetTimColorsCount(TIM: PTIM): word;
 begin
-  Result := TIM^.CLUT^.wColorsCount;
+  if (not TIM^.UseExtClut) then
+    Result := TIM^.ExtCLUT^.wColorsCount
+  else
+    Result := TIM^.CLUT^.wColorsCount;
 end;
 
 function GetTimClutsCount(TIM: PTIM): word;
 begin
-  Result := TIM^.CLUT^.wClutsCount;
+  if (not TIM^.UseExtClut) then
+    Result := TIM^.ExtCLUT^.wClutsCount
+  else
+    Result := TIM^.CLUT^.wClutsCount;
 end;
 
 function GetTimBPP(TIM: PTIM): Integer;
@@ -607,17 +624,26 @@ end;
 
 function GetTimClutSizeHeader(TIM: PTIM): Integer;
 begin
-  Result := TIM^.CLUT^.dwSize;
+  if (not TIM^.UseExtClut) then
+    Result := TIM^.ExtCLUT^.dwSize
+  else
+    Result := TIM^.CLUT^.dwSize;
 end;
 
 function GetTimClutVRAMX(TIM: PTIM): word;
 begin
-  Result := TIM^.CLUT^.wVRAMX;
+  if (not TIM^.UseExtClut) then
+    Result := TIM^.ExtCLUT^.wVRAMX
+  else
+    Result := TIM^.CLUT^.wVRAMX;
 end;
 
 function GetTimClutVRAMY(TIM: PTIM): word;
 begin
-  Result := TIM^.CLUT^.wVRAMY;
+  if (not TIM^.UseExtClut) then
+    Result := TIM^.ExtCLUT^.wVRAMY
+  else
+    Result := TIM^.CLUT^.wVRAMY;
 end;
 
 function GetTimImageSizeHeader(TIM: PTIM): Integer;
