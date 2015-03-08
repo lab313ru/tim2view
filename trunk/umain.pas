@@ -280,7 +280,7 @@ begin
     5: cbbBitMode.Tag := NativeInt(cTIM16NC);
     6: cbbBitMode.Tag := NativeInt(cTIM24NC);
     else
-      cbbBitMode.Tag := NativeInt($FF);
+      cbbBitMode.Tag := NativeInt(-1);
   end;
 
   UpdateTim(True, False, False);
@@ -555,7 +555,7 @@ procedure TfrmMain.FormCreate(Sender: TObject);
 begin
   Settings := TSettings.Create(ExtractFilePath(ParamStr(0)));
 
-  cbbBitMode.Tag := NativeInt($FF);
+  cbbBitMode.Tag := NativeInt(-1);
 
   {$IFDEF windows}actAddToSendto.Checked := Settings.SendToShortcutExists;{$ENDIF}
   actStretch.Checked := Settings.StretchMode;
@@ -755,8 +755,10 @@ begin
   P := SelectedTimInfo.Position;
   Result := LoadTimFromFile(SelectedScanResult.ScanFile, P, SelectedScanResult.IsImage, SelectedTimInfo.Size);
 
-  if Integer(cbbBitMode.Tag) = $FF then Exit;
-  Result^.HEAD^.bBPP := Integer(cbbBitMode.Tag);
+  if Integer(cbbBitMode.Tag) = -1 then
+    Result^.OverBpp := Result^.HEAD^.bBPP
+  else
+    Result^.OverBpp := Integer(cbbBitMode.Tag);
 end;
 
 procedure TfrmMain.ScanPath(const Path: string);
