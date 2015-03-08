@@ -76,9 +76,9 @@ var
   R, G, B, A: Byte;
   FC: TFPColor;
 begin
-  if (TIM^.HEAD^.bBPP in [cTIM16NC, cTIM24NC]) then Exit;
+  if (TIM^.OverBpp in [cTIM16NC, cTIM24NC]) then Exit;
 
-  if (TIM^.HEAD^.bBPP in [cTIM4NC, cTIM8NC]) then
+  if (TIM^.OverBpp in [cTIM4NC, cTIM8NC]) then
   begin
     Randomize;
     COUNT := 256;
@@ -130,7 +130,7 @@ begin
   RW := GetTimRealWidth(TIM);
 
   WH := TIM^.IMAGE^.wWidth * TIM^.IMAGE^.wHeight;
-  case TIM^.HEAD^.bBPP of
+  case TIM^.OverBpp of
     cTIM4C, cTIM4NC:
       for I := 1 to WH * 2 do
       begin
@@ -198,7 +198,7 @@ begin
   if (Image^ <> nil) then Image^.Free;
 
   Image^ := TBGRABitmap.Create(RW, RH);
-  Image^.UsePalette := not(TIM^.HEAD^.bBPP in [cTIM16NC, cTIM24NC]);
+  Image^.UsePalette := not(TIM^.OverBpp in [cTIM16NC, cTIM24NC]);
 
   PAL := @(Image^.Palette);
 
@@ -216,7 +216,7 @@ begin
   for Y := 1 to RH do
     for X := 1 to RW do
     begin
-      case TIM^.HEAD^.bBPP of
+      case TIM^.OverBpp of
         cTIM4C, cTIM4NC, cTIM8C, cTIM8NC:
           Image^.Pixels[X - 1, Y - 1] := INDEXES^[IDX] mod COLORS;
         cTIM16C, cTIM16NC, cTIMMixC, cTIMMixNC:

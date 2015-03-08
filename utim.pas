@@ -105,10 +105,7 @@ type
     IMAGE: PIMAGEHeader;
     dwSize: Integer;
     DATA: PTIMDataArray;
-
-    UseExtClut: Boolean;
-    ExtCLUT: PCLUTHeader;
-    ExtCLUT_DATA: PCLUT_COLORS;
+    OverBpp: Integer;
   end;
 
   PTIM = ^TTIM;
@@ -168,7 +165,7 @@ var
   CLUT_OFFSET: Integer;
   COLOR: word;
 begin
-  if (TIM^.HEAD^.bBPP in [cTIM4NC, cTIM8NC]) then
+  if (TIM^.OverBpp in [cTIM4NC, cTIM8NC]) then
   begin
     Result.R := random($20) shl 3;
     Result.G := random($20) shl 3;
@@ -272,8 +269,15 @@ begin
 end;
 
 function IWidthToRWidth(TIM: PTIM): word;
+var
+  bpp: Integer;
 begin
-  case TIM^.HEAD^.bBPP of
+  if (TIM^.HEAD^.bBPP <> TIM^.OverBpp) then
+    bpp := TIM^.OverBpp
+  else
+    bpp := TIM^.HEAD^.bBPP;
+
+  case bpp of
     cTIM4C, cTIM4NC: Result := (TIM^.IMAGE^.wWidth * 4) and $FFFF;
     cTIM8C, cTIM8NC: Result := (TIM^.IMAGE^.wWidth * 2) and $FFFF;
     cTIM16C, cTIM16NC, cTIMMixC, cTIMMixNC: Result := TIM^.IMAGE^.wWidth;
@@ -410,10 +414,7 @@ begin
 
   Move(PBytesArray(BUFFER)^[TIM_POS], TIM^.DATA^[0], TIM^.dwSize);
 
-  TIM^.UseExtClut := False;
-  TIM^.ExtCLUT := nil;
-  TIM^.ExtCLUT_DATA := nil;
-
+  TIM^.OverBpp := TIM^.HEAD^.bBPP;
   Result := True;
 end;
 
@@ -473,6 +474,7 @@ begin
 
   P := 0;
   Result := nil;
+
   LoadTimFromBuf(TIM_BUF, Result, P);
   sImageStream.Free;
   Dispose(TIM_BUF);
@@ -536,9 +538,7 @@ begin
   Result^.dwSize := 0;
   Result^.dwTimPosition := 0;
   Result^.dwTimNumber := 0;
-  Result^.UseExtClut := False;
-  Result^.ExtCLUT := nil;
-  Result^.ExtCLUT_DATA := nil;
+  Result^.OverBpp := -1;
   New(Result^.DATA);
   ClearTIM(Result);
 end;
