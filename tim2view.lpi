@@ -260,7 +260,6 @@
       <Unit4>
         <Filename Value="ucommon.pas"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="ucommon"/>
       </Unit4>
       <Unit5>
         <Filename Value="utim.pas"/>
@@ -270,27 +269,22 @@
       <Unit6>
         <Filename Value="ucdimage.pas"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="ucdimage"/>
       </Unit6>
       <Unit7>
         <Filename Value="usettings.pas"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="usettings"/>
       </Unit7>
       <Unit8>
         <Filename Value="uscanresult.pas"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="uscanresult"/>
       </Unit8>
       <Unit9>
         <Filename Value="uscanthread.pas"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="uscanthread"/>
       </Unit9>
       <Unit10>
         <Filename Value="ucpucount.pas"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="ucpucount"/>
       </Unit10>
       <Unit11>
         <Filename Value="udrawtim.pas"/>
@@ -308,7 +302,6 @@
       <Unit14>
         <Filename Value="uexportimport.pas"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="uexportimport"/>
       </Unit14>
     </Units>
   </ProjectOptions>

@@ -660,7 +660,7 @@ begin
     FreeTIM(TIM);
     Exit;
   end;
-
+  //Writeln('X=',aCol, '; Y=',aRow);
   DrawClutCell(TIM, cbbCLUT.ItemIndex, @grdClut, ACol, ARow);
 
   FreeTIM(TIM);
@@ -1055,7 +1055,11 @@ procedure TfrmMain.UpdateTim(Tim, Clut, ClutInfo: Boolean);
 begin
   if ClutInfo then UpdateCLUTInfo;
   if Tim then DrawSelTim;
-  if Clut then DrawSelClut;
+  if Clut then
+  begin
+    DrawSelClut;
+    grdClut.Repaint;
+  end;
 end;
 
 end.

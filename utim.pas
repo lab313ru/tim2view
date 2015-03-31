@@ -106,6 +106,9 @@ type
     dwSize: Integer;
     DATA: PTIMDataArray;
     OverBpp: Integer;
+    UseExtClut: Boolean;
+    ExtCLUT: PCLUTHeader;
+    ExtCLUT_DATA: PCLUT_COLORS;
   end;
 
   PTIM = ^TTIM;
@@ -174,12 +177,13 @@ begin
     Exit;
   end;
 
+  COLOR := 0;
   CLUT_OFFSET := CLUT_NUM * GetTimColorsCount(TIM) * 2;
 
-  if (not TIM^.UseExtClut) then
-    Move(TIM^.DATA^[SizeOf(TTIMHeader) + SizeOf(TCLUTHeader) + COLOR_NUM * 2 + CLUT_OFFSET], COLOR, 2)
+  if (TIM^.UseExtClut) then
+     Move(TIM^.ExtCLUT_DATA^[COLOR_NUM * 2 + CLUT_OFFSET], COLOR, sizeof(TCLUT_COLOR))
   else
-    Move(TIM^.ExtCLUT_DATA^[COLOR_NUM * 2 + CLUT_OFFSET], COLOR, sizeof(TCLUT_COLOR));
+     Move(TIM^.DATA^[SizeOf(TTIMHeader) + SizeOf(TCLUTHeader) + COLOR_NUM * 2 + CLUT_OFFSET], COLOR, 2);
 
   Result := ConvertTIMColor(COLOR);
 end;
@@ -414,6 +418,10 @@ begin
 
   Move(PBytesArray(BUFFER)^[TIM_POS], TIM^.DATA^[0], TIM^.dwSize);
 
+  TIM^.UseExtClut := False;
+  TIM^.ExtCLUT := nil;
+  TIM^.ExtCLUT_DATA := nil;
+
   TIM^.OverBpp := TIM^.HEAD^.bBPP;
   Result := True;
 end;
@@ -539,6 +547,9 @@ begin
   Result^.dwTimPosition := 0;
   Result^.dwTimNumber := 0;
   Result^.OverBpp := -1;
+  Result^.UseExtClut := False;
+  Result^.ExtCLUT := nil;
+  Result^.ExtCLUT_DATA := nil;
   New(Result^.DATA);
   ClearTIM(Result);
 end;
@@ -603,7 +614,7 @@ end;
 
 function GetTimColorsCount(TIM: PTIM): word;
 begin
-  if (not TIM^.UseExtClut) then
+  if (TIM^.UseExtClut) then
     Result := TIM^.ExtCLUT^.wColorsCount
   else
     Result := TIM^.CLUT^.wColorsCount;
@@ -611,7 +622,7 @@ end;
 
 function GetTimClutsCount(TIM: PTIM): word;
 begin
-  if (not TIM^.UseExtClut) then
+  if (TIM^.UseExtClut) then
     Result := TIM^.ExtCLUT^.wClutsCount
   else
     Result := TIM^.CLUT^.wClutsCount;
@@ -624,7 +635,7 @@ end;
 
 function GetTimClutSizeHeader(TIM: PTIM): Integer;
 begin
-  if (not TIM^.UseExtClut) then
+  if (TIM^.UseExtClut) then
     Result := TIM^.ExtCLUT^.dwSize
   else
     Result := TIM^.CLUT^.dwSize;
@@ -632,7 +643,7 @@ end;
 
 function GetTimClutVRAMX(TIM: PTIM): word;
 begin
-  if (not TIM^.UseExtClut) then
+  if (TIM^.UseExtClut) then
     Result := TIM^.ExtCLUT^.wVRAMX
   else
     Result := TIM^.CLUT^.wVRAMX;
@@ -640,7 +651,7 @@ end;
 
 function GetTimClutVRAMY(TIM: PTIM): word;
 begin
-  if (not TIM^.UseExtClut) then
+  if (TIM^.UseExtClut) then
     Result := TIM^.ExtCLUT^.wVRAMY
   else
     Result := TIM^.CLUT^.wVRAMY;

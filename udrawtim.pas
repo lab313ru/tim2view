@@ -324,6 +324,7 @@ var
   COLS, Colors: Integer;
   FC: TFPColor;
 begin
+  //Writeln('X=',X, '; Y=',Y);
   Colors := GetTimColorsCount(TIM);
   COLS := Min(Colors, 32);
   Rect := Grid^.CellRect(X, Y);
@@ -378,12 +379,16 @@ begin
 
   Grid^.RowCount := ROWS;
 
+  (*
+  //Grid^.BeginUpdate;
   for Y := 1 to ROWS do
     for X := 1 to COLS do
     begin
       //ClearCanvas(@Grid^.Canvas, Grid^.CellRect(X - 1, Y - 1));
       DrawClutCell(TIM, CLUT_NUM, Grid, X - 1, Y - 1);
     end;
+  //Grid^.EndUpdate(true);   *)
+  //Grid^.Repaint;
 end;
 
 end.
