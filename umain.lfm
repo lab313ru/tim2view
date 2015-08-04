@@ -494,7 +494,7 @@ object frmMain: TfrmMain
   OnCreate = FormCreate
   OnDropFiles = FormDropFiles
   Position = poScreenCenter
-  LCLVersion = '1.4.0.2'
+  LCLVersion = '1.4.2.0'
   object pnlStatus: TPanel
     Left = 0
     Height = 30
@@ -1148,7 +1148,7 @@ object frmMain: TfrmMain
     end
   end
   object dlgSelectDir: TSelectDirectoryDialog
-    Options = [ofNoChangeDir, ofNoNetworkButton, ofEnableSizing, ofViewDetail]
+    Options = [ofNoChangeDir, ofNoNetworkButton, ofOldStyleDialog, ofEnableSizing, ofViewDetail]
     left = 512
     top = 112
   end

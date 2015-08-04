@@ -6,15 +6,11 @@ uses
   {$IFDEF UNIX}
   cthreads, cmem,
   {$ENDIF}
-  Forms, umain, Interfaces,
-  Windows;
+  Forms, umain, Interfaces;
 
 {$R *.res}
 
 begin
-  AllocConsole;      // in Windows unit
-  IsConsole := True; // in System unit
-  SysInitStdIO;      // in System unit
   RequireDerivedFormResource := True;
   Application.Initialize;
   Application.CreateForm(TfrmMain, frmMain);

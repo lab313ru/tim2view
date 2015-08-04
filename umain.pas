@@ -660,7 +660,7 @@ begin
     FreeTIM(TIM);
     Exit;
   end;
-  //Writeln('X=',aCol, '; Y=',aRow);
+
   DrawClutCell(TIM, cbbCLUT.ItemIndex, @grdClut, ACol, ARow);
 
   FreeTIM(TIM);
@@ -795,6 +795,8 @@ begin
     ScanThreads.Last.FreeOnTerminate := True;
     ScanThreads.Last.Priority := tpNormal;
     ScanThreads.Last.OnTerminate := @ScanFinished;
+
+    ScanThreads.Pack;
 
     if StartedScans < GetLogicalCpuCount then
     begin
