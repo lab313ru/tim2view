@@ -1,0 +1,3 @@
+[submodule "lazpaint"]
+	path = lazpaint
+	url = https://github.com/bgrabitmap/lazpaint.git
