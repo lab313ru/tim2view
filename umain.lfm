@@ -873,7 +873,7 @@ object frmMain: TfrmMain
     Title = 'Please, select File...'
     DefaultExt = '.bin'
     Filter = 'All Files (*.*)|*.*'
-    Options = [ofHideReadOnly, ofNoChangeDir, ofAllowMultiSelect, ofNoNetworkButton, ofOldStyleDialog, ofEnableSizing, ofForceShowHidden]
+    Options = [ofHideReadOnly, ofNoChangeDir, ofAllowMultiSelect, ofNoNetworkButton, ofEnableSizing, ofForceShowHidden]
     left = 560
     top = 112
   end
@@ -1148,7 +1148,7 @@ object frmMain: TfrmMain
     end
   end
   object dlgSelectDir: TSelectDirectoryDialog
-    Options = [ofNoChangeDir, ofNoNetworkButton, ofOldStyleDialog, ofEnableSizing, ofViewDetail]
+    Options = [ofNoChangeDir, ofNoNetworkButton, ofEnableSizing, ofViewDetail]
     left = 512
     top = 112
   end
