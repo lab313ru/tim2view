@@ -26,8 +26,8 @@
       <UseVersionInfo Value="True"/>
       <AutoIncrementBuild Value="True"/>
       <MajorVersionNr Value="1"/>
-      <RevisionNr Value="88"/>
-      <BuildNr Value="20"/>
+      <RevisionNr Value="90"/>
+      <BuildNr Value="33"/>
       <StringTable CompanyName="Lab 313" FileDescription="The best TIMs tool ever!:)" ProductVersion=""/>
     </VersionInfo>
     <BuildModes Count="6">
@@ -41,6 +41,7 @@
           </Target>
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir);lazpaint\bgrabitmap"/>
+            <Libraries Value="$(TyphonDir)\..\binLibraries\$(TargetCPU)-$(TargetOS)"/>
             <OtherUnitFiles Value="lazpaint\bgrabitmap"/>
             <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
           </SearchPaths>
@@ -80,6 +81,7 @@
           </Target>
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir);lazpaint\bgrabitmap"/>
+            <Libraries Value="$(TyphonDir)\..\binLibraries\$(TargetCPU)-$(TargetOS)"/>
             <OtherUnitFiles Value="lazpaint\bgrabitmap"/>
             <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
           </SearchPaths>
@@ -119,6 +121,7 @@
           </Target>
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir);lazpaint\bgrabitmap"/>
+            <Libraries Value="$(TyphonDir)\..\binLibraries\$(TargetCPU)-$(TargetOS)"/>
             <OtherUnitFiles Value="lazpaint\bgrabitmap"/>
             <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
           </SearchPaths>
@@ -158,6 +161,7 @@
           </Target>
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir);lazpaint\bgrabitmap"/>
+            <Libraries Value="$(TyphonDir)\..\binLibraries\$(TargetCPU)-$(TargetOS)"/>
             <OtherUnitFiles Value="lazpaint\bgrabitmap"/>
             <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
           </SearchPaths>
@@ -197,6 +201,7 @@
           </Target>
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir);lazpaint\bgrabitmap"/>
+            <Libraries Value="$(TyphonDir)\..\binLibraries\$(TargetCPU)-$(TargetOS)"/>
             <OtherUnitFiles Value="lazpaint\bgrabitmap"/>
             <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
           </SearchPaths>
@@ -315,6 +320,7 @@
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir);lazpaint\bgrabitmap"/>
+      <Libraries Value="$(TyphonDir)\..\binLibraries\$(TargetCPU)-$(TargetOS)"/>
       <OtherUnitFiles Value="lazpaint\bgrabitmap"/>
       <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>

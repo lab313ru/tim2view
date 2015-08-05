@@ -494,7 +494,7 @@ object frmMain: TfrmMain
   OnCreate = FormCreate
   OnDropFiles = FormDropFiles
   Position = poScreenCenter
-  LCLVersion = '1.4.2.0'
+  LCLVersion = '1.5'
   object pnlStatus: TPanel
     Left = 0
     Height = 30
@@ -673,7 +673,7 @@ object frmMain: TfrmMain
         TitleFont.Name = 'Tahoma'
         ColWidths = (
           102
-          150
+          133
         )
         Cells = (
           10
@@ -873,7 +873,7 @@ object frmMain: TfrmMain
     Title = 'Please, select File...'
     DefaultExt = '.bin'
     Filter = 'All Files (*.*)|*.*'
-    Options = [ofHideReadOnly, ofNoChangeDir, ofAllowMultiSelect, ofNoNetworkButton, ofEnableSizing, ofForceShowHidden]
+    Options = [ofHideReadOnly, ofNoChangeDir, ofAllowMultiSelect, ofNoNetworkButton, ofOldStyleDialog, ofEnableSizing, ofForceShowHidden]
     left = 560
     top = 112
   end

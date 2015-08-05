@@ -317,7 +317,9 @@ end;
 
 procedure TfrmMain.actAddToSendtoExecute(Sender: TObject);
 begin
+  {$IFDEF windows}
   Settings.AddToSendTo(not (Sender as TAction).Checked);
+  {$IFEND}
 end;
 
 procedure TfrmMain.actChangeBackColorExecute(Sender: TObject);

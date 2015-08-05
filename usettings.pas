@@ -64,8 +64,8 @@ const
 
 { TSettings }
 
-procedure TSettings.AddToSendTo(Delete: Boolean);
 {$IFDEF windows}
+procedure TSettings.AddToSendTo(Delete: Boolean);
 var
   path: string;
 begin
@@ -76,12 +76,8 @@ begin
   end
   else
     FCreateSendtoShortcut;
-{$ELSE}
-begin
-{$ENDIF}
 end;
 
-{$IFDEF windows}
 function TSettings.FGetSendtoShortcutPath: WideString;
 var
   PIDL: PItemIDList;
