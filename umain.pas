@@ -52,8 +52,8 @@ type
     dlgOpenFile: TOpenDialog;
     dlgSavePNG: TSavePictureDialog;
     dlgSaveFile: TSaveDialog;
-    MenuItem2: TMenuItem;
-    MenuItem3: TMenuItem;
+    mnExtractAllTimsAll: TMenuItem;
+    mnExtractAllPngsAll: TMenuItem;
     N22: TMenuItem;
     mnExtractAllPngs3: TMenuItem;
     mnExtractAllTims3: TMenuItem;
@@ -391,6 +391,9 @@ begin
   lblStatus.Caption := sStatusBarPngsExtracting;
 
   for J := 1 to ScanResults.Count do begin
+    cbbFiles.ItemIndex := J - 1;
+    actChangeFile.Execute;
+
     FName := ScanResults[J - 1].ScanFile;
     IsImage := ScanResults[J - 1].IsImage;
 
@@ -415,7 +418,7 @@ begin
       Tim2Png(TIM, cbbCLUT.ItemIndex, Image, cbbTranspMode.ItemIndex);
 
       Path := Path + FormatPngName(FName, I - 1, BIT_MODE, 0);
-      SaveImage(Path, Image, False);
+      SaveImage(Path, Image, TIMisIndexed(TIM));
       {$IFDEF Linux}FpChmod(Path, &777);{$IFEND}
       Image^.Free;
       Image^ := nil;
@@ -466,7 +469,7 @@ begin
     Tim2Png(TIM, cbbCLUT.ItemIndex, Image, cbbTranspMode.ItemIndex);
 
     Path := Path + FormatPngName(FName, I - 1, BIT_MODE, 0);
-    SaveImage(Path, Image, False);
+    SaveImage(Path, Image, TIMisIndexed(TIM));
     {$IFDEF Linux}FpChmod(Path, &777);{$IFEND}
     Image^.Free;
     Image^ := nil;
@@ -507,6 +510,9 @@ begin
   lblStatus.Caption := sStatusBarFilesExtracting;
 
   for J := 1 to ScanResults.Count do begin
+    cbbFiles.ItemIndex := J - 1;
+    actChangeFile.Execute;
+
     FName := ScanResults[J - 1].ScanFile;
     IsImage := ScanResults[J - 1].IsImage;
 

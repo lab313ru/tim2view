@@ -2,3 +2,5 @@ lib/
 *.res
 *.lps
 *.t2v
+output/PNGS/
+output/FILES/

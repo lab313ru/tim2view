@@ -901,11 +901,12 @@ object frmMain: TfrmMain
       object N22: TMenuItem
         Caption = '-'
       end
-      object MenuItem2: TMenuItem
+      object mnExtractAllTimsAll: TMenuItem
         Action = actExtractTimsAll
       end
-      object MenuItem3: TMenuItem
+      object mnExtractAllPngsAll: TMenuItem
         Action = actExtractPngsAll
+        ShortCut = 24691
       end
     end
     object mnOptions: TMenuItem
