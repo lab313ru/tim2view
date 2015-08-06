@@ -64,7 +64,6 @@ type
     imgTim: TImage;
     lblClutHint: TLabel;
     lblStatus: TLabel;
-    lvList: TListView;
     MenuItem1: TMenuItem;
     mnImportPng1: TMenuItem;
     mnShowTimInfo: TMenuItem;
@@ -113,6 +112,7 @@ type
     mnSaveToPNG1: TMenuItem;
     dlgSelectDir: TSelectDirectoryDialog;
     splMain: TSplitter;
+    grdTimsList: TStringGrid;
     tblTimInfo: TStringGrid;
     procedure actAboutExecute(Sender: TObject);
     procedure actAddToSendtoExecute(Sender: TObject);
@@ -147,6 +147,9 @@ type
     procedure grdClutDblClick(Sender: TObject);
     procedure grdClutDrawCell(Sender: TObject; aCol, aRow: Integer; aRect: TRect; aState: TGridDrawState);
     procedure grdClutKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure grdTimsListDrawCell(Sender: TObject; aCol, aRow: Integer;
+      aRect: TRect; aState: TGridDrawState);
+    procedure grdTimsListSelection(Sender: TObject; aCol, aRow: Integer);
     procedure lvListData(Sender: TObject; Item: TListItem);
     procedure lvListSelectItem(Sender: TObject; Item: TListItem; Selected: Boolean);
   private
@@ -306,17 +309,11 @@ begin
   SetTimsListCount(SelectedScanResult.Count);
 
   actReturnFocus.Execute;
-  if lvList.Items.Count = 0 then Exit;
+  if grdTimsList.RowCount = 1 then Exit;
 
-  //if lvList.Selected <> nil then
-  //  lvList.Selected.Index := -1;
-  lvList.ItemIndex:= -1;
-  lvList.Update;
-  lvList.ItemIndex := 0;
-
-  lvList.Items[0].Focused := True;
-  lvList.Items[0].Selected := True;
-  lvList.Items[0].MakeVisible(False);
+  grdTimsList.Row := 1;
+  grdTimsListSelection(Self, 0, 1);
+  grdTimsList.SetFocus;
 end;
 
 procedure TfrmMain.actAboutExecute(Sender: TObject);
@@ -631,7 +628,7 @@ end;
 
 procedure TfrmMain.actReturnFocusExecute(Sender: TObject);
 begin
-  if pnlList.Enabled then lvList.SetFocus;
+  if pnlList.Enabled then grdTimsList.SetFocus;
 end;
 
 procedure TfrmMain.actScanDirExecute(Sender: TObject);
@@ -811,6 +808,19 @@ begin
   UpdateTim(True, True, False);
 end;
 
+procedure TfrmMain.grdTimsListDrawCell(Sender: TObject; aCol, aRow: Integer;
+  aRect: TRect; aState: TGridDrawState);
+begin
+
+end;
+
+procedure TfrmMain.grdTimsListSelection(Sender: TObject; aCol, aRow: Integer);
+begin
+  if (aCol < 1) and (aRow < 1) then Exit;
+
+  ShowTim;
+end;
+
 procedure TfrmMain.lvListData(Sender: TObject; Item: TListItem);
 var
   W, H: Word;
@@ -830,9 +840,7 @@ end;
 procedure TfrmMain.lvListSelectItem(Sender: TObject; Item: TListItem;
   Selected: Boolean);
 begin
-  if (Item = nil) then Exit;
 
-  if Selected then ShowTim;
 end;
 
 function TfrmMain.FGetSelectedScanResult: TScanResult;
@@ -843,7 +851,7 @@ end;
 
 function TfrmMain.FGetSelectedTimIdx: Integer;
 begin
-  Result := lvList.ItemIndex;
+  Result := grdTimsList.Row - 1;
 end;
 
 function TfrmMain.FGetSelectedTimInfo: TTimInfo;
@@ -861,8 +869,6 @@ var
   P: Integer;
 begin
   Result := nil;
-
-  if lvList.Selected = nil then Exit;
 
   P := SelectedTimInfo.Position;
   Result := LoadTimFromFile(SelectedScanResult.ScanFile, P, SelectedScanResult.IsImage, SelectedTimInfo.Size);
@@ -957,7 +963,7 @@ begin
   actScanFile.Enabled := ScanThreads.Count = 0;
   actScanDir.Enabled := ScanThreads.Count = 0;
 
-  actReplaceTim.Enabled := (lvList.Selected <> nil) and (lvList.Selected.Index <> -1);
+  actReplaceTim.Enabled := not (grdTimsList.Row < 1);
 
   actPngExport.Enabled := (Surf^ <> nil) and actReplaceTim.Enabled;
   actPngImport.Enabled := actReplaceTim.Enabled;
@@ -1016,10 +1022,10 @@ end;
 
 procedure TfrmMain.SetTimsListCount(Count: Integer);
 begin
-  lvList.Items.BeginUpdate;
-  lvList.Items.Count := Count;
-  lvList.Column[0].Caption := Format('# / %d', [Count]);
-  lvList.Items.EndUpdate;
+  grdTimsList.BeginUpdate;
+  grdTimsList.RowCount := Count + 1;
+  grdTimsList.Columns[0].Title.Caption := Format('# / %d', [Count]);
+  grdTimsList.EndUpdate;
 end;
 
 procedure TfrmMain.UpdateCLUTInfo;
@@ -1112,8 +1118,7 @@ end;
 
 procedure TfrmMain.ShowTim;
 begin
-  if (lvList.Selected = nil) then Exit;
-  if (lvList.Items.Count = 0) then Exit;
+  if (grdTimsList.RowCount = 1) then Exit;
 
   { TODO : Reset bitmode or not? }
   //cbbBitMode.ItemIndex := 0;

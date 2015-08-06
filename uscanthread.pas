@@ -202,7 +202,7 @@ end;
 procedure TScanThread.UpdateProgressBar;
 begin
   frmMain.pbProgress.Position := pFilePos;
-  frmMain.lvList.Column[0].Caption := Format('# / %d', [pScanResult.Count]);
+  frmMain.grdTimsList.Columns[0].Title.Caption := Format('# / %d', [pScanResult.Count]);
 end;
 
 procedure TScanThread.ClearSectorBuffer(SectorBuffer, ClearBuffer: PBytesArray);

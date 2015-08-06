@@ -576,54 +576,6 @@ object frmMain: TfrmMain
       ClientHeight = 597
       ClientWidth = 253
       TabOrder = 0
-      object lvList: TListView
-        Left = 0
-        Height = 412
-        Top = 0
-        Width = 253
-        Align = alClient
-        Columns = <        
-          item
-            AutoSize = True
-            Caption = '# / 0'
-            Width = 249
-          end        
-          item
-            Alignment = taCenter
-            AutoSize = True
-            Caption = 'BPP'
-            Width = 30
-          end        
-          item
-            Alignment = taCenter
-            AutoSize = True
-            Caption = 'CLUTs'
-            Width = 42
-          end        
-          item
-            Alignment = taCenter
-            AutoSize = True
-            Caption = 'Type'
-            Width = 36
-          end        
-          item
-            Alignment = taCenter
-            AutoSize = True
-            Caption = 'W x H'
-            Width = 41
-          end>
-        ColumnClick = False
-        OwnerData = True
-        PopupMenu = pmList
-        ReadOnly = True
-        RowSelect = True
-        ScrollBars = ssAutoBoth
-        TabOrder = 0
-        ToolTips = False
-        ViewStyle = vsReport
-        OnData = lvListData
-        OnSelectItem = lvListSelectItem
-      end
       object tblTimInfo: TStringGrid
         Left = 0
         Height = 185
@@ -638,13 +590,13 @@ object frmMain: TfrmMain
         Flat = True
         Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goSmoothScroll]
         RowCount = 9
-        TabOrder = 1
+        TabOrder = 0
         TitleFont.Color = clWindowText
         TitleFont.Height = -11
         TitleFont.Name = 'Tahoma'
         ColWidths = (
           102
-          133
+          150
         )
         Cells = (
           10
@@ -678,6 +630,58 @@ object frmMain: TfrmMain
           1
           7
           'IMAGE'
+        )
+      end
+      object grdTimsList: TStringGrid
+        Left = 0
+        Height = 412
+        Top = 0
+        Width = 253
+        Align = alClient
+        AutoEdit = False
+        AutoFillColumns = True
+        ColumnClickSorts = True
+        Columns = <        
+          item
+            Title.Caption = '#'
+            Width = 50
+          end        
+          item
+            Title.Caption = 'BPP'
+            Width = 50
+          end        
+          item
+            Title.Caption = 'CLUTs'
+            Width = 50
+          end        
+          item
+            Title.Caption = 'Type'
+            Width = 50
+          end        
+          item
+            Title.Caption = 'W x H'
+            Width = 52
+          end>
+        ExtendedSelect = False
+        FixedCols = 0
+        Flat = True
+        Options = [goFixedVertLine, goDrawFocusSelected, goRowSelect, goSmoothScroll, goHeaderHotTracking, goHeaderPushedLook, goSelectionActive, goTruncCellHints, goRowHighlight]
+        PopupMenu = pmList
+        RowCount = 1
+        TabOrder = 1
+        TitleFont.Color = clWindowText
+        TitleFont.Height = -11
+        TitleFont.Name = 'Tahoma'
+        TitleStyle = tsNative
+        UseXORFeatures = True
+        OnDrawCell = grdTimsListDrawCell
+        OnSelection = grdTimsListSelection
+        ColWidths = (
+          50
+          50
+          50
+          50
+          52
         )
       end
     end
