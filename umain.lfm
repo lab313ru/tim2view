@@ -898,6 +898,15 @@ object frmMain: TfrmMain
       object mnExtractAllPngs3: TMenuItem
         Action = actExtractPngs
       end
+      object N22: TMenuItem
+        Caption = '-'
+      end
+      object MenuItem2: TMenuItem
+        Action = actExtractTimsAll
+      end
+      object MenuItem3: TMenuItem
+        Action = actExtractPngsAll
+      end
     end
     object mnOptions: TMenuItem
       Caption = '&Options'
@@ -1056,10 +1065,19 @@ object frmMain: TfrmMain
       OnExecute = actExtractTimsExecute
       ShortCut = 8305
     end
+    object actExtractTimsAll: TAction
+      Caption = 'Extract all TIMs (&All Files)'
+      OnExecute = actExtractTimsAllExecute
+      ShortCut = 24689
+    end
     object actExtractPngs: TAction
       Caption = '&Extract all PNGs (This File)'
       OnExecute = actExtractPngsExecute
       ShortCut = 8307
+    end
+    object actExtractPngsAll: TAction
+      Caption = 'Extract all PNGs (All &Files)'
+      OnExecute = actExtractPngsAllExecute
     end
     object actChangeClutIdx: TAction
       OnExecute = actChangeClutIdxExecute

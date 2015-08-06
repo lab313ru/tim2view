@@ -28,6 +28,8 @@ type
     actExtractTims: TAction;
     actChangeFile: TAction;
     actChangeBackColor: TAction;
+    actExtractTimsAll: TAction;
+    actExtractPngsAll: TAction;
     actShowFileInfo: TAction;
     actPngImport: TAction;
     actStopScan: TAction;
@@ -50,6 +52,9 @@ type
     dlgOpenFile: TOpenDialog;
     dlgSavePNG: TSavePictureDialog;
     dlgSaveFile: TSaveDialog;
+    MenuItem2: TMenuItem;
+    MenuItem3: TMenuItem;
+    N22: TMenuItem;
     mnExtractAllPngs3: TMenuItem;
     mnExtractAllTims3: TMenuItem;
     N21: TMenuItem;
@@ -117,8 +122,10 @@ type
     procedure actCloseFileExecute(Sender: TObject);
     procedure actCloseFilesExecute(Sender: TObject);
     procedure actExitExecute(Sender: TObject);
+    procedure actExtractPngsAllExecute(Sender: TObject);
     procedure actExtractPngsExecute(Sender: TObject);
     procedure actExtractTimExecute(Sender: TObject);
+    procedure actExtractTimsAllExecute(Sender: TObject);
     procedure actExtractTimsExecute(Sender: TObject);
     procedure actOpenLabExecute(Sender: TObject);
     procedure actOpenRepoExecute(Sender: TObject);
@@ -372,6 +379,58 @@ begin
   Close;
 end;
 
+procedure TfrmMain.actExtractPngsAllExecute(Sender: TObject);
+var
+  I, J, OFFSET, BIT_MODE, SIZE: Integer;
+  FName, Path: string;
+  IsImage: Boolean;
+  ScanTim: TTimInfo;
+  TIM: PTIM;
+  Image: PDrawSurf;
+begin
+  lblStatus.Caption := sStatusBarPngsExtracting;
+
+  for J := 1 to ScanResults.Count do begin
+    FName := ScanResults[J - 1].ScanFile;
+    IsImage := ScanResults[J - 1].IsImage;
+
+    New(Image);
+    Image^ := nil;
+
+    pbProgress.Position := 0;
+    pbProgress.Max := ScanResults[J - 1].Count;
+    for I := 1 to ScanResults[J - 1].Count do
+    begin
+      ScanTim := TimInfoByIdx[I - 1];
+      OFFSET := ScanTim.Position;
+      SIZE := ScanTim.Size;
+      BIT_MODE := ScanTim.BitMode;
+
+      Path := SysToUTF8(IncludeTrailingPathDelimiter(ExtractFilePath(ParamStrUTF8(0)) + cExtractedPngsDir));
+      CreateDirUTF8(Path);
+      Path := IncludeTrailingPathDelimiter(Path + ExtractFileName(FName));
+      CreateDirUTF8(Path);
+
+      TIM := LoadTimFromFile(FName, OFFSET, IsImage, SIZE);
+      Tim2Png(TIM, cbbCLUT.ItemIndex, Image, cbbTranspMode.ItemIndex);
+
+      Path := Path + FormatPngName(FName, I - 1, BIT_MODE, 0);
+      SaveImage(Path, Image, False);
+      {$IFDEF Linux}FpChmod(Path, &777);{$IFEND}
+      Image^.Free;
+      Image^ := nil;
+
+      FreeTIM(TIM);
+
+      pbProgress.Position := I;
+      Application.ProcessMessages;
+    end;
+    Dispose(Image);
+    lblStatus.Caption := sStatusBarExtracted;
+    pbProgress.Position := 0;
+  end;
+end;
+
 procedure TfrmMain.actExtractPngsExecute(Sender: TObject);
 var
   I, OFFSET, BIT_MODE, SIZE: Integer;
@@ -435,6 +494,49 @@ begin
   SaveTimToFile(dlgSaveFile.FileName, TIM);
   {$IFDEF Linux}FpChmod(dlgSaveFile.FileName, &777);{$IFEND}
   FreeTIM(TIM);
+end;
+
+procedure TfrmMain.actExtractTimsAllExecute(Sender: TObject);
+var
+  I, J, OFFSET, BIT_MODE, SIZE, MAGIC: Integer;
+  FName, Path: string;
+  IsImage: Boolean;
+  TIM: PTIM;
+  ScanTim: TTimInfo;
+begin
+  lblStatus.Caption := sStatusBarFilesExtracting;
+
+  for J := 1 to ScanResults.Count do begin
+    FName := ScanResults[J - 1].ScanFile;
+    IsImage := ScanResults[J - 1].IsImage;
+
+    pbProgress.Position := 0;
+    pbProgress.Max := ScanResults[J - 1].Count;
+    for I := 1 to ScanResults[J - 1].Count do
+    begin
+      ScanTim := TimInfoByIdx[I - 1];
+      OFFSET := ScanTim.Position;
+      SIZE := ScanTim.Size;
+      BIT_MODE := ScanTim.BitMode;
+      MAGIC := ScanTim.Magic;
+
+      Path := SysToUTF8(IncludeTrailingPathDelimiter(ExtractFilePath(ParamStrUTF8(0)) + cExtractedFilesDir));
+      CreateDirUTF8(Path);
+      Path := IncludeTrailingPathDelimiter(Path + ExtractFileName(FName));
+      CreateDirUTF8(Path);
+
+      TIM := LoadTimFromFile(FName, OFFSET, IsImage, SIZE);
+      Path := Path + FormatFileName(FName, I - 1, BIT_MODE, MAGIC);
+      SaveTimToFile(Path, TIM);
+      {$IFDEF Linux}FpChmod(Path, &777);{$IFEND}
+      FreeTIM(TIM);
+
+      pbProgress.Position := I;
+      Application.ProcessMessages;
+    end;
+    lblStatus.Caption := sStatusBarExtracted;
+    pbProgress.Position := 0;
+  end;
 end;
 
 procedure TfrmMain.actExtractTimsExecute(Sender: TObject);
@@ -839,6 +941,8 @@ begin
   RemoveGridSelection;
 
   cbbFiles.Enabled := (cbbFiles.Items.Count <> 0);
+  actExtractTimsAll.Enabled := cbbFiles.Enabled;
+
 
   pnlList.Enabled := cbbFiles.Enabled;
   actCloseFile.Enabled := cbbFiles.Enabled;
@@ -852,6 +956,8 @@ begin
   actPngExport.Enabled := (Surf^ <> nil) and actReplaceTim.Enabled;
   actPngImport.Enabled := actReplaceTim.Enabled;
   actExtractTim.Enabled := actReplaceTim.Enabled;
+  actExtractTims.Enabled := actReplaceTim.Enabled;
+  actExtractPngs.Enabled := actReplaceTim.Enabled;
 
   pnlImageOptions.Enabled := actReplaceTim.Enabled;
 end;
