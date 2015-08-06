@@ -27,7 +27,7 @@
       <AutoIncrementBuild Value="True"/>
       <MajorVersionNr Value="1"/>
       <RevisionNr Value="90"/>
-      <BuildNr Value="33"/>
+      <BuildNr Value="54"/>
       <StringTable CompanyName="Lab 313" FileDescription="The best TIMs tool ever!:)" ProductVersion=""/>
     </VersionInfo>
     <BuildModes Count="6">
@@ -37,7 +37,7 @@
           <Version Value="11"/>
           <PathDelim Value="\"/>
           <Target>
-            <Filename Value="output\tim2view_$(TargetOS)"/>
+            <Filename Value="output\tim2view_$(TargetOS)_$(TargetCPU)"/>
           </Target>
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir);lazpaint\bgrabitmap"/>
@@ -77,7 +77,7 @@
           <Version Value="11"/>
           <PathDelim Value="\"/>
           <Target>
-            <Filename Value="output\tim2view_$(TargetOS)"/>
+            <Filename Value="output\tim2view_$(TargetOS)_$(TargetCPU)"/>
           </Target>
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir);lazpaint\bgrabitmap"/>
@@ -117,7 +117,7 @@
           <Version Value="11"/>
           <PathDelim Value="\"/>
           <Target>
-            <Filename Value="output\tim2view_$(TargetOS)"/>
+            <Filename Value="output\tim2view_$(TargetOS)_$(TargetCPU)"/>
           </Target>
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir);lazpaint\bgrabitmap"/>
@@ -157,7 +157,7 @@
           <Version Value="11"/>
           <PathDelim Value="\"/>
           <Target>
-            <Filename Value="output\tim2view_$(TargetOS)"/>
+            <Filename Value="output\tim2view_$(TargetOS)_$(TargetCPU)"/>
           </Target>
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir);lazpaint\bgrabitmap"/>
@@ -197,7 +197,7 @@
           <Version Value="11"/>
           <PathDelim Value="\"/>
           <Target>
-            <Filename Value="output\tim2view_$(TargetOS)"/>
+            <Filename Value="output\tim2view_$(TargetOS)_$(TargetCPU)"/>
           </Target>
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir);lazpaint\bgrabitmap"/>
@@ -316,7 +316,7 @@
     <Version Value="11"/>
     <PathDelim Value="\"/>
     <Target>
-      <Filename Value="output\tim2view_$(TargetOS)"/>
+      <Filename Value="output\tim2view_$(TargetOS)_$(TargetCPU)"/>
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir);lazpaint\bgrabitmap"/>

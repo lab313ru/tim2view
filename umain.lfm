@@ -578,8 +578,8 @@ object frmMain: TfrmMain
       TabOrder = 0
       object lvList: TListView
         Left = 0
-        Height = 384
-        Top = 28
+        Height = 412
+        Top = 0
         Width = 253
         Align = alClient
         Columns = <        
@@ -624,35 +624,6 @@ object frmMain: TfrmMain
         OnData = lvListData
         OnSelectItem = lvListSelectItem
       end
-      object pnlExtractAll: TPanel
-        Left = 0
-        Height = 28
-        Top = 0
-        Width = 253
-        Align = alTop
-        BevelOuter = bvLowered
-        ClientHeight = 28
-        ClientWidth = 253
-        TabOrder = 1
-        object btnExtractAllTims: TButton
-          Left = 152
-          Height = 26
-          Top = 1
-          Width = 100
-          Action = actExtractPngs
-          Align = alRight
-          TabOrder = 0
-        end
-        object btnExtractPNGs: TButton
-          Left = 1
-          Height = 26
-          Top = 1
-          Width = 100
-          Action = actExtractFiles
-          Align = alLeft
-          TabOrder = 1
-        end
-      end
       object tblTimInfo: TStringGrid
         Left = 0
         Height = 185
@@ -667,7 +638,7 @@ object frmMain: TfrmMain
         Flat = True
         Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goSmoothScroll]
         RowCount = 9
-        TabOrder = 2
+        TabOrder = 1
         TitleFont.Color = clWindowText
         TitleFont.Height = -11
         TitleFont.Name = 'Tahoma'
@@ -904,10 +875,10 @@ object frmMain: TfrmMain
     object mnImage: TMenuItem
       Caption = '&Image'
       object mnSaveTIM: TMenuItem
-        Action = actExtractFile
+        Action = actExtractTim
       end
       object mnReplaceIn: TMenuItem
-        Action = actReplaceFile
+        Action = actReplaceTim
       end
       object MenuItem1: TMenuItem
         Caption = '-'
@@ -917,6 +888,15 @@ object frmMain: TfrmMain
       end
       object mnImportPng: TMenuItem
         Action = actPngImport
+      end
+      object N21: TMenuItem
+        Caption = '-'
+      end
+      object mnExtractAllTims3: TMenuItem
+        Action = actExtractTims
+      end
+      object mnExtractAllPngs3: TMenuItem
+        Action = actExtractPngs
       end
     end
     object mnOptions: TMenuItem
@@ -1029,9 +1009,9 @@ object frmMain: TfrmMain
       OnExecute = actExitExecute
       ShortCut = 121
     end
-    object actExtractFile: TAction
-      Caption = '&Extract File...'
-      OnExecute = actExtractFileExecute
+    object actExtractTim: TAction
+      Caption = '&Extract TIM...'
+      OnExecute = actExtractTimExecute
       ShortCut = 113
     end
     object actPngExport: TAction
@@ -1044,9 +1024,9 @@ object frmMain: TfrmMain
       OnExecute = actPngImportExecute
       ShortCut = 116
     end
-    object actReplaceFile: TAction
-      Caption = '&Replace File...'
-      OnExecute = actReplaceFileExecute
+    object actReplaceTim: TAction
+      Caption = '&Replace TIM...'
+      OnExecute = actReplaceTimExecute
       ShortCut = 114
     end
     object actOpenRepo: TAction
@@ -1071,13 +1051,13 @@ object frmMain: TfrmMain
       Caption = '&SendTo Shortcut for Tim2View'
       OnExecute = actAddToSendtoExecute
     end
-    object actExtractFiles: TAction
-      Caption = 'Extract all &Files'
-      OnExecute = actExtractFilesExecute
+    object actExtractTims: TAction
+      Caption = 'Extract all &TIMs (This File)'
+      OnExecute = actExtractTimsExecute
       ShortCut = 8305
     end
     object actExtractPngs: TAction
-      Caption = '&Extract all PNGs'
+      Caption = '&Extract all PNGs (This File)'
       OnExecute = actExtractPngsExecute
       ShortCut = 8307
     end
@@ -1108,20 +1088,26 @@ object frmMain: TfrmMain
   object pmList: TPopupMenu
     left = 432
     top = 112
-    object ExtractTIM1: TMenuItem
-      Action = actExtractFile
+    object mnSaveTIM1: TMenuItem
+      Action = actExtractTim
     end
-    object ReplaceTIM1: TMenuItem
-      Action = actReplaceFile
-    end
-    object SaveasPNG1: TMenuItem
-      Action = actPngExport
+    object mnReplaceIn1: TMenuItem
+      Action = actReplaceTim
     end
     object N7: TMenuItem
       Caption = '-'
     end
+    object mnSaveToPNG1: TMenuItem
+      Action = actPngExport
+    end
+    object mnImportPng1: TMenuItem
+      Action = actPngImport
+    end
+    object N20: TMenuItem
+      Caption = '-'
+    end
     object mnExtractAllTims2: TMenuItem
-      Action = actExtractFiles
+      Action = actExtractTims
     end
     object mnExtractAllPngs2: TMenuItem
       Action = actExtractPngs
@@ -1134,7 +1120,7 @@ object frmMain: TfrmMain
       Action = actPngExport
     end
     object mnSaveAsTim: TMenuItem
-      Action = actExtractFile
+      Action = actExtractTim
     end
     object N5: TMenuItem
       Caption = '-'

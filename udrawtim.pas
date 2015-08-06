@@ -11,7 +11,7 @@ type
   PDrawGrid = ^TDrawGrid;
 
 
-procedure Tim2Png(TIM: PTIM; CLUT_NUM: Integer; Image: PDrawSurf; TranspMode: Byte; ForExport: Boolean);
+procedure Tim2Png(TIM: PTIM; CLUT_NUM: Integer; Image: PDrawSurf; TranspMode: Byte);
 procedure Png2Tim(Image: PDrawSurf; Dest: PTIM);
 procedure DrawClutCell(TIM: PTIM; CLUT_NUM: Integer; Grid: PDrawGrid; X, Y: Integer);
 procedure DrawClut(TIM: PTIM; CLUT_NUM: Integer; Grid: PDrawGrid);
@@ -69,7 +69,7 @@ begin
   end
 end;
 
-procedure PrepareClut(TIM: PTIM; CLUT_NUM: Integer; Pal: PFPPalette; TranspMode: Integer; ForExport: Boolean);
+procedure PrepareClut(TIM: PTIM; CLUT_NUM: Integer; Pal: PFPPalette; TranspMode: Integer);
 var
   I, COUNT: Integer;
   CC: TCLUT_COLOR;
@@ -105,12 +105,9 @@ begin
       A := 0;
     end;
 
-    if ForExport then
-    begin
-      R := R + ((I - 1) and %00000011);
-      G := G + ((I - 1) and %00011100) shr 2;
-      B := B + ((I - 1) and %11100000) shr 5;
-    end;
+    R := R + ((I - 1) and %00000011);
+    G := G + ((I - 1) and %00011100) shr 2;
+    B := B + ((I - 1) and %11100000) shr 5;
 
     FC := BGRAToFPColor(BGRA(R, G, B, A));
     AlphaForMode(@FC, TranspMode);
@@ -182,7 +179,7 @@ begin
       ClearCanvas(@Grid^.Canvas, Grid^.CellRect(X - 1, Y - 1));
 end;
 
-procedure Tim2Png(TIM: PTIM; CLUT_NUM: Integer; Image: PDrawSurf; TranspMode: Byte; ForExport: Boolean);
+procedure Tim2Png(TIM: PTIM; CLUT_NUM: Integer; Image: PDrawSurf; TranspMode: Byte);
 var
   RW, RH, CW: Word;
   INDEXES: PIMAGE_INDEXES;
@@ -202,7 +199,7 @@ begin
 
   PAL := @(Image^.Palette);
 
-  PrepareClut(TIM, CLUT_NUM, PAL, TranspMode, ForExport);
+  PrepareClut(TIM, CLUT_NUM, PAL, TranspMode);
   INDEXES := PrepareIMAGE(TIM);
 
   COLORS := GetTimColorsCount(TIM);

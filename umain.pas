@@ -24,8 +24,8 @@ type
     actCloseFiles: TAction;
     actExit: TAction;
     actExtractPngs: TAction;
-    actExtractFile: TAction;
-    actExtractFiles: TAction;
+    actExtractTim: TAction;
+    actExtractTims: TAction;
     actChangeFile: TAction;
     actChangeBackColor: TAction;
     actShowFileInfo: TAction;
@@ -33,15 +33,13 @@ type
     actStopScan: TAction;
     actOpenLab: TAction;
     actOpenRepo: TAction;
-    actReplaceFile: TAction;
+    actReplaceTim: TAction;
     actReturnFocus: TAction;
     actScanDir: TAction;
     actScanFile: TAction;
     actList: TActionList;
     actStretch: TAction;
     actPngExport: TAction;
-    btnExtractAllTims: TButton;
-    btnExtractPNGs: TButton;
     btnShowClut: TButton;
     btnStopScan: TButton;
     cbbBitMode: TComboBox;
@@ -52,13 +50,18 @@ type
     dlgOpenFile: TOpenDialog;
     dlgSavePNG: TSavePictureDialog;
     dlgSaveFile: TSaveDialog;
-    ExtractTIM1: TMenuItem;
+    mnExtractAllPngs3: TMenuItem;
+    mnExtractAllTims3: TMenuItem;
+    N21: TMenuItem;
+    N20: TMenuItem;
+    mnSaveTIM1: TMenuItem;
     grdClut: TDrawGrid;
     imgTim: TImage;
     lblClutHint: TLabel;
     lblStatus: TLabel;
     lvList: TListView;
     MenuItem1: TMenuItem;
+    mnImportPng1: TMenuItem;
     mnShowTimInfo: TMenuItem;
     mnImportPng: TMenuItem;
     mnChangeBackColor2: TMenuItem;
@@ -94,7 +97,6 @@ type
     dlgOpenPNG: TOpenPictureDialog;
     pnlClut: TPanel;
     pbProgress: TProgressBar;
-    pnlExtractAll: TPanel;
     pnlImage: TPanel;
     pnlImageOptions: TPanel;
     pnlList: TPanel;
@@ -102,8 +104,8 @@ type
     pnlMain: TPanel;
     pmImage: TPopupMenu;
     pmList: TPopupMenu;
-    ReplaceTIM1: TMenuItem;
-    SaveasPNG1: TMenuItem;
+    mnReplaceIn1: TMenuItem;
+    mnSaveToPNG1: TMenuItem;
     dlgSelectDir: TSelectDirectoryDialog;
     splMain: TSplitter;
     tblTimInfo: TStringGrid;
@@ -116,12 +118,12 @@ type
     procedure actCloseFilesExecute(Sender: TObject);
     procedure actExitExecute(Sender: TObject);
     procedure actExtractPngsExecute(Sender: TObject);
-    procedure actExtractFileExecute(Sender: TObject);
-    procedure actExtractFilesExecute(Sender: TObject);
+    procedure actExtractTimExecute(Sender: TObject);
+    procedure actExtractTimsExecute(Sender: TObject);
     procedure actOpenLabExecute(Sender: TObject);
     procedure actOpenRepoExecute(Sender: TObject);
     procedure actPngImportExecute(Sender: TObject);
-    procedure actReplaceFileExecute(Sender: TObject);
+    procedure actReplaceTimExecute(Sender: TObject);
     procedure actReturnFocusExecute(Sender: TObject);
     procedure actScanDirExecute(Sender: TObject);
     procedure actScanFileExecute(Sender: TObject);
@@ -255,7 +257,7 @@ begin
 
   New(Image);
   Image^ := nil;
-  Tim2Png(TIM, cbbCLUT.ItemIndex, Image, cbbTranspMode.ItemIndex, True);
+  Tim2Png(TIM, cbbCLUT.ItemIndex, Image, cbbTranspMode.ItemIndex);
   SaveImage(dlgSavePNG.FileName, Image, TIMisIndexed(TIM));
   FreeTIM(TIM);
   Image^.Free;
@@ -402,7 +404,7 @@ begin
     CreateDirUTF8(Path);
 
     TIM := LoadTimFromFile(FName, OFFSET, IsImage, SIZE);
-    Tim2Png(TIM, cbbCLUT.ItemIndex, Image, cbbTranspMode.ItemIndex, False);
+    Tim2Png(TIM, cbbCLUT.ItemIndex, Image, cbbTranspMode.ItemIndex);
 
     Path := Path + FormatPngName(FName, I - 1, BIT_MODE, 0);
     SaveImage(Path, Image, False);
@@ -420,7 +422,7 @@ begin
   pbProgress.Position := 0;
 end;
 
-procedure TfrmMain.actExtractFileExecute(Sender: TObject);
+procedure TfrmMain.actExtractTimExecute(Sender: TObject);
 var
   TIM: PTIM;
 begin
@@ -435,7 +437,7 @@ begin
   FreeTIM(TIM);
 end;
 
-procedure TfrmMain.actExtractFilesExecute(Sender: TObject);
+procedure TfrmMain.actExtractTimsExecute(Sender: TObject);
 var
   I, OFFSET, BIT_MODE, SIZE, MAGIC: Integer;
   FName, Path: string;
@@ -507,7 +509,7 @@ begin
   Dispose(Image);
 end;
 
-procedure TfrmMain.actReplaceFileExecute(Sender: TObject);
+procedure TfrmMain.actReplaceTimExecute(Sender: TObject);
 var
   ScanRes: TScanResult;
 begin
@@ -845,13 +847,13 @@ begin
   actScanFile.Enabled := ScanThreads.Count = 0;
   actScanDir.Enabled := ScanThreads.Count = 0;
 
-  actReplaceFile.Enabled := (lvList.Selected <> nil) and (lvList.Selected.Index <> -1);
+  actReplaceTim.Enabled := (lvList.Selected <> nil) and (lvList.Selected.Index <> -1);
 
-  actPngExport.Enabled := (Surf^ <> nil) and actReplaceFile.Enabled;
-  actPngImport.Enabled := actReplaceFile.Enabled;
-  actExtractFile.Enabled := actReplaceFile.Enabled;
+  actPngExport.Enabled := (Surf^ <> nil) and actReplaceTim.Enabled;
+  actPngImport.Enabled := actReplaceTim.Enabled;
+  actExtractTim.Enabled := actReplaceTim.Enabled;
 
-  pnlImageOptions.Enabled := actReplaceFile.Enabled;
+  pnlImageOptions.Enabled := actReplaceTim.Enabled;
 end;
 
 procedure TfrmMain.ScanFinished(Sender: TObject);
@@ -941,7 +943,7 @@ begin
   TIM := SelectedTimInMode;
   if TIM = nil then Exit;
 
-  Tim2Png(TIM, cbbCLUT.ItemIndex, Surf, cbbTranspMode.ItemIndex, False);
+  Tim2Png(TIM, cbbCLUT.ItemIndex, Surf, cbbTranspMode.ItemIndex);
   imgTim.Picture.Bitmap.Assign(Surf^.Bitmap);
   FreeTIM(TIM);
 
