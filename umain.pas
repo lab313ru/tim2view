@@ -5,7 +5,7 @@ unit umain;
 interface
 
 uses
-  Classes, SysUtils, FileUtil, Forms, Dialogs, ActnList,
+  Classes, SysUtils, LazUTF8, LazFileUtils, Forms, Dialogs, ActnList,
   Menus, StdCtrls, ExtCtrls, ComCtrls, Grids, ExtDlgs,
 
   uscanresult, uscanthread, usettings, utim, udrawtim, types, Controls;
@@ -52,12 +52,12 @@ type
     dlgOpenFile: TOpenDialog;
     dlgSavePNG: TSavePictureDialog;
     dlgSaveFile: TSaveDialog;
+    mnExport: TMenuItem;
     mnExtractAllTimsAll: TMenuItem;
     mnExtractAllPngsAll: TMenuItem;
     N22: TMenuItem;
     mnExtractAllPngs3: TMenuItem;
     mnExtractAllTims3: TMenuItem;
-    N21: TMenuItem;
     N20: TMenuItem;
     mnSaveTIM1: TMenuItem;
     grdClut: TDrawGrid;
@@ -429,9 +429,9 @@ begin
       Application.ProcessMessages;
     end;
     Dispose(Image);
-    lblStatus.Caption := sStatusBarExtracted;
     pbProgress.Position := 0;
   end;
+  lblStatus.Caption := sStatusBarExtracted;
 end;
 
 procedure TfrmMain.actExtractPngsExecute(Sender: TObject);
@@ -540,9 +540,9 @@ begin
       pbProgress.Position := I;
       Application.ProcessMessages;
     end;
-    lblStatus.Caption := sStatusBarExtracted;
     pbProgress.Position := 0;
   end;
+  lblStatus.Caption := sStatusBarExtracted;
 end;
 
 procedure TfrmMain.actExtractTimsExecute(Sender: TObject);
@@ -622,7 +622,7 @@ var
   ScanRes: TScanResult;
 begin
   if not dlgOpenFile.Execute then Exit;
-  if FileSize(dlgOpenFile.FileName) > cTIMMaxSize then Exit;
+  if FileSizeUtf8(dlgOpenFile.FileName) > cTIMMaxSize then Exit;
 
   ScanRes := SelectedScanResult;
   ReplaceTimInFile(ScanRes.ScanFile, dlgOpenFile.FileName, SelectedTimInfo.Position, ScanRes.IsImage);
@@ -948,7 +948,7 @@ begin
 
   cbbFiles.Enabled := (cbbFiles.Items.Count <> 0);
   actExtractTimsAll.Enabled := cbbFiles.Enabled;
-
+  actExtractPngsAll.Enabled := cbbFiles.Enabled;
 
   pnlList.Enabled := cbbFiles.Enabled;
   actCloseFile.Enabled := cbbFiles.Enabled;

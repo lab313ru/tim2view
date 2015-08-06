@@ -148,7 +148,7 @@ function ConvertCLUTColor(COLOR: TCLUT_COLOR): word;
 implementation
 
 uses
-  ucdimage, classes, sysutils, FileUtil;
+  ucdimage, classes, sysutils, LazUTF8;
 
 function ConvertTIMColor(COLOR: word): TCLUT_COLOR;
 begin

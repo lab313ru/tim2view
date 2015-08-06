@@ -11,7 +11,7 @@ function LoadImage(const FileName: string): PDrawSurf;
 implementation
 
 uses
-  FPReadPNG, Classes, BGRABitmap, FileUtil, sysutils, zstream, FPWritePNG;
+  FPReadPNG, Classes, BGRABitmap, LazUTF8, sysutils, zstream, FPWritePNG;
 
 procedure SaveImage(const FileName: string; Surf: PDrawSurf; Indexed: Boolean);
 var

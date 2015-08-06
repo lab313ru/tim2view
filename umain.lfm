@@ -889,14 +889,14 @@ object frmMain: TfrmMain
       object mnImportPng: TMenuItem
         Action = actPngImport
       end
-      object N21: TMenuItem
-        Caption = '-'
+    end
+    object mnExport: TMenuItem
+      Caption = '&Export'
+      object mnExtractAllPngs3: TMenuItem
+        Action = actExtractPngs
       end
       object mnExtractAllTims3: TMenuItem
         Action = actExtractTims
-      end
-      object mnExtractAllPngs3: TMenuItem
-        Action = actExtractPngs
       end
       object N22: TMenuItem
         Caption = '-'

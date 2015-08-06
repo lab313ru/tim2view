@@ -40,7 +40,7 @@ procedure ReplaceTimInFileFromMemory(const FileName: string; TIM: PTIM;
 implementation
 
 uses
-  ucommon, ecc, edc, classes, FileUtil, sysutils;
+  ucommon, ecc, edc, classes, LazUTF8, LazFileUtils, sysutils;
 
 function bin2bcd(P: Integer): byte;
 begin
@@ -72,7 +72,7 @@ var
   tmp: TFileStream;
 begin
   Result := False;
-  Sz := FileSize(FileName);
+  Sz := FileSizeUTF8(FileName);
 
   if (Sz > cMaxFileSize) or (Sz = 0) then Exit;
 
@@ -210,7 +210,7 @@ var
 begin
   Result := False;
 
-  SIZE := FileSize(TimToInsert);
+  SIZE := FileSizeUTF8(TimToInsert);
   P := 0;
   TIM := LoadTimFromFile(TimToInsert, P, False, SIZE);
   // SaveTimToFile('test.tim', TIM);

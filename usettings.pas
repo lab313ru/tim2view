@@ -51,7 +51,7 @@ type
 
 implementation
 
-uses FileUtil
+uses LazUTF8
 
 {$IFDEF windows}
 ,windows, shlobj {for special folders}, ActiveX, ComObj

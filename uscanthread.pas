@@ -37,7 +37,7 @@ type
 implementation
 
 uses
-  umain, ucdimage, sysutils, FileUtil;
+  umain, ucdimage, sysutils, LazUTF8, LazFileUtils;
 
 const
   cClearBufferSize = ((cTIMMaxSize div cSectorDataSize) + 1) * cSectorDataSize * 2;
@@ -51,7 +51,7 @@ begin
   FreeOnTerminate := True;
   pClearBufferPosition := 0;
   pFilePos := 0;
-  pFileSize := FileSize(FileToScan);
+  pFileSize := FileSizeUTF8(FileToScan);
   pStatusText := '';
   pStopScan := False;
 
