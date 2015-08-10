@@ -1046,7 +1046,7 @@ object frmMain: TfrmMain
       ShortCut = 114
     end
     object actOpenRepo: TAction
-      Caption = 'Tim2Vew &SVN Repo'
+      Caption = 'Tim2View &GitHub'
       OnExecute = actOpenRepoExecute
     end
     object actOpenLab: TAction

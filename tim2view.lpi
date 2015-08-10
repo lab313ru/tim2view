@@ -27,7 +27,7 @@
       <AutoIncrementBuild Value="True"/>
       <MajorVersionNr Value="1"/>
       <RevisionNr Value="90"/>
-      <BuildNr Value="72"/>
+      <BuildNr Value="79"/>
       <StringTable CompanyName="Lab 313" FileDescription="The best TIMs tool ever!:)" ProductVersion=""/>
     </VersionInfo>
     <BuildModes Count="6">
@@ -316,7 +316,7 @@
     <Version Value="11"/>
     <PathDelim Value="\"/>
     <Target>
-      <Filename Value="output\tim2view_$(TargetOS)_$(TargetCPU)"/>
+      <Filename Value="output\tim2view_$(TargetOS)_$(TargetCPU)_d"/>
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir);lazpaint\bgrabitmap"/>
@@ -335,7 +335,6 @@
         <OverflowChecks Value="True"/>
         <StackChecks Value="True"/>
       </Checks>
-      <StackSize Value="16384"/>
     </CodeGeneration>
     <Linking>
       <Debugging>

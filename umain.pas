@@ -590,7 +590,7 @@ end;
 
 procedure TfrmMain.actOpenRepoExecute(Sender: TObject);
 begin
-  OpenUrl('http://tim2view.googlecode.com');
+  OpenUrl('https://github.com/DrMefistO/tim2view/');
 end;
 
 procedure TfrmMain.actPngImportExecute(Sender: TObject);
