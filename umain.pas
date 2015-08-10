@@ -174,9 +174,10 @@ type
     function FGetSelectedTim: PTIM;
     property SelectedTimInMode: PTIM read FGetSelectedTim; //Tim, selected in list
 
+    procedure GetFilesList(const FileList: TStringList; const Directory: string);
+    procedure ScanList(const FileList: TStringList);
     procedure ScanPath(const Path: string);
     procedure ScanFile(const FileName: string);
-    procedure ScanDirectory(const Directory: string);
     procedure CheckButtonsAndMainMenu;
     procedure ScanFinished(Sender: TObject);
     procedure BeforeScan(MaxProgress: Integer);
@@ -217,11 +218,17 @@ uses ucdimage, ucpucount, lcltype, ucommon, LCLIntf, uexportimport,
 procedure TfrmMain.actScanFileExecute(Sender: TObject);
 var
   I: Integer;
+  List: TStringList;
 begin
   if not dlgOpenFile.Execute then Exit;
 
+  List := TStringList.Create;
+
   for I := 1 to dlgOpenFile.Files.Count do
-    ScanPath(dlgOpenFile.Files.Strings[I - 1]);
+    List.Add(dlgOpenFile.Files.Strings[I - 1]);
+
+  ScanList(List);
+  List.Free;
 end;
 
 procedure TfrmMain.actShowFileInfoExecute(Sender: TObject);
@@ -239,11 +246,11 @@ begin
   for I := 1 to ScanThreads.Count do
     ScanThreads[I - 1].StopScan := True;
 
-  ScanThreads.Clear;
-  StartedScans := 0;
-  actStopScan.Tag := NativeInt(True);
+  while (StartedScans > 0) do
+    Application.ProcessMessages;
 
-  ScanFinished(nil);
+  ScanThreads.Clear;
+  actStopScan.Tag := NativeInt(True);
 
   actReturnFocus.Execute;
 end;
@@ -305,15 +312,36 @@ begin
 end;
 
 procedure TfrmMain.actChangeFileExecute(Sender: TObject);
+var
+  I: Integer;
+  W, H: Word;
 begin
   SetTimsListCount(SelectedScanResult.Count);
 
   actReturnFocus.Execute;
   if grdTimsList.RowCount = 1 then Exit;
 
+  if (ScanResults.Count = 0) then Exit;
+
+  grdTimsList.BeginUpdate;
+  for I := 1 to ScanResults.Last.Count do
+  begin
+    W := TimInfoByIdx[I - 1].Width;
+    H := TimInfoByIdx[I - 1].Height;
+
+    grdTimsList.Cells[0, I] := Format('%.6d', [I]);
+    grdTimsList.Cells[1, I] := Format('%.2d', [TimInfoByIdx[I - 1].BitMode]);
+    grdTimsList.Cells[2, I] := Format('%.2d', [TimInfoByIdx[I - 1].Cluts]);
+    grdTimsList.Cells[3, I] := Format('%s', [AnsiUpperCase(TIMTypeStr(TimInfoByIdx[I - 1].Magic))]);
+    grdTimsList.Cells[4, I] := Format('%.3dx%.3d', [W, H]);
+  end;
+  grdTimsList.EndUpdate;
+
   grdTimsList.Row := 1;
   grdTimsListSelection(Self, 0, 1);
   grdTimsList.SetFocus;
+
+  CheckButtonsAndMainMenu;
 end;
 
 procedure TfrmMain.actAboutExecute(Sender: TObject);
@@ -692,10 +720,10 @@ end;
 procedure TfrmMain.FormDropFiles(Sender: TObject;
   const FileNames: array of string);
 var
-  i: Integer;
+  I: Integer;
 begin
-  for i := 1 to Length(FileNames) do
-    ScanPath(FileNames[i - 1]);
+  for I := 1 to Length(FileNames) do
+    ScanPath(FileNames[I - 1]);
 end;
 
 procedure TfrmMain.grdClutDblClick(Sender: TObject);
@@ -906,17 +934,68 @@ begin
     Result^.OverBpp := Integer(cbbBitMode.Tag);
 end;
 
-procedure TfrmMain.ScanPath(const Path: string);
+procedure TfrmMain.GetFilesList(const FileList: TStringList; const Directory: string);
+var
+  sRec: TSearchRec;
+  isFound: boolean;
+  Dir: string;
 begin
-  if Path = '' then Exit;
+  Dir := IncludeTrailingPathDelimiter(Directory);
+  isFound := FindFirst(UTF8ToSys(Dir + '*'), faAnyFile, sRec) = 0;
+  while isFound do
+  begin
+    if (sRec.Name <> '.') and (sRec.Name <> '..') then
+    begin
+      if (sRec.Attr and faDirectory) = faDirectory then
+        GetFilesList(FileList, Dir + SysToUTF8(sRec.Name))
+      else
+        FileList.Add(Dir + SysToUTF8(sRec.Name));
+    end;
+    Application.ProcessMessages;
+    isFound := FindNext(sRec) = 0;
+  end;
+  FindClose(sRec);
+end;
 
+procedure TfrmMain.ScanList(const FileList: TStringList);
+var
+  I: Integer;
+begin
   actStopScan.Enabled := True;
   actStopScan.Tag := NativeInt(False);
 
+  for I := 1 to FileList.Count do
+    ScanFile(FileList[I - 1]);
+
+  while (StartedScans > 0) do
+    Application.ProcessMessages;
+
+  actStopScan.Enabled := False;
+  actStopScan.Tag := NativeInt(True);
+
+  CheckButtonsAndMainMenu;
+
+  if cbbFiles.Enabled then
+  begin
+    cbbFiles.ItemIndex := cbbFiles.Items.Count - 1;
+    actChangeFile.Execute;
+  end;
+end;
+
+procedure TfrmMain.ScanPath(const Path: string);
+var
+  FileList: TStringList;
+begin
+  if Path = '' then Exit;
+
+  FileList := TStringList.Create;
   if FileExistsUTF8(Path) then
-    ScanFile(Path)
+    FileList.Add(Path)
   else
-    ScanDirectory(Path);
+    GetFilesList(FileList, Path);
+
+  ScanList(FileList);
+  FileList.Free;
 end;
 
 procedure TfrmMain.ScanFile(const FileName: string);
@@ -928,9 +1007,6 @@ begin
   begin
     cbbFiles.ItemIndex := cbbFiles.Items.IndexOf(FileName);
     actChangeFile.Execute;
-    actStopScan.Enabled := False;
-    actStopScan.Tag := NativeInt(True);
-    CheckButtonsAndMainMenu;
     Exit;
   end;
 
@@ -946,106 +1022,59 @@ begin
       BeforeScan(ScanThreads.Last.FileLength);
       ScanThreads.Last.Start;
       Inc(StartedScans);
-    end;
+    end
+    else
+      while (StartedScans > 0) do
+        Application.ProcessMessages;
   end;
-end;
-
-procedure TfrmMain.ScanDirectory(const Directory: string);
-var
-  sRec: TSearchRec;
-  isFound: boolean;
-  Dir: string;
-begin
-  Dir := IncludeTrailingPathDelimiter(Directory);
-  isFound := FindFirst(UTF8ToSys(Dir + '*'), faAnyFile, sRec) = 0;
-  while isFound do
-  begin
-    if (sRec.Name <> '.') and (sRec.Name <> '..') then
-    begin
-      if (sRec.Attr and faDirectory) = faDirectory then
-        ScanDirectory(Dir + SysToUTF8(sRec.Name))
-      else
-        ScanFile(Dir + SysToUTF8(sRec.Name));
-    end;
-    Application.ProcessMessages;
-    isFound := FindNext(sRec) = 0;
-  end;
-  FindClose(sRec);
 end;
 
 procedure TfrmMain.CheckButtonsAndMainMenu;
+var
+  Enable: Boolean;
 begin
   RemoveGridSelection;
 
-  cbbFiles.Enabled := (cbbFiles.Items.Count <> 0);
-  actExtractTimsAll.Enabled := cbbFiles.Enabled;
-  actExtractPngsAll.Enabled := cbbFiles.Enabled;
+  Enable := (cbbFiles.Items.Count <> 0);
+  cbbFiles.Enabled := Enable;
+  actExtractTimsAll.Enabled := Enable;
+  actExtractPngsAll.Enabled := Enable;
 
-  pnlList.Enabled := cbbFiles.Enabled;
-  actCloseFile.Enabled := cbbFiles.Enabled;
-  actCloseFiles.Enabled := cbbFiles.Enabled;
+  pnlList.Enabled := Enable;
+  actCloseFile.Enabled := Enable;
+  actCloseFiles.Enabled := Enable;
 
-  actScanFile.Enabled := ScanThreads.Count = 0;
-  actScanDir.Enabled := ScanThreads.Count = 0;
+  Enable := (StartedScans = 0);
+  actScanFile.Enabled := Enable;
+  actScanDir.Enabled := Enable;
 
-  actReplaceTim.Enabled := not (grdTimsList.Row < 1);
+  Enable := not (grdTimsList.Row < 1);
+  actReplaceTim.Enabled := Enable;
 
-  actPngExport.Enabled := (Surf^ <> nil) and actReplaceTim.Enabled;
-  actPngImport.Enabled := actReplaceTim.Enabled;
-  actExtractTim.Enabled := actReplaceTim.Enabled;
-  actExtractTims.Enabled := actReplaceTim.Enabled;
-  actExtractPngs.Enabled := actReplaceTim.Enabled;
+  actPngExport.Enabled := (Surf^ <> nil) and Enable;
+  actPngImport.Enabled := Enable;
+  actExtractTim.Enabled := Enable;
+  actExtractTims.Enabled := Enable;
+  actExtractPngs.Enabled := Enable;
 
-  pnlImageOptions.Enabled := actReplaceTim.Enabled;
+  pnlImageOptions.Enabled := Enable;
 end;
 
 procedure TfrmMain.ScanFinished(Sender: TObject);
 var
   I: Integer;
-  W, H: Word;
 begin
   ScanThreads.Remove(Sender as TScanThread);
   Dec(StartedScans);
 
-  if ScanThreads.Count <> 0 then
-  begin
-    for I := 1 to ScanThreads.Count do
-      if ScanThreads[I - 1].Suspended and (not ScanThreads[I - 1].StopScan) then
-      begin
-        BeforeScan(ScanThreads[I - 1].FileLength);
-        ScanThreads[I - 1].Start;
-        Inc(StartedScans);
-        Exit;
-      end;
-    Exit;
-  end;
-
-  CheckButtonsAndMainMenu;
-
-  if cbbFiles.Enabled then
-  begin
-    cbbFiles.ItemIndex := cbbFiles.Items.Count - 1;
-    actChangeFile.Execute;
-  end;
-
-  if (ScanResults.Count = 0) then Exit;
-
-  grdTimsList.BeginUpdate;
-  for I := 1 to ScanResults.Last.Count do
-  begin
-    W := TimInfoByIdx[I - 1].Width;
-    H := TimInfoByIdx[I - 1].Height;
-
-    grdTimsList.Cells[0, I] := Format('%.6d', [I]);
-    grdTimsList.Cells[1, I] := Format('%.2d', [TimInfoByIdx[I - 1].BitMode]);
-    grdTimsList.Cells[2, I] := Format('%.2d', [TimInfoByIdx[I - 1].Cluts]);
-    grdTimsList.Cells[3, I] := Format('%s', [AnsiUpperCase(TIMTypeStr(TimInfoByIdx[I - 1].Magic))]);
-    grdTimsList.Cells[4, I] := Format('%.3dx%.3d', [W, H]);
-  end;
-  grdTimsList.EndUpdate;
-
-  actStopScan.Enabled := False;
-  actStopScan.Tag := NativeInt(True);
+  for I := 1 to ScanThreads.Count do
+    if ScanThreads[I - 1].Suspended and (not ScanThreads[I - 1].StopScan) then
+    begin
+      BeforeScan(ScanThreads[I - 1].FileLength);
+      ScanThreads[I - 1].Start;
+      Inc(StartedScans);
+      Exit;
+    end;
 end;
 
 procedure TfrmMain.BeforeScan(MaxProgress: Integer);

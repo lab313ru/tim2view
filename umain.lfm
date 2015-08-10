@@ -596,7 +596,7 @@ object frmMain: TfrmMain
         TitleFont.Name = 'Tahoma'
         ColWidths = (
           102
-          133
+          150
         )
         Cells = (
           10
