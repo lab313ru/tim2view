@@ -68,7 +68,7 @@ type
   //Constants
 const
   cCLUTColorsMax = 1024;
-  cCLUTCountMax = 512;
+  cCLUTCountMax = 1024;
   cIMAGEWidthMax = 1024;
   cIMAGEHeightMax = 1024;
   cTIMMaxSize = SizeOf(TTIMHeader) + cCLUTColorsMax * cCLUTCountMax * 2 + SizeOf(TCLUTHeader) + cIMAGEWidthMax * cIMAGEHeightMax * 2 + SizeOf(TIMAGEHeader);

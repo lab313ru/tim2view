@@ -147,11 +147,11 @@ type
     procedure grdClutDblClick(Sender: TObject);
     procedure grdClutDrawCell(Sender: TObject; aCol, aRow: Integer; aRect: TRect; aState: TGridDrawState);
     procedure grdClutKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
-    procedure grdTimsListDrawCell(Sender: TObject; aCol, aRow: Integer;
-      aRect: TRect; aState: TGridDrawState);
+    procedure grdTimsListCompareCells(Sender: TObject; ACol, ARow, BCol,
+      BRow: Integer; var Result: integer);
+    procedure grdTimsListHeaderClick(Sender: TObject; IsColumn: Boolean;
+      Index: Integer);
     procedure grdTimsListSelection(Sender: TObject; aCol, aRow: Integer);
-    procedure lvListData(Sender: TObject; Item: TListItem);
-    procedure lvListSelectItem(Sender: TObject; Item: TListItem; Selected: Boolean);
   private
     { private declarations }
     StartedScans: Integer; //Count of currently started scans
@@ -808,50 +808,75 @@ begin
   UpdateTim(True, True, False);
 end;
 
-procedure TfrmMain.grdTimsListDrawCell(Sender: TObject; aCol, aRow: Integer;
-  aRect: TRect; aState: TGridDrawState);
+procedure TfrmMain.grdTimsListCompareCells(Sender: TObject; ACol, ARow, BCol,
+  BRow: Integer; var Result: integer);
+var
+  AIdx, BIdx: Integer;
+  AW, AH, BW, BH, AP, BP: Integer;
+  AWxH, BWxH: string;
 begin
+  case ACol of
+  0, 1, 2:
+    begin
+      AIdx := StrToIntDef(grdTimsList.Cells[ACol, ARow], 0);
+      BIdx := StrToIntDef(grdTimsList.Cells[BCol, BRow], 0);
 
+      // Result will be either <0, =0, or >0 for normal order.
+      Result := AIdx - BIdx;
+    end;
+  3:
+    begin
+      Result := AnsiCompareStr(grdTimsList.Cells[ACol, ARow], grdTimsList.Cells[BCol, BRow]);
+    end;
+  4:
+    begin
+      AWxH := grdTimsList.Cells[ACol, ARow];
+      BWxH := grdTimsList.Cells[BCol, BRow];
+
+      AP := Pos('x', AWxH);
+      BP := Pos('x', BWxH);
+
+      AW := StrToIntDef(Copy(AWxH, 1, AP - 1), 0);
+      BW := StrToIntDef(Copy(BWxH, 1, BP - 1), 0);
+
+      AH := StrToIntDef(Copy(AWxH, AP + 1, Length(AWxH) - AP), 0);
+      BH := StrToIntDef(Copy(BWxH, BP + 1, Length(BWxH) - BP), 0);
+
+      if (AW = BW) then
+        Result := BH - AH
+      else
+        Result := BW - AW;
+    end;
+  end;
+
+  // For inverse order, just negate the result (eg. based on grid's SortOrder).
+  if grdTimsList.SortOrder = soAscending then
+    Result := -Result;
+end;
+
+procedure TfrmMain.grdTimsListHeaderClick(Sender: TObject; IsColumn: Boolean;
+  Index: Integer);
+begin
+  if (grdTimsList.Row < grdTimsList.VisibleRowCount) then
+    grdTimsList.TopRow := 1
+  else
+    grdTimsList.TopRow := grdTimsList.Row - grdTimsList.VisibleRowCount + 1;
 end;
 
 procedure TfrmMain.grdTimsListSelection(Sender: TObject; aCol, aRow: Integer);
 begin
-  if (aCol < 1) and (aRow < 1) then Exit;
-
+  if (aRow < 1) then Exit;
   ShowTim;
-end;
-
-procedure TfrmMain.lvListData(Sender: TObject; Item: TListItem);
-var
-  W, H: Word;
-begin
-  if cbbFiles.ItemIndex = -1 then Exit;
-
-  W := TimInfoByIdx[Item.Index].Width;
-  H := TimInfoByIdx[Item.Index].Height;
-
-  Item.Caption := Format('%.6d', [Item.Index + 1]);
-  Item.SubItems.Add(Format('%.2d', [TimInfoByIdx[Item.Index].BitMode]));
-  Item.SubItems.Add(Format('%.2d', [TimInfoByIdx[Item.Index].Cluts]));
-  Item.SubItems.Add(Format('%s', [AnsiUpperCase(TIMTypeStr(TimInfoByIdx[Item.Index].Magic))]));
-  Item.SubItems.Add(Format('%.3dx%.3d', [W, H]));
-end;
-
-procedure TfrmMain.lvListSelectItem(Sender: TObject; Item: TListItem;
-  Selected: Boolean);
-begin
-
 end;
 
 function TfrmMain.FGetSelectedScanResult: TScanResult;
 begin
-  if cbbFiles.ItemIndex = -1 then Exit;
   Result := ScanResults[cbbFiles.ItemIndex];
 end;
 
 function TfrmMain.FGetSelectedTimIdx: Integer;
 begin
-  Result := grdTimsList.Row - 1;
+  Result := StrToIntDef(grdTimsList.Cells[0, grdTimsList.Row], 1) - 1;
 end;
 
 function TfrmMain.FGetSelectedTimInfo: TTimInfo;
@@ -869,6 +894,8 @@ var
   P: Integer;
 begin
   Result := nil;
+
+  if (grdTimsList.RowCount = 1) then Exit;
 
   P := SelectedTimInfo.Position;
   Result := LoadTimFromFile(SelectedScanResult.ScanFile, P, SelectedScanResult.IsImage, SelectedTimInfo.Size);
@@ -913,8 +940,6 @@ begin
     ScanThreads.Last.FreeOnTerminate := True;
     ScanThreads.Last.Priority := tpNormal;
     ScanThreads.Last.OnTerminate := @ScanFinished;
-
-    ScanThreads.Pack;
 
     if StartedScans < GetLogicalCpuCount then
     begin
@@ -977,6 +1002,7 @@ end;
 procedure TfrmMain.ScanFinished(Sender: TObject);
 var
   I: Integer;
+  W, H: Word;
 begin
   ScanThreads.Remove(Sender as TScanThread);
   Dec(StartedScans);
@@ -994,8 +1020,6 @@ begin
     Exit;
   end;
 
-  if ScanThreads.Count <> 0 then SetTimsListCount(ScanResults.Last.Count);
-
   CheckButtonsAndMainMenu;
 
   if cbbFiles.Enabled then
@@ -1003,6 +1027,22 @@ begin
     cbbFiles.ItemIndex := cbbFiles.Items.Count - 1;
     actChangeFile.Execute;
   end;
+
+  if (ScanResults.Count = 0) then Exit;
+
+  grdTimsList.BeginUpdate;
+  for I := 1 to ScanResults.Last.Count do
+  begin
+    W := TimInfoByIdx[I - 1].Width;
+    H := TimInfoByIdx[I - 1].Height;
+
+    grdTimsList.Cells[0, I] := Format('%.6d', [I]);
+    grdTimsList.Cells[1, I] := Format('%.2d', [TimInfoByIdx[I - 1].BitMode]);
+    grdTimsList.Cells[2, I] := Format('%.2d', [TimInfoByIdx[I - 1].Cluts]);
+    grdTimsList.Cells[3, I] := Format('%s', [AnsiUpperCase(TIMTypeStr(TimInfoByIdx[I - 1].Magic))]);
+    grdTimsList.Cells[4, I] := Format('%.3dx%.3d', [W, H]);
+  end;
+  grdTimsList.EndUpdate;
 
   actStopScan.Enabled := False;
   actStopScan.Tag := NativeInt(True);
@@ -1037,9 +1077,9 @@ begin
   if TIM = nil then Exit;
 
   CLUTS := GetTIMClutsCount(TIM);
-  cbbCLUT.Items.Clear;
 
   cbbCLUT.Items.BeginUpdate;
+  cbbCLUT.Items.Clear;
   for I := 1 to CLUTS do
     cbbCLUT.Items.Add(Format('CLUT [%.2d/%.2d]', [I, CLUTS]));
   cbbCLUT.Items.EndUpdate;
@@ -1118,7 +1158,7 @@ end;
 
 procedure TfrmMain.ShowTim;
 begin
-  if (grdTimsList.RowCount = 1) then Exit;
+  if (grdTimsList.Row < 1) then Exit;
 
   { TODO : Reset bitmode or not? }
   //cbbBitMode.ItemIndex := 0;

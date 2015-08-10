@@ -596,7 +596,7 @@ object frmMain: TfrmMain
         TitleFont.Name = 'Tahoma'
         ColWidths = (
           102
-          150
+          133
         )
         Cells = (
           10
@@ -638,6 +638,7 @@ object frmMain: TfrmMain
         Top = 0
         Width = 253
         Align = alClient
+        AutoAdvance = aaDown
         AutoEdit = False
         AutoFillColumns = True
         ColumnClickSorts = True
@@ -662,10 +663,10 @@ object frmMain: TfrmMain
             Title.Caption = 'W x H'
             Width = 52
           end>
-        ExtendedSelect = False
         FixedCols = 0
         Flat = True
-        Options = [goFixedVertLine, goDrawFocusSelected, goRowSelect, goSmoothScroll, goHeaderHotTracking, goHeaderPushedLook, goSelectionActive, goTruncCellHints, goRowHighlight]
+        MouseWheelOption = mwGrid
+        Options = [goFixedVertLine, goDrawFocusSelected, goRowSelect, goThumbTracking, goRelaxedRowSelect, goDblClickAutoSize, goHeaderHotTracking, goHeaderPushedLook, goSelectionActive, goTruncCellHints, goRowHighlight]
         PopupMenu = pmList
         RowCount = 1
         TabOrder = 1
@@ -674,7 +675,8 @@ object frmMain: TfrmMain
         TitleFont.Name = 'Tahoma'
         TitleStyle = tsNative
         UseXORFeatures = True
-        OnDrawCell = grdTimsListDrawCell
+        OnCompareCells = grdTimsListCompareCells
+        OnHeaderClick = grdTimsListHeaderClick
         OnSelection = grdTimsListSelection
         ColWidths = (
           50
