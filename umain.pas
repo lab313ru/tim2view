@@ -151,6 +151,7 @@ type
       BRow: Integer; var Result: integer);
     procedure grdTimsListHeaderClick(Sender: TObject; IsColumn: Boolean;
       Index: Integer);
+    procedure grdTimsListResize(Sender: TObject);
     procedure grdTimsListSelection(Sender: TObject; aCol, aRow: Integer);
   private
     { private declarations }
@@ -319,10 +320,8 @@ begin
   actReturnFocus.Execute;
   if grdTimsList.RowCount = 1 then Exit;
 
-  if (ScanResults.Count = 0) then Exit;
-
   grdTimsList.BeginUpdate;
-  for I := 1 to ScanResults.Last.Count do
+  for I := 1 to SelectedScanResult.Count do
   begin
     W := TimInfoByIdx[I - 1].Width;
     H := TimInfoByIdx[I - 1].Height;
@@ -330,8 +329,9 @@ begin
     grdTimsList.Cells[0, I] := Format('%.6d', [I]);
     grdTimsList.Cells[1, I] := Format('%.2d', [TimInfoByIdx[I - 1].BitMode]);
     grdTimsList.Cells[2, I] := Format('%.2d', [TimInfoByIdx[I - 1].Cluts]);
-    grdTimsList.Cells[3, I] := Format('%s', [AnsiUpperCase(TIMTypeStr(TimInfoByIdx[I - 1].Magic))]);
+    grdTimsList.Cells[3, I] := AnsiUpperCase(TIMTypeStr(TimInfoByIdx[I - 1].Magic));
     grdTimsList.Cells[4, I] := Format('%.3dx%.3d', [W, H]);
+    grdTimsList.Cells[5, I] := SelectedScanResult.ScanFile;
   end;
   grdTimsList.EndUpdate;
 
@@ -850,10 +850,6 @@ begin
       // Result will be either <0, =0, or >0 for normal order.
       Result := AIdx - BIdx;
     end;
-  3:
-    begin
-      Result := AnsiCompareStr(grdTimsList.Cells[ACol, ARow], grdTimsList.Cells[BCol, BRow]);
-    end;
   4:
     begin
       AWxH := grdTimsList.Cells[ACol, ARow];
@@ -873,6 +869,10 @@ begin
       else
         Result := BW - AW;
     end;
+  else
+    begin
+      Result := AnsiCompareStr(grdTimsList.Cells[ACol, ARow], grdTimsList.Cells[BCol, BRow]);
+    end;
   end;
 
   // For inverse order, just negate the result (eg. based on grid's SortOrder).
@@ -887,6 +887,16 @@ begin
     grdTimsList.TopRow := 1
   else
     grdTimsList.TopRow := grdTimsList.Row - grdTimsList.VisibleRowCount + 1;
+end;
+
+procedure TfrmMain.grdTimsListResize(Sender: TObject);
+begin
+  grdTimsList.Columns[5].Width := grdTimsList.ClientWidth -
+    grdTimsList.Columns[4].Width -
+    grdTimsList.Columns[3].Width -
+    grdTimsList.Columns[2].Width -
+    grdTimsList.Columns[1].Width -
+    grdTimsList.Columns[0].Width;
 end;
 
 procedure TfrmMain.grdTimsListSelection(Sender: TObject; aCol, aRow: Integer);

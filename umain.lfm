@@ -647,7 +647,7 @@ object frmMain: TfrmMain
             MinSize = 10
             MaxSize = 200
             Title.Caption = '#'
-            Width = 52
+            Width = 60
           end        
           item
             Alignment = taCenter
@@ -655,7 +655,7 @@ object frmMain: TfrmMain
             MaxSize = 200
             Title.Alignment = taCenter
             Title.Caption = 'BPP'
-            Width = 52
+            Width = 40
           end        
           item
             Alignment = taCenter
@@ -663,7 +663,7 @@ object frmMain: TfrmMain
             MaxSize = 200
             Title.Alignment = taCenter
             Title.Caption = 'CLUTs'
-            Width = 52
+            Width = 40
           end        
           item
             Alignment = taCenter
@@ -671,7 +671,7 @@ object frmMain: TfrmMain
             MaxSize = 200
             Title.Alignment = taCenter
             Title.Caption = 'Type'
-            Width = 52
+            Width = 40
           end        
           item
             Alignment = taCenter
@@ -679,19 +679,21 @@ object frmMain: TfrmMain
             MaxSize = 200
             Title.Alignment = taCenter
             Title.Caption = 'W x H'
-            Width = 52
+            Width = 60
           end        
           item
             Title.Alignment = taCenter
             Title.Caption = 'File Name'
-            Width = 54
+            Width = 56
           end>
         FixedCols = 0
         Flat = True
         MouseWheelOption = mwGrid
-        Options = [goFixedVertLine, goDrawFocusSelected, goColSizing, goRowSelect, goThumbTracking, goRelaxedRowSelect, goDblClickAutoSize, goHeaderHotTracking, goHeaderPushedLook, goSelectionActive, goTruncCellHints, goCellEllipsis, goRowHighlight]
+        Options = [goFixedVertLine, goDrawFocusSelected, goColSizing, goRowSelect, goThumbTracking, goRelaxedRowSelect, goDblClickAutoSize, goHeaderHotTracking, goHeaderPushedLook, goSelectionActive, goCellHints, goTruncCellHints, goCellEllipsis, goRowHighlight]
+        ParentShowHint = False
         PopupMenu = pmList
         RowCount = 1
+        ShowHint = True
         TabOrder = 1
         TitleFont.Color = clWindowText
         TitleFont.Height = -11
@@ -700,14 +702,15 @@ object frmMain: TfrmMain
         UseXORFeatures = True
         OnCompareCells = grdTimsListCompareCells
         OnHeaderClick = grdTimsListHeaderClick
+        OnResize = grdTimsListResize
         OnSelection = grdTimsListSelection
         ColWidths = (
-          52
-          52
-          52
-          52
-          52
-          54
+          60
+          40
+          40
+          40
+          60
+          56
         )
       end
     end
