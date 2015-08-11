@@ -241,8 +241,6 @@ procedure TfrmMain.actStopScanExecute(Sender: TObject);
 var
   I: Integer;
 begin
-  if ScanThreads.Count = 0 then Exit;
-
   for I := 1 to ScanThreads.Count do
     ScanThreads[I - 1].StopScan := True;
 

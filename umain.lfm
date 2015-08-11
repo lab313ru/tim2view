@@ -2,7 +2,7 @@ object frmMain: TfrmMain
   Left = 1092
   Height = 668
   Top = 213
-  Width = 790
+  Width = 819
   HorzScrollBar.Page = 780
   HorzScrollBar.Range = 489
   VertScrollBar.Page = 570
@@ -10,7 +10,7 @@ object frmMain: TfrmMain
   ActiveControl = pnlList
   AllowDropFiles = True
   ClientHeight = 648
-  ClientWidth = 790
+  ClientWidth = 819
   Color = clBtnFace
   Font.Color = clWindowText
   Font.Height = -11
@@ -499,11 +499,11 @@ object frmMain: TfrmMain
     Left = 0
     Height = 30
     Top = 618
-    Width = 790
+    Width = 819
     Align = alBottom
     BevelOuter = bvLowered
     ClientHeight = 30
-    ClientWidth = 790
+    ClientWidth = 819
     TabOrder = 2
     object lblStatus: TLabel
       Left = 76
@@ -519,7 +519,7 @@ object frmMain: TfrmMain
       Left = 258
       Height = 28
       Top = 1
-      Width = 531
+      Width = 560
       Align = alRight
       Anchors = [akTop, akLeft, akRight, akBottom]
       Smooth = True
@@ -540,7 +540,7 @@ object frmMain: TfrmMain
     Left = 0
     Height = 21
     Top = 0
-    Width = 790
+    Width = 819
     Align = alTop
     DropDownCount = 30
     Enabled = False
@@ -554,14 +554,14 @@ object frmMain: TfrmMain
     Left = 0
     Height = 597
     Top = 21
-    Width = 790
+    Width = 819
     Align = alClient
     BevelOuter = bvNone
     ClientHeight = 597
-    ClientWidth = 790
+    ClientWidth = 819
     TabOrder = 1
     object splMain: TSplitter
-      Left = 253
+      Left = 317
       Height = 597
       Top = 0
       Width = 5
@@ -570,17 +570,17 @@ object frmMain: TfrmMain
       Left = 0
       Height = 597
       Top = 0
-      Width = 253
+      Width = 317
       Align = alLeft
       BevelOuter = bvNone
       ClientHeight = 597
-      ClientWidth = 253
+      ClientWidth = 317
       TabOrder = 0
       object tblTimInfo: TStringGrid
         Left = 0
         Height = 185
         Top = 412
-        Width = 253
+        Width = 317
         Align = alBottom
         AutoEdit = False
         AutoFillColumns = True
@@ -596,7 +596,7 @@ object frmMain: TfrmMain
         TitleFont.Name = 'Tahoma'
         ColWidths = (
           102
-          150
+          214
         )
         Cells = (
           10
@@ -636,37 +636,60 @@ object frmMain: TfrmMain
         Left = 0
         Height = 412
         Top = 0
-        Width = 253
+        Width = 317
         Align = alClient
         AutoAdvance = aaDown
         AutoEdit = False
-        AutoFillColumns = True
+        ColCount = 6
         ColumnClickSorts = True
         Columns = <        
           item
+            MinSize = 10
+            MaxSize = 200
             Title.Caption = '#'
-            Width = 50
+            Width = 52
           end        
           item
+            Alignment = taCenter
+            MinSize = 10
+            MaxSize = 200
+            Title.Alignment = taCenter
             Title.Caption = 'BPP'
-            Width = 50
+            Width = 52
           end        
           item
+            Alignment = taCenter
+            MinSize = 10
+            MaxSize = 200
+            Title.Alignment = taCenter
             Title.Caption = 'CLUTs'
-            Width = 50
+            Width = 52
           end        
           item
+            Alignment = taCenter
+            MinSize = 10
+            MaxSize = 200
+            Title.Alignment = taCenter
             Title.Caption = 'Type'
-            Width = 50
+            Width = 52
           end        
           item
+            Alignment = taCenter
+            MinSize = 10
+            MaxSize = 200
+            Title.Alignment = taCenter
             Title.Caption = 'W x H'
             Width = 52
+          end        
+          item
+            Title.Alignment = taCenter
+            Title.Caption = 'File Name'
+            Width = 54
           end>
         FixedCols = 0
         Flat = True
         MouseWheelOption = mwGrid
-        Options = [goFixedVertLine, goDrawFocusSelected, goRowSelect, goThumbTracking, goRelaxedRowSelect, goDblClickAutoSize, goHeaderHotTracking, goHeaderPushedLook, goSelectionActive, goTruncCellHints, goRowHighlight]
+        Options = [goFixedVertLine, goDrawFocusSelected, goColSizing, goRowSelect, goThumbTracking, goRelaxedRowSelect, goDblClickAutoSize, goHeaderHotTracking, goHeaderPushedLook, goSelectionActive, goTruncCellHints, goCellEllipsis, goRowHighlight]
         PopupMenu = pmList
         RowCount = 1
         TabOrder = 1
@@ -679,23 +702,24 @@ object frmMain: TfrmMain
         OnHeaderClick = grdTimsListHeaderClick
         OnSelection = grdTimsListSelection
         ColWidths = (
-          50
-          50
-          50
-          50
           52
+          52
+          52
+          52
+          52
+          54
         )
       end
     end
     object pnlImage: TPanel
-      Left = 258
+      Left = 322
       Height = 597
       Top = 0
-      Width = 532
+      Width = 497
       Align = alClient
       BevelOuter = bvLowered
       ClientHeight = 597
-      ClientWidth = 532
+      ClientWidth = 497
       Color = clBtnFace
       ParentColor = False
       TabOrder = 1
@@ -703,17 +727,17 @@ object frmMain: TfrmMain
         Left = 1
         Height = 27
         Top = 569
-        Width = 530
+        Width = 495
         Align = alBottom
         AutoSize = True
         BevelOuter = bvLowered
         ClientHeight = 27
-        ClientWidth = 530
+        ClientWidth = 495
         Color = clBtnFace
         ParentColor = False
         TabOrder = 0
         object btnShowClut: TButton
-          Left = 476
+          Left = 441
           Height = 23
           Top = 2
           Width = 52
@@ -769,7 +793,7 @@ object frmMain: TfrmMain
           Text = 'Black Transparence'
         end
         object cbbCLUT: TComboBox
-          Left = 366
+          Left = 331
           Height = 21
           Top = 2
           Width = 109
@@ -786,11 +810,11 @@ object frmMain: TfrmMain
         Left = 1
         Height = 192
         Top = 377
-        Width = 530
+        Width = 495
         Align = alBottom
         BevelOuter = bvLowered
         ClientHeight = 192
-        ClientWidth = 530
+        ClientWidth = 495
         Color = clBtnFace
         ParentColor = False
         TabOrder = 1
@@ -799,7 +823,7 @@ object frmMain: TfrmMain
           Left = 1
           Height = 138
           Top = 1
-          Width = 528
+          Width = 493
           Align = alClient
           AutoEdit = False
           ColCount = 1
@@ -824,7 +848,7 @@ object frmMain: TfrmMain
           Left = 1
           Height = 52
           Top = 139
-          Width = 528
+          Width = 493
           Align = alBottom
           Alignment = taCenter
           Caption = 'Double-click to change color.'#10'Press "Space" key to invert Transparence bit.'#13#10'H-splitted color = black transparent.'#13#10'V-splitted color = non-black transparent.'
@@ -837,7 +861,7 @@ object frmMain: TfrmMain
         Left = 1
         Height = 376
         Top = 1
-        Width = 530
+        Width = 495
         AntialiasingMode = amOff
         Align = alClient
         Center = True
