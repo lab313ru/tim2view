@@ -77,6 +77,8 @@ begin
   else
     ScanTim.Cluts := 0;
 
+  ScanTim.Colors := GetTimColorsCount(TIM);
+
   ScanTim.Good := TIMIsGood(TIM);
 
   pScanResult.Count := TIM^.dwTimNumber;

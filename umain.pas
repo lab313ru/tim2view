@@ -185,7 +185,7 @@ type
     procedure SetTimsListCount(Count: Integer);
     procedure UpdateCLUTInfo;
     procedure DrawSelTim;
-    procedure DrawSelClut;
+    procedure SetupSelClut;
     procedure SetCLUTListToNoCLUT;
     function FormatFileName(const FileName: string; ListIdx_, BitMode: Integer; Magic: Byte): string;
     function FormatPngName(const FileName: string; ListIdx_, BitMode, Clut: Integer): string;
@@ -284,7 +284,7 @@ end;
 procedure TfrmMain.btnShowClutClick(Sender: TObject);
 begin
   pnlClut.Visible := not pnlClut.Visible;
-  UpdateTim(False, True, False);
+  SetupSelClut;
   actReturnFocus.Execute;
 end;
 
@@ -329,9 +329,9 @@ begin
     grdTimsList.Cells[0, I] := Format('%.6d', [I]);
     grdTimsList.Cells[1, I] := Format('%.2d', [TimInfoByIdx[I - 1].BitMode]);
     grdTimsList.Cells[2, I] := Format('%.2d', [TimInfoByIdx[I - 1].Cluts]);
-    grdTimsList.Cells[3, I] := AnsiUpperCase(TIMTypeStr(TimInfoByIdx[I - 1].Magic));
-    grdTimsList.Cells[4, I] := Format('%.3dx%.3d', [W, H]);
-    grdTimsList.Cells[5, I] := SelectedScanResult.ScanFile;
+    grdTimsList.Cells[3, I] := Format('%.2d', [TimInfoByIdx[I - 1].Colors]);
+    grdTimsList.Cells[4, I] := AnsiUpperCase(TIMTypeStr(TimInfoByIdx[I - 1].Magic));
+    grdTimsList.Cells[5, I] := Format('%.3dx%.3d', [W, H]);
   end;
   grdTimsList.EndUpdate;
 
@@ -842,7 +842,7 @@ var
   AWxH, BWxH: string;
 begin
   case ACol of
-  0, 1, 2:
+  0, 1, 2, 3:
     begin
       AIdx := StrToIntDef(grdTimsList.Cells[ACol, ARow], 0);
       BIdx := StrToIntDef(grdTimsList.Cells[BCol, BRow], 0);
@@ -850,7 +850,7 @@ begin
       // Result will be either <0, =0, or >0 for normal order.
       Result := AIdx - BIdx;
     end;
-  4:
+  5:
     begin
       AWxH := grdTimsList.Cells[ACol, ARow];
       BWxH := grdTimsList.Cells[BCol, BRow];
@@ -1145,13 +1145,13 @@ begin
   imgTim.Stretch := actStretch.Checked;
 end;
 
-procedure TfrmMain.DrawSelClut;
+procedure TfrmMain.SetupSelClut;
 var
   TIM: PTIM;
 begin
   if not pnlClut.Visible then Exit;
 
-  ClearGrid(@grdClut);
+  //ClearGrid(@grdClut);
 
   TIM := SelectedTimInMode;
   if TIM = nil then
@@ -1164,7 +1164,7 @@ begin
   grdClut.Enabled := TIMHasCLUT(TIM);
 
   if TIMHasCLUT(TIM) then
-    DrawCLUT(TIM, cbbCLUT.ItemIndex, @grdClut)
+    SetupCLUT(TIM, cbbCLUT.ItemIndex, @grdClut)
   else
   begin
     grdClut.ColCount := 1;
@@ -1257,7 +1257,7 @@ begin
   if Tim then DrawSelTim;
   if Clut then
   begin
-    DrawSelClut;
+    SetupSelClut;
     grdClut.Repaint;
   end;
 end;

@@ -644,47 +644,37 @@ object frmMain: TfrmMain
         ColumnClickSorts = True
         Columns = <        
           item
-            MinSize = 10
-            MaxSize = 200
             Title.Caption = '#'
             Width = 60
           end        
           item
             Alignment = taCenter
-            MinSize = 10
-            MaxSize = 200
             Title.Alignment = taCenter
             Title.Caption = 'BPP'
             Width = 40
           end        
           item
             Alignment = taCenter
-            MinSize = 10
-            MaxSize = 200
             Title.Alignment = taCenter
             Title.Caption = 'CLUTs'
             Width = 40
           end        
           item
+            Title.Alignment = taCenter
+            Title.Caption = 'Colors'
+            Width = 40
+          end        
+          item
             Alignment = taCenter
-            MinSize = 10
-            MaxSize = 200
             Title.Alignment = taCenter
             Title.Caption = 'Type'
             Width = 40
           end        
           item
             Alignment = taCenter
-            MinSize = 10
-            MaxSize = 200
             Title.Alignment = taCenter
             Title.Caption = 'W x H'
             Width = 60
-          end        
-          item
-            Title.Alignment = taCenter
-            Title.Caption = 'File Name'
-            Width = 56
           end>
         FixedCols = 0
         Flat = True
@@ -709,8 +699,8 @@ object frmMain: TfrmMain
           40
           40
           40
+          40
           60
-          56
         )
       end
     end
@@ -843,6 +833,7 @@ object frmMain: TfrmMain
           TitleFont.Color = clWindowText
           TitleFont.Height = -11
           TitleFont.Name = 'Tahoma'
+          UseXORFeatures = True
           OnDblClick = grdClutDblClick
           OnDrawCell = grdClutDrawCell
           OnKeyUp = grdClutKeyUp

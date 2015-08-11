@@ -14,7 +14,7 @@ type
 procedure Tim2Png(TIM: PTIM; CLUT_NUM: Integer; Image: PDrawSurf; TranspMode: Byte);
 procedure Png2Tim(Image: PDrawSurf; Dest: PTIM);
 procedure DrawClutCell(TIM: PTIM; CLUT_NUM: Integer; Grid: PDrawGrid; X, Y: Integer);
-procedure DrawClut(TIM: PTIM; CLUT_NUM: Integer; Grid: PDrawGrid);
+procedure SetupCLUT(TIM: PTIM; CLUT_NUM: Integer; Grid: PDrawGrid);
 procedure ClearCanvas(ACanvas: PCanvas; Rect: TRect);
 procedure ClearGrid(Grid: PDrawGrid);
 
@@ -365,7 +365,7 @@ begin
   Dispose(CLUT_COLOR);
 end;
 
-procedure DrawCLUT(TIM: PTIM; CLUT_NUM: Integer; Grid: PDrawGrid);
+procedure SetupCLUT(TIM: PTIM; CLUT_NUM: Integer; Grid: PDrawGrid);
 var
   X, Y, ROWS, COLS, COLORS: Integer;
 begin
@@ -375,17 +375,6 @@ begin
   ROWS := Ceil(COLORS / COLS);
 
   Grid^.RowCount := ROWS;
-
-  (*
-  //Grid^.BeginUpdate;
-  for Y := 1 to ROWS do
-    for X := 1 to COLS do
-    begin
-      //ClearCanvas(@Grid^.Canvas, Grid^.CellRect(X - 1, Y - 1));
-      DrawClutCell(TIM, CLUT_NUM, Grid, X - 1, Y - 1);
-    end;
-  //Grid^.EndUpdate(true);   *)
-  //Grid^.Repaint;
 end;
 
 end.

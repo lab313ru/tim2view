@@ -13,6 +13,7 @@ type
     Height: Integer;
     BitMode: Byte;
     Cluts: Integer;
+    Colors: Integer;
     Good: Boolean;
   end;
 
