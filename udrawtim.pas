@@ -14,7 +14,7 @@ type
 procedure Tim2Png(TIM: PTIM; CLUT_NUM: Integer; Image: PDrawSurf; TranspMode: Byte);
 procedure Png2Tim(Image: PDrawSurf; Dest: PTIM);
 procedure DrawClutCell(TIM: PTIM; CLUT_NUM: Integer; Grid: PDrawGrid; X, Y: Integer);
-procedure SetupCLUT(TIM: PTIM; CLUT_NUM: Integer; Grid: PDrawGrid);
+procedure SetupCLUT(TIM: PTIM; Grid: PDrawGrid);
 procedure ClearCanvas(ACanvas: PCanvas; Rect: TRect);
 procedure ClearGrid(Grid: PDrawGrid);
 
@@ -365,9 +365,9 @@ begin
   Dispose(CLUT_COLOR);
 end;
 
-procedure SetupCLUT(TIM: PTIM; CLUT_NUM: Integer; Grid: PDrawGrid);
+procedure SetupCLUT(TIM: PTIM; Grid: PDrawGrid);
 var
-  X, Y, ROWS, COLS, COLORS: Integer;
+  ROWS, COLS, COLORS: Integer;
 begin
   COLORS := GetTimColorsCount(TIM);
   COLS := Min(COLORS, 32);

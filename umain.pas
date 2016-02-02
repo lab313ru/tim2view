@@ -1164,7 +1164,7 @@ begin
   grdClut.Enabled := TIMHasCLUT(TIM);
 
   if TIMHasCLUT(TIM) then
-    SetupCLUT(TIM, cbbCLUT.ItemIndex, @grdClut)
+    SetupCLUT(TIM, @grdClut)
   else
   begin
     grdClut.ColCount := 1;
