@@ -3,7 +3,7 @@ unit ucommon;
 interface
 
 const
-  cProgramName = 'Tim2View r90 by [Lab 313]';
+  cProgramName = 'Tim2View r91 by [Lab 313]';
   cExtractedFilesDir = 'FILES';
   cExtractedPngsDir = 'PNGS';
   cMaxFileSize = $2EAEED80;

@@ -10,7 +10,7 @@
         <SaveJumpHistory Value="False"/>
         <SaveFoldState Value="False"/>
       </Flags>
-      <SessionStorage Value="InProjectDir"/>
+      <SessionStorage Value="None"/>
       <MainUnit Value="0"/>
       <Title Value="tim2view"/>
       <UseXPManifest Value="True"/>
@@ -26,8 +26,8 @@
       <UseVersionInfo Value="True"/>
       <AutoIncrementBuild Value="True"/>
       <MajorVersionNr Value="1"/>
-      <RevisionNr Value="90"/>
-      <BuildNr Value="85"/>
+      <RevisionNr Value="91"/>
+      <BuildNr Value="89"/>
       <StringTable CompanyName="Lab 313" FileDescription="The best TIMs tool ever!:)" ProductVersion=""/>
     </VersionInfo>
     <BuildModes Count="6">
