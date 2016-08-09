@@ -278,7 +278,7 @@ begin
   FreeTIM(TIM);
   Image^.Free;
   Dispose(Image);
-  {$IFDEF Linux}FpChmod(dlgSavePNG.FileName, &777);{$IFEND}
+  {$IFDEF Linux}FpChmod(dlgSavePNG.FileName, &664);{$IFEND}
 end;
 
 procedure TfrmMain.btnShowClutClick(Sender: TObject);
@@ -442,7 +442,7 @@ begin
 
       Path := Path + FormatPngName(FName, I - 1, BIT_MODE, 0);
       SaveImage(Path, Image, TIMisIndexed(TIM));
-      {$IFDEF Linux}FpChmod(Path, &777);{$IFEND}
+      {$IFDEF Linux}FpChmod(Path, &664);{$IFEND}
       Image^.Free;
       Image^ := nil;
 
@@ -493,7 +493,7 @@ begin
 
     Path := Path + FormatPngName(FName, I - 1, BIT_MODE, 0);
     SaveImage(Path, Image, TIMisIndexed(TIM));
-    {$IFDEF Linux}FpChmod(Path, &777);{$IFEND}
+    {$IFDEF Linux}FpChmod(Path, &664);{$IFEND}
     Image^.Free;
     Image^ := nil;
 
@@ -518,7 +518,7 @@ begin
 
   TIM := SelectedTimInMode;
   SaveTimToFile(dlgSaveFile.FileName, TIM);
-  {$IFDEF Linux}FpChmod(dlgSaveFile.FileName, &777);{$IFEND}
+  {$IFDEF Linux}FpChmod(dlgSaveFile.FileName, &664);{$IFEND}
   FreeTIM(TIM);
 end;
 
@@ -557,7 +557,7 @@ begin
       TIM := LoadTimFromFile(FName, OFFSET, IsImage, SIZE);
       Path := Path + FormatFileName(FName, I - 1, BIT_MODE, MAGIC);
       SaveTimToFile(Path, TIM);
-      {$IFDEF Linux}FpChmod(Path, &777);{$IFEND}
+      {$IFDEF Linux}FpChmod(Path, &664);{$IFEND}
       FreeTIM(TIM);
 
       pbProgress.Position := I;
@@ -599,7 +599,7 @@ begin
     TIM := LoadTimFromFile(FName, OFFSET, IsImage, SIZE);
     Path := Path + FormatFileName(FName, I - 1, BIT_MODE, MAGIC);
     SaveTimToFile(Path, TIM);
-    {$IFDEF Linux}FpChmod(Path, &777);{$IFEND}
+    {$IFDEF Linux}FpChmod(Path, &664);{$IFEND}
     FreeTIM(TIM);
 
     pbProgress.Position := I;
